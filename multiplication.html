@@ -44,26 +44,18 @@
             <h2 class="mb-3">Quiz</h2>
             <div id="questions" class="mb-3"></div>
             <div class="timer mb-3" id="timer">Time Left: 60s</div>
-            <button id="submit" class="btn btn-success w-100" onclick="submitQuiz()">Submit</button>
+            <button id="submit" class="btn btn-success w-100" onclick="submitQuiz(false)">Submit</button>
         </div>
 
         <!-- Result Section -->
-        <div id="result" class="card p-4 shadow-sm hidden">
+        <div id="result" class="card p-4 shadow-sm mb-4 hidden">
             <h2>Quiz Results</h2>
         </div>
-    </div>
 
-    <!-- Toast Notification -->
-    <div class="toast-container position-fixed bottom-0 end-0 p-3">
-        <div id="timeoutToast" class="toast align-items-center text-bg-danger border-0" role="alert"
-            aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">
-                    Time is up! You cannot submit the quiz anymore.
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                    aria-label="Close"></button>
-            </div>
+        <!-- History Section -->
+        <div id="history" class="card p-4 shadow-sm">
+            <h2>Latest Results</h2>
+            <ul id="historyList" class="list-group"></ul>
         </div>
     </div>
 
@@ -75,21 +67,48 @@
         const questionsDiv = document.getElementById('questions');
         const timerElement = document.getElementById('timer');
         const resultDiv = document.getElementById('result');
-        const submitButton = document.getElementById('submit');
-        const timeoutToast = new bootstrap.Toast(document.getElementById('timeoutToast'));
+        const historyList = document.getElementById('historyList');
 
-        let timeLeft;
         let totalQuestions;
         let questions = [];
         let timerInterval;
-        let isTimeUp = false;
+        let timeLeft;
+        let timerDuration;
+
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem('multiplicationHistory')) || [];
+            historyList.innerHTML = history.map(
+                (entry, index) =>
+                    `<li class="list-group-item">${index + 1}. 
+          Score: ${entry.score}/${entry.totalQuestions}, 
+          Timer: ${entry.timerDuration}s, 
+          Time Left: ${entry.timeLeft}s, 
+          Submitted: ${entry.submittedAutomatically ? "Automatically (Timer Ended)" : "Manually"}, 
+          Date: ${entry.date}</li>`
+            ).join('');
+        }
+
+        function saveToHistory(score, totalQuestions, submittedAutomatically, timeLeft) {
+            const history = JSON.parse(localStorage.getItem('multiplicationHistory')) || [];
+            const newEntry = {
+                score,
+                totalQuestions,
+                timerDuration,
+                timeLeft,
+                submittedAutomatically,
+                date: new Date().toLocaleString()
+            };
+            history.unshift(newEntry); // Add new entry at the beginning
+            if (history.length > 5) history.pop(); // Keep only the latest 5 entries
+            localStorage.setItem('multiplicationHistory', JSON.stringify(history));
+        }
 
         function generateQuestions() {
             questions = [];
             for (let i = 0; i < totalQuestions; i++) {
                 const num1 = Math.floor(Math.random() * 10) + 1;
                 const num2 = Math.floor(Math.random() * 10) + 1;
-                questions.push({ num1, num2 });
+                questions.push({ equation: `${num1} x ${num2}`, answer: num1 * num2 });
             }
         }
 
@@ -99,15 +118,14 @@
                 const questionElement = document.createElement('div');
                 questionElement.classList.add('mb-3');
                 questionElement.innerHTML = `
-          <label for="q${index}" class="form-label">${q.num1} x ${q.num2} = </label>
-          <input type="number" id="q${index}" class="form-control" data-answer="${q.num1 * q.num2}">
+          <label for="q${index}" class="form-label">${q.equation}</label>
+          <input type="number" id="q${index}" class="form-control" data-answer="${q.answer}">
         `;
                 questionsDiv.appendChild(questionElement);
             });
         }
 
         function startTimer() {
-            isTimeUp = false;
             timerElement.textContent = `Time Left: ${timeLeft}s`;
             timerInterval = setInterval(() => {
                 timeLeft--;
@@ -115,8 +133,7 @@
 
                 if (timeLeft <= 0) {
                     clearInterval(timerInterval);
-                    isTimeUp = true;
-                    timeoutToast.show();
+                    submitQuiz(true); // Automatically submit when timer ends
                 }
             }, 1000);
         }
@@ -124,6 +141,7 @@
         function startQuiz() {
             totalQuestions = parseInt(document.getElementById('numQuestions').value, 10);
             timeLeft = parseInt(document.getElementById('timerDuration').value, 10);
+            timerDuration = timeLeft;
 
             if (totalQuestions < 1 || timeLeft < 10) {
                 alert('Please enter valid values for the number of questions and timer duration.');
@@ -139,12 +157,7 @@
             startTimer();
         }
 
-        function submitQuiz() {
-            if (isTimeUp) {
-                timeoutToast.show();
-                return;
-            }
-
+        function submitQuiz(submittedAutomatically) {
             clearInterval(timerInterval);
 
             const inputs = document.querySelectorAll('#questions input');
@@ -159,7 +172,7 @@
                     score++;
                 } else {
                     feedback.push(
-                        `<p class="wrong-answer">Q${index + 1}: ${questions[index].num1} x ${questions[index].num2} = ${correctAnswer} (Your answer: ${userAnswer || "No answer"})</p>`
+                        `<p class="wrong-answer">Q${index + 1}: ${questions[index].equation} (Your answer: ${userAnswer || "No answer"}, Correct: ${correctAnswer})</p>`
                     );
                 }
             });
@@ -170,7 +183,17 @@
         <h2>Your Score: ${score}/${totalQuestions}</h2>
         ${feedback.length > 0 ? `<h3 class="mt-3">Incorrect Answers:</h3>${feedback.join('')}` : '<p class="text-success mt-3">Great job! All answers are correct.</p>'}
       `;
+
+            saveToHistory(score, totalQuestions, submittedAutomatically, timeLeft);
+            loadHistory();
+
+            if (submittedAutomatically) {
+                alert('Time is up! Your quiz has been submitted automatically.');
+            }
         }
+
+        // Load history on page load
+        loadHistory();
     </script>
 </body>
 
