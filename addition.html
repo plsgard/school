@@ -16,6 +16,70 @@
         .wrong-answer {
             color: red;
         }
+
+        /* Celebration Animation */
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-size: 2rem;
+            font-weight: bold;
+            animation: fadeIn 1s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            /* Full viewport width */
+            height: 100vh;
+            /* Full viewport height */
+            pointer-events: none;
+            /* Allow interaction with elements behind confetti */
+            z-index: 9999;
+            /* Ensure it's on top */
+        }
+
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: random;
+            opacity: 0.9;
+            border-radius: 50%;
+            animation: fall 3s linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(0) translateX(0);
+                /* Start at top */
+            }
+
+            100% {
+                transform: translateY(100vh) translateX(calc(50vw - 50%));
+                /* End at bottom */
+            }
+        }
     </style>
 </head>
 
@@ -44,7 +108,7 @@
         </div>
 
         <!-- Quiz Section -->
-        <div id="quiz" class="card p-4 shadow-sm mb-4 hidden">
+        <div id="quiz" class="card p-4 shadow-sm mb-4 visually-hidden">
             <h2 class="mb-3">Quiz</h2>
             <div id="questions" class="mb-3"></div>
             <div class="timer mb-3" id="timer">Time Left: 60s</div>
@@ -52,7 +116,7 @@
         </div>
 
         <!-- Result Section -->
-        <div id="result" class="card p-4 shadow-sm mb-4 hidden">
+        <div id="result" class="card p-4 shadow-sm mb-4 visually-hidden">
             <h2>Quiz Results</h2>
         </div>
 
@@ -61,6 +125,12 @@
             <h2>Latest Results</h2>
             <ul id="historyList" class="list-group"></ul>
         </div>
+
+        <!-- Celebration Container -->
+        <div id="celebration" class="celebration visually-hidden">
+            🎉 Congratulations! You got everything correct! 🎉
+        </div>
+        <div class="confetti" id="confetti"></div>
     </div>
 
     <!-- Bootstrap JS Bundle -->
@@ -108,11 +178,52 @@
             localStorage.setItem('additionHistory', JSON.stringify(history));
         }
 
+        // Confetti Generator
+        function generateConfetti() {
+            const confettiContainer = document.getElementById('confetti');
+            confettiContainer.innerHTML = ''; // Clear any previous confetti
+
+            for (let i = 0; i < 100; i++) {
+                const confettiPiece = document.createElement('div');
+                confettiPiece.classList.add('confetti-piece');
+
+                // Randomize the starting position, size, and fall speed
+                const startX = Math.random() * 100;  // Random starting position (percent of screen width)
+                const startY = Math.random() * 50;   // Random starting height (top half of screen)
+                const size = 5 + Math.random() * 10; // Random size for variety
+                const duration = 3 + Math.random() * 3;  // Duration between 3 and 6 seconds
+                const delay = Math.random() * 2;    // Random delay (0-2 seconds)
+
+                confettiPiece.style.left = `${startX}vw`; // Random horizontal start position
+                confettiPiece.style.top = `${startY}vh`;  // Random vertical start position
+                confettiPiece.style.width = `${size}px`;  // Random width
+                confettiPiece.style.height = `${size}px`; // Random height
+                confettiPiece.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`; // Random color
+
+                // Apply animation for falling and spinning
+                confettiPiece.style.animation = `fall ${duration}s linear ${delay}s infinite`;
+
+                confettiContainer.appendChild(confettiPiece);
+            }
+        }
+
+        function startCelebration() {
+            const celebrationDiv = document.getElementById('celebration');
+            const confettiContainer = document.getElementById('confetti');
+            celebrationDiv.classList.remove('visually-hidden');
+            generateConfetti();
+
+            setTimeout(() => {
+                celebrationDiv.classList.add('visually-hidden');
+                confettiContainer.innerHTML = ''; // Clear confetti after celebration
+            }, 5000);
+        }
+
         function generateQuestions() {
             questions = [];
             for (let i = 0; i < totalQuestions; i++) {
                 const knownNumber = Math.floor(Math.random() * complementNumber);
-                const equation = `${knownNumber} + x = ${complementNumber}`;
+                const equation = `${knownNumber} + ... = ${complementNumber}`;
                 const answer = complementNumber - knownNumber;
                 questions.push({ equation, answer });
             }
@@ -155,9 +266,9 @@
                 return;
             }
 
-            settingsDiv.classList.add('hidden');
-            quizDiv.classList.remove('hidden');
-            resultDiv.classList.add('hidden');
+            settingsDiv.classList.add('visually-hidden');
+            quizDiv.classList.remove('visually-hidden');
+            resultDiv.classList.add('visually-hidden');
 
             generateQuestions();
             renderQuiz();
@@ -184,12 +295,17 @@
                 }
             });
 
-            quizDiv.classList.add('hidden');
-            resultDiv.classList.remove('hidden');
+            quizDiv.classList.add('visually-hidden');
+            resultDiv.classList.remove('visually-hidden');
             resultDiv.innerHTML = `
         <h2>Your Score: ${score}/${totalQuestions}</h2>
         ${feedback.length > 0 ? `<h3 class="mt-3">Incorrect Answers:</h3>${feedback.join('')}` : '<p class="text-success mt-3">Great job! All answers are correct.</p>'}
       `;
+
+            // Trigger Celebration Animation
+            if (score === totalQuestions) {
+                startCelebration();
+            }
 
             saveToHistory(score, totalQuestions, submittedAutomatically, timeLeft);
             loadHistory();
