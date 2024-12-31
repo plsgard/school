@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplication Table Quiz</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .timer {
+            font-size: 1.5rem;
+            color: red;
+        }
+
+        .wrong-answer {
+            color: red;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="container my-5">
+        <div class="text-center">
+            <h1 class="mb-4">Multiplication Table Quiz</h1>
+        </div>
+
+        <!-- Settings Section -->
+        <div id="settings" class="card p-4 shadow-sm mb-4">
+            <h2 class="mb-3">Quiz Settings</h2>
+            <div class="mb-3">
+                <label for="numQuestions" class="form-label">Number of Questions:</label>
+                <input type="number" id="numQuestions" class="form-control" min="1" value="20">
+            </div>
+            <div class="mb-3">
+                <label for="timerDuration" class="form-label">Timer (seconds):</label>
+                <input type="number" id="timerDuration" class="form-control" min="10" value="60">
+            </div>
+            <button class="btn btn-primary w-100" onclick="startQuiz()">Start Quiz</button>
+        </div>
+
+        <!-- Quiz Section -->
+        <div id="quiz" class="card p-4 shadow-sm mb-4 hidden">
+            <h2 class="mb-3">Quiz</h2>
+            <div id="questions" class="mb-3"></div>
+            <div class="timer mb-3" id="timer">Time Left: 60s</div>
+            <button id="submit" class="btn btn-success w-100" onclick="submitQuiz()">Submit</button>
+        </div>
+
+        <!-- Result Section -->
+        <div id="result" class="card p-4 shadow-sm hidden">
+            <h2>Quiz Results</h2>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="timeoutToast" class="toast align-items-center text-bg-danger border-0" role="alert"
+            aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    Time is up! You cannot submit the quiz anymore.
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const settingsDiv = document.getElementById('settings');
+        const quizDiv = document.getElementById('quiz');
+        const questionsDiv = document.getElementById('questions');
+        const timerElement = document.getElementById('timer');
+        const resultDiv = document.getElementById('result');
+        const submitButton = document.getElementById('submit');
+        const timeoutToast = new bootstrap.Toast(document.getElementById('timeoutToast'));
+
+        let timeLeft;
+        let totalQuestions;
+        let questions = [];
+        let timerInterval;
+        let isTimeUp = false;
+
+        function generateQuestions() {
+            questions = [];
+            for (let i = 0; i < totalQuestions; i++) {
+                const num1 = Math.floor(Math.random() * 10) + 1;
+                const num2 = Math.floor(Math.random() * 10) + 1;
+                questions.push({ num1, num2 });
+            }
+        }
+
+        function renderQuiz() {
+            questionsDiv.innerHTML = ''; // Clear previous questions
+            questions.forEach((q, index) => {
+                const questionElement = document.createElement('div');
+                questionElement.classList.add('mb-3');
+                questionElement.innerHTML = `
+          <label for="q${index}" class="form-label">${q.num1} x ${q.num2} = </label>
+          <input type="number" id="q${index}" class="form-control" data-answer="${q.num1 * q.num2}">
+        `;
+                questionsDiv.appendChild(questionElement);
+            });
+        }
+
+        function startTimer() {
+            isTimeUp = false;
+            timerElement.textContent = `Time Left: ${timeLeft}s`;
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerElement.textContent = `Time Left: ${timeLeft}s`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    isTimeUp = true;
+                    timeoutToast.show();
+                }
+            }, 1000);
+        }
+
+        function startQuiz() {
+            totalQuestions = parseInt(document.getElementById('numQuestions').value, 10);
+            timeLeft = parseInt(document.getElementById('timerDuration').value, 10);
+
+            if (totalQuestions < 1 || timeLeft < 10) {
+                alert('Please enter valid values for the number of questions and timer duration.');
+                return;
+            }
+
+            settingsDiv.classList.add('hidden');
+            quizDiv.classList.remove('hidden');
+            resultDiv.classList.add('hidden');
+
+            generateQuestions();
+            renderQuiz();
+            startTimer();
+        }
+
+        function submitQuiz() {
+            if (isTimeUp) {
+                timeoutToast.show();
+                return;
+            }
+
+            clearInterval(timerInterval);
+
+            const inputs = document.querySelectorAll('#questions input');
+            let score = 0;
+            const feedback = [];
+
+            inputs.forEach((input, index) => {
+                const correctAnswer = parseInt(input.dataset.answer, 10);
+                const userAnswer = parseInt(input.value, 10);
+
+                if (userAnswer === correctAnswer) {
+                    score++;
+                } else {
+                    feedback.push(
+                        `<p class="wrong-answer">Q${index + 1}: ${questions[index].num1} x ${questions[index].num2} = ${correctAnswer} (Your answer: ${userAnswer || "No answer"})</p>`
+                    );
+                }
+            });
+
+            quizDiv.classList.add('hidden');
+            resultDiv.classList.remove('hidden');
+            resultDiv.innerHTML = `
+        <h2>Your Score: ${score}/${totalQuestions}</h2>
+        ${feedback.length > 0 ? `<h3 class="mt-3">Incorrect Answers:</h3>${feedback.join('')}` : '<p class="text-success mt-3">Great job! All answers are correct.</p>'}
+      `;
+        }
+    </script>
+</body>
+
+</html>
