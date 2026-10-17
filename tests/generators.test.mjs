@@ -452,3 +452,77 @@ describe('generate', () => {
     });
 });
 
+
+describe('generate sound-final / syll-initial', () => {
+    const as = (cardId, skill) => { const c = find(cardId); return { ...c, id: `${c.deckId}/${c.item.id}#${skill}`, skill }; };
+    const words = cards.filter(c => c.kind === 'words');
+
+    test('generate_SoundFinal_PromptStretchesTheVowelAndStageShowsTheEnd', () => {
+        const ex = generate(as('mots-p1/moto#syll-count', 'sound-final'), { cards, rng });
+        assert.equal(ex.prompt.key, 'ui.sound-final.o');
+        assert.equal(ex.prompt.text, 'Quel mot finit par ooo ?');
+        assert.equal(ex.stage.text, '…ooo');
+        assertChoiceSet(ex, 3);
+        const target = words.find(c => c.item.id === ex.choices.find(x => x.correct).id).item;
+        assert.equal(target.final, 'o');
+        assert.equal(ex.success.text, `Oui ! ${target.text[0].toUpperCase()}${target.text.slice(1)} finit par ooo !`);
+    });
+    test('generate_SoundFinal_OcclusiveSaidWithSchwaShownInGuillemets', () => {
+        // needs a word with an occlusive final: after Task 9 use mots-gs/tomate; here inject one
+        const tomate = { id: 'tomate', text: 'tomate', emoji: '🍅', syll: ['to', 'mate'], initial: 't', rhyme: 'ate', final: 't' };
+        const c = { id: 'mots-p1/tomate#sound-final', deckId: 'mots-p1', kind: 'words', skill: 'sound-final', item: tomate };
+        const ex = generate(c, { cards: [...cards, { ...c, skill: 'syll-count' }], rng });
+        assert.equal(ex.prompt.text, 'Quel mot finit par le son teu ?');
+        assert.equal(ex.prompt.display, 'Quel mot finit par le son « t » ?');
+    });
+    test('generate_SoundFinal_DistractorsNeverShareTheFinal', () => {
+        for (const r of RNGS) for (const c of words.filter(w => w.item.final && w.skill === 'syll-count')) {
+            const ex = generate({ ...c, skill: 'sound-final' }, { cards, rng: () => r });
+            for (const ch of ex.choices.filter(x => !x.correct)) assert.notEqual(words.find(w => w.item.id === ch.id).item.final, c.item.final, `${c.item.id} ${ch.id}`);
+        }
+    });
+    test('generate_SoundFinal_TrapStartsWithTheAskedSoundWhenOneExists', () => {
+        const ex = generate(as('mots-p1/voiture#syll-count', 'sound-final'), { cards, rng });
+        assert.ok(ex.choices.some(ch => !ch.correct && words.find(w => w.item.id === ch.id).item.initial === 'r'), ex.choices.map(c => c.id).join());
+    });
+    test('generate_SoundFinal_EAcuteHasAnAsciiKey', () => {
+        const ex = generate(as('mots-p1/fusee#syll-count', 'sound-final'), { cards, rng });
+        assert.equal(ex.prompt.key, 'ui.sound-final.eacute');
+        assert.equal(ex.prompt.text, 'Quel mot finit par ééé ?');
+    });
+    test('generate_SyllInitial_SelectWithThreeSyllableTilesFirstIsCorrect', () => {
+        const ex = generate(as('mots-p1/lapin#syll-count', 'syll-initial'), { cards, rng });
+        assert.equal(ex.layout, 'select');
+        assertChoiceSet(ex, 3);
+        const ok = ex.choices.find(c => c.correct);
+        assert.equal(ok.label, 'la');
+        assert.equal(ok.say.key, 'syl.lapin.1');
+        assert.ok(ex.choices.some(c => c.say.key === 'syl.lapin.2'), 'own last syllable as a trap');
+        assert.equal(ex.prompt.text, 'Par quelle syllabe commence lapin ?');
+        assert.equal(ex.success.text, 'Oui ! Lapin commence par la !');
+        assert.equal(ex.success.display, 'Oui ! Lapin commence par « la » !');
+        assert.ok(ex.choices.every(c => c.style === 'syll'));
+    });
+    test('generate_SyllInitial_WrittenLabelOralVoice', () => {
+        const ex = generate(as('mots-p1/fusee#syll-count', 'syll-initial'), { cards, rng });
+        const own2 = ex.choices.find(c => c.say.key === 'syl.fusee.2');
+        if (own2) { assert.equal(own2.label, 'sée'); assert.equal(own2.say.text, 'zée'); }
+    });
+    test('generate_SyllInitial_OralSyllablesAreDistinct', () => {
+        for (const r of RNGS) for (const c of words.filter(w => w.item.syll.length >= 2 && w.skill === 'syll-count')) {
+            const ex = generate({ ...c, skill: 'syll-initial' }, { cards, rng: () => r });
+            assert.equal(new Set(ex.choices.map(x => x.say.text)).size, 3, c.item.id);
+        }
+    });
+    test('generate_SyllInitial_NoTwoTilesSoundAlike', () => {
+        // chat sounds like cha, teau like to, ris like ri: a non-reader only hears the tiles.
+        const same = [['cha', 'chat'], ['teau', 'to'], ['peau', 'po'], ['ri', 'ris'], ['zé', 'zée']];
+        for (const r of RNGS) for (const c of words.filter(w => w.item.syll.length >= 2 && w.skill === 'syll-count')) {
+            const said = generate({ ...c, skill: 'syll-initial' }, { cards, rng: () => r }).choices.map(x => x.say.text);
+            for (const [a, b] of same) assert.ok(!(said.includes(a) && said.includes(b)), `${c.item.id}: ${said}`);
+        }
+    });
+    test('phoneme_EAcute_StretchedVowel', () => {
+        assert.deepEqual(phoneme('é'), { display: 'ééé', spoken: 'ééé', stretched: true });
+    });
+});

@@ -96,4 +96,12 @@ describe('expandCards', () => {
         assert.equal(new Set(words.map(w => w.emoji)).size, words.length);
         assert.equal(new Set(words.map(w => w.id)).size, words.length);
     });
+    const FINALS = ['a', 'é', 'i', 'o', 'u', 'l', 'm', 'n', 'r', 's', 'v', 'z', 'j', 'ch', 'f', 'p', 'b', 't', 'd', 'k', 'g'];
+    test('words_Deck_FinalIsAKnownSoundOrNullOnlyForNasalEndings', () => {
+        for (const w of decks[2].items) {
+            assert.ok('final' in w, w.id);
+            if (w.final === null) assert.ok(['in', 'on', 'an', 'en', 'ou', 'oin'].includes(w.rhyme), w.id);
+            else assert.ok(FINALS.includes(w.final), `${w.id} ${w.final}`);
+        }
+    });
 });

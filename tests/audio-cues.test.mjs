@@ -84,6 +84,9 @@ describe('clipPath', () => {
 });
 
 describe('sayInput', () => {
+    test('sayInput_StretchedEAcute_OneLongVowelNoSchwa', () => {
+        assert.equal(sayInput('Quel mot finit par ééé ?'), 'Quel mot finit par éééééé ?');
+    });
     test('sayInput_StandaloneStretchedConsonant_LongRunWithSchwa', () => {
         assert.equal(sayInput('Quel mot commence par fff\u00a0?'), 'Quel mot commence par ffffffeu\u00a0?');
         assert.equal(sayInput('Quel mot commence par chchch\u00a0?'), 'Quel mot commence par chchchchchcheu\u00a0?');

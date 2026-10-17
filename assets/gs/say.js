@@ -4,14 +4,15 @@
 // TTS engines spell repeated consonants as letter names ("fff" → "effe effe effe") and expand "za"/"zi" as
 // abbreviations (zone artisanale / industrielle). Measured on Thomas (tools/README.md): a consonant run followed by
 // a schwa ("ffffffeu") or by the rest of its word ("ffffffusée") is spoken as one stretched sound, and a doubled
-// vowel run stays one long vowel. These clips still need a human listening check (README: "Clips to re-record").
+// vowel run (a e i o u, and é è: the final sound of fusée / nez) stays one long vowel, without a schwa.
+// These clips still need a human listening check (README: "Clips to re-record").
 const STRETCH = 6;
 const stretch = (unit, n) => unit + unit.toLowerCase().repeat(n - 1); // keeps a sentence-initial capital
 function sayWord(word) {
     const m = /^((?:ch){3}|(\p{L})\2\2)(\p{L}*)$/iu.exec(word);
     if (m) {
         const unit = m[2] ?? m[1].slice(0, 2), rest = m[3];
-        if (/^[aeiou]$/i.test(unit)) return stretch(unit, STRETCH) + rest; // "aaa" → one long vowel
+        if (/^[aeiouéè]$/i.test(unit)) return stretch(unit, STRETCH) + rest; // "aaa", "ééé" → one long vowel, no schwa
         return stretch(unit, STRETCH) + (rest || 'eu'); // "fff" → "ffffffeu"; "fffusée" → "ffffffusée"
     }
     return /^z[ai]$/i.test(word) ? `${word}h` : word; // "za"/"zi" alone are read as abbreviations

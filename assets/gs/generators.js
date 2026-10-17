@@ -7,6 +7,10 @@
 // ("fu-sée"). display is not part of the clip identity: one key, one spoken text.
 
 const VOWELS = ['a', 'e', 'i', 'o', 'u'];
+// Vowels that may be stretched as a phoneme (é: "ééé" for fusée, bébé, nez). VOWELS stays a e i o u: blend draws from it.
+const STRETCH_VOWELS = [...VOWELS, 'é'];
+// Clip keys are ASCII: the phoneme id inside a key.
+const phKey = (id) => (id === 'é' ? 'eacute' : id);
 const DOTS = { 1: '●', 2: '● ●', 3: '● ● ●' };
 // Objects to count/compare, always named in the cues (the child must know WHAT to count), with their French
 // gender and plural. id = ASCII clip key. No 🎈: it is the word "ballon" of the word deck.
@@ -59,12 +63,17 @@ const howMany = (cards, o, k) => `${numFor(cards, o, k)} ${k === 1 ? o.sing : o.
 // but spoken with a schwa ("beu"), otherwise TTS would say the letter name ("bé").
 const SCHWA = { b: 'beu', p: 'peu', k: 'keu', t: 'teu', d: 'deu', g: 'gueu' };
 export function phoneme(id, letters = []) {
-    const stretched = VOWELS.includes(id) || id === 'ch' || Boolean(letters.find(x => x.id === id)?.continuant);
+    const stretched = STRETCH_VOWELS.includes(id) || id === 'ch' || Boolean(letters.find(x => x.id === id)?.continuant);
     if (stretched) return { display: id.repeat(3), spoken: id.repeat(3), stretched };
     return { display: id, spoken: SCHWA[id] ?? `${id}eu`, stretched };
 }
 const soundPhrase = (ph) => (ph.stretched ? ph.spoken : `le son ${ph.spoken}`);
 const soundPhraseW = (ph) => (ph.stretched ? ph.display : `le son «\u00a0${ph.display}\u00a0»`); // shown: the letter, not « beu »
+
+// What an oral syllable sounds like, so two tiles never sound the same to a child who only hears them:
+// chat = cha, teau = to, ris = ri, zée = zé (mute final consonant, eau/au, final e), but lade ≠ la.
+const heard = (s) => s.toLowerCase().replace(/e?au/g, 'o').replace(/ée/g, 'é').replace(/ph/g, 'f').replace(/qu/g, 'k')
+    .replace(/(?<=[aeiouéè])[tsdxzp]+$/u, '').replace(/(?<=[^aeiouéè])e$/u, '');
 
 function wordChoice(w, correct) {
     return { id: w.id, label: w.text, emoji: w.emoji, say: cue(`word.${w.id}`, w.text), correct };
@@ -145,6 +154,45 @@ const GEN = {
             choices: shuffle([wordChoice(target, true), ...distractors.map(d => wordChoice(d, false))], rng),
             success: cue(`ui.sound-pick-ok.${target.id}`, `Oui ! ${target.text} commence par ${soundPhrase(ph)} !`,
                 `Oui ! ${target.text} commence par ${soundPhraseW(ph)} !`),
+        };
+    },
+    'sound-final'(card, { cards, rng }) {
+        const w = card.item, words = itemsOf(cards, 'words');
+        const same = words.filter(x => x.id !== w.id && x.final === w.final);
+        const target = same.length ? pick(same, rng) : w;
+        const used = new Set([target.emoji, target.id]);
+        // Trap (Repères CP ex. 17/18): a word that STARTS with the sound asked at the end.
+        const distractors = pickWithTrap(words.filter(x => x.final !== w.final), x => x.initial === w.final, rng, used);
+        const ph = phoneme(w.final, itemsOf(cards, 'letters'));
+        return {
+            layout: 'tap',
+            prompt: cue(`ui.sound-final.${phKey(w.final)}`, `Quel mot finit par ${soundPhrase(ph)} ?`, `Quel mot finit par ${soundPhraseW(ph)} ?`),
+            stage: { text: `…${ph.display}` },
+            choices: shuffle([wordChoice(target, true), ...distractors.map(d => wordChoice(d, false))], rng),
+            success: cue(`ui.sound-final-ok.${target.id}`, `Oui ! ${target.text} finit par ${soundPhrase(ph)} !`, `Oui ! ${target.text} finit par ${soundPhraseW(ph)} !`),
+        };
+    },
+    'syll-initial'(card, { cards, rng }) {
+        const w = card.item, words = itemsOf(cards, 'words');
+        const tile = (x, i) => ({ id: `${x.id}-${i + 1}`, label: syllW(x)[i], style: 'syll',
+            say: cue(`syl.${x.id}.${i + 1}`, x.syll[i], syllW(x)[i]), correct: x.id === w.id && i === 0 });
+        const out = [tile(w, 0)];
+        const oral = new Set([heard(w.syll[0])]), shown = new Set([syllW(w)[0]]);
+        const add = (x, i) => {
+            if (out.length >= 3 || oral.has(heard(x.syll[i])) || shown.has(syllW(x)[i])) return false;
+            oral.add(heard(x.syll[i])); shown.add(syllW(x)[i]); out.push(tile(x, i)); return true;
+        };
+        // Trap 1: the word's own last syllable (pin for lapin), unless it sounds like the first (bé-bé).
+        for (let i = w.syll.length - 1; i >= 1 && !add(w, i); i--) { /* try the previous one */ }
+        const others = shuffle(words.filter(x => x.id !== w.id), rng);
+        for (const x of [...others.filter(x => x.initial === w.initial), ...others]) add(x, 0);
+        return {
+            layout: 'select',
+            prompt: cue(`ui.syll-initial.${w.id}`, `Par quelle syllabe commence ${w.text} ?`),
+            stage: { emoji: w.emoji, text: w.text },
+            choices: shuffle(out, rng),
+            success: cue(`ui.syll-initial-ok.${w.id}`, `Oui ! ${w.text} commence par ${w.syll[0]} !`,
+                `Oui ! ${w.text} commence par « ${syllW(w)[0]} » !`),
         };
     },
     'sound-letter'(card, { cards, rng }) {

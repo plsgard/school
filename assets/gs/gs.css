@@ -41,6 +41,8 @@
 /* Syllable dots: sized so ● ● stays on one line and ● ● ● on two (1 + 2) inside a phone-width tile. */
 .gs-choice.dots { font-size: min(52px, 10.5vw); line-height: 1; }
 .gs-choice.digit { font-size: 32px; aspect-ratio: auto; height: 64px; border-radius: 16px; }
+/* syll-initial: written syllables up to four letters (teau, four) fit a 375 px phone tile */
+.gs-choice.syll { font-size: min(40px, 8.8vw); padding: 2px; aspect-ratio: auto; height: 88px; }
 /* Three letter scripts, as taught in French GS: capitals (bâton), script (round print), cursive (attachée). */
 .gs-choice.cap { font-family: Andika, system-ui, sans-serif; } /* Andika capital I has bars: never mistaken for l */
 .gs-choice.script { font-family: Andika, "Century Gothic", system-ui, sans-serif; font-weight: 400; }
@@ -136,6 +138,7 @@ body.gs.silent .gs-consigne span::before { content: "👩‍🏫 À lire\00a0:";
     .gs-choice.cursive { font-size: 88px; }
     .gs-choice.dots { font-size: 64px; }
     .gs-choice.digit { font-size: 44px; height: 96px; }
+    .gs-choice.syll { font-size: 52px; height: 120px; }
     .gs-choice .coll { font-size: 36px; }
     .gs-choice .coll-digit { font-size: 46px; }
     .gs-seq { font-size: 40px; }
