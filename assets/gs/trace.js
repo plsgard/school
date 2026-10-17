@@ -1,15 +1,18 @@
 // assets/gs/trace.js
 // Two canvases: model (GS guide lines, grey corridor, start dot, arrows) and ink. Pointer Events, Pencil pressure.
 // Scoring uses the raw waypoints (trace-score.js); only the drawing is smoothed.
-// After a failed attempt (ok false with a hint) the canvas clears its own ink after FAIL_CLEAR_MS, or at the next
-// pointerdown if sooner, so every attempt is scored on its own strokes; onResult's contract is unchanged.
+// A lift that does not complete the letter waits LIFT_GRACE_MS before it is scored: a pointerdown in that window
+// continues the same attempt (two-stroke letters, a mid-letter lift). Only once a hint was given does the next
+// pointerdown start a new attempt; the canvas also clears its own ink FAIL_CLEAR_MS after the hint, so every
+// attempt is scored on its own strokes. onResult's contract is unchanged.
 import { score, createPointerFilter } from './trace-score.js';
 
 // One filter for the whole page session: once a Pencil has been seen, finger/palm touches stay rejected
-// on every later trace canvas too.
+// on every later trace canvas too, until ~30 s pass without any Pencil input (trace-score.js).
 const filter = createPointerFilter();
 
 const FAIL_CLEAR_MS = 1200;   // after a failed attempt, the ink is cleared so the next try is scored alone
+const LIFT_GRACE_MS = 900;    // a lift shorter than this is part of the same attempt
 const BASELINE = 72, XHEIGHT = 42, ASCENDER = 16;
 
 // Arrow positions by arc length, skipping spots that sit on a retraced part of the path.
@@ -44,12 +47,14 @@ function arrowSpots(pts, every = 22, first = 12) {
 export function mountTrace(container, model, { onResult }) {
     container.innerHTML = '<canvas class="trace-model"></canvas><canvas class="trace-ink"></canvas>';
     const [cm, ci] = container.querySelectorAll('canvas');
-    let W = 300, strokes = [], drawing = false, activeId = null, activeType = '', mctx, ictx, failTimer = null, failPending = false;
+    let W = 300, dprUsed = 0, strokes = [], drawing = false, activeId = null, activeType = '', mctx, ictx;
+    let failTimer = null, failPending = false, graceTimer = null;
 
     function size() {
         const r = container.getBoundingClientRect();
         const dpr = Math.min(3, window.devicePixelRatio || 1);
         W = Math.max(200, Math.round(Math.min(r.width, r.height)));
+        dprUsed = dpr;
         for (const c of [cm, ci]) { c.width = Math.round(W * dpr); c.height = Math.round(W * dpr); }
         mctx = cm.getContext('2d'); ictx = ci.getContext('2d');
         mctx.setTransform(dpr, 0, 0, dpr, 0, 0); ictx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -113,7 +118,12 @@ export function mountTrace(container, model, { onResult }) {
             if (e.pointerType !== 'pen' || activeType === 'pen') return;
             dropActiveStroke();                                  // palm/finger stroke in progress: the Pencil wins
         }
-        if (failPending) reset();                              // new attempt before the auto-clear fired
+        if (graceTimer) { clearTimeout(graceTimer); graceTimer = null; } // lifted and came back: same attempt
+        else if (failPending) reset();                          // new attempt before the auto-clear fired
+        if (e.pointerType === 'pen' && strokes.some(st => st[0][3] !== 'pen')) {
+            strokes = strokes.filter(st => st[0][3] === 'pen');  // the palm landed before the Pencil: drop its ink
+            redrawInk();
+        }
         e.preventDefault();
         drawing = true; activeId = e.pointerId; activeType = e.pointerType;
         strokes.push([pos(e)]);
@@ -131,6 +141,15 @@ export function mountTrace(container, model, { onResult }) {
         if (!drawing || e.pointerId !== activeId) return;
         drawing = false; activeId = null; activeType = '';
         const r = score(strokes, model);
+        if (r.ok) { onResult(r); return; }
+        clearTimeout(graceTimer);
+        graceTimer = setTimeout(settleLift, LIFT_GRACE_MS);
+    }
+    // The child did not come back within the grace window: score what is there and give the hint.
+    function settleLift() {
+        graceTimer = null;
+        if (drawing) return;
+        const r = score(strokes, model);
         if (!r.ok && r.hintKey) {
             failPending = true;
             failTimer = setTimeout(() => { if (!drawing) reset(); }, FAIL_CLEAR_MS);
@@ -144,10 +163,17 @@ export function mountTrace(container, model, { onResult }) {
 
     function reset() {
         clearTimeout(failTimer); failTimer = null; failPending = false;
+        clearTimeout(graceTimer); graceTimer = null;
         strokes = []; drawing = false; activeId = null; activeType = '';
         ictx.clearRect(0, 0, W, W); drawModel();
     }
-    const onResize = () => { size(); reset(); };
+    // iPad Safari fires resize for toolbar moves too: only a real size change re-lays the canvases (and clears ink).
+    const onResize = () => {
+        const r = container.getBoundingClientRect();
+        const w = Math.max(200, Math.round(Math.min(r.width, r.height)));
+        if (w === W && Math.min(3, window.devicePixelRatio || 1) === dprUsed) return;
+        size(); reset();
+    };
 
     size(); reset();
     ci.addEventListener('pointerdown', down);
@@ -156,5 +182,5 @@ export function mountTrace(container, model, { onResult }) {
     ci.addEventListener('pointercancel', cancel);
     window.addEventListener('resize', onResize);
 
-    return { reset, destroy() { clearTimeout(failTimer); window.removeEventListener('resize', onResize); container.innerHTML = ''; } };
+    return { reset, destroy() { clearTimeout(failTimer); clearTimeout(graceTimer); window.removeEventListener('resize', onResize); container.innerHTML = ''; } };
 }

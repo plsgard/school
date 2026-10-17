@@ -22,12 +22,14 @@ export function score(strokes, model) {
     return { ok, coverage, outside, startOk, hint: TRACE_HINTS[hintKey] ?? '', hintKey };
 }
 
-export function createPointerFilter() {
-    let penSeen = false;
+// Once a Pencil is seen, touches (palm, fingers) are rejected. The lock decays after penTimeoutMs without pen
+// input, so a child who puts the Pencil down can carry on with a finger.
+export function createPointerFilter({ penTimeoutMs = 30_000, now = () => Date.now() } = {}) {
+    let lastPen = null;
     return {
         accept(pointerType) {
-            if (pointerType === 'pen') { penSeen = true; return true; }
-            if (pointerType === 'touch') return !penSeen;
+            if (pointerType === 'pen') { lastPen = now(); return true; }
+            if (pointerType === 'touch') return lastPen === null || now() - lastPen > penTimeoutMs;
             return true; // mouse
         },
     };

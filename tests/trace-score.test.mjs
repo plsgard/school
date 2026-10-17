@@ -59,6 +59,13 @@ describe('score', () => {
         assert.equal(r.hintKey, 'inside');
         assert.equal(r.hint, 'Presque\u00a0! Reste dans le chemin.');
     });
+    test('score_LetterADrawnInTwoStrokes_IsOkWhenScoredTogether', () => {
+        const a = letters.items.find(it => it.id === 'a').trace;
+        const full = ideal(a);
+        const cut = full.findIndex(p => p[0] === 66 && p[1] === 46 && full.indexOf(p) > 10); // circle closed back at the top
+        const strokes = [full.slice(0, cut + 1), full.slice(cut + 1)];
+        assert.equal(score(strokes, { pts: a }).ok, true);
+    });
     test('score_TooFewPoints_IsNotOkWithoutHint', () => {
         const r = score([[[20, 50, 0.5, 'pen']]], model);
         assert.equal(r.ok, false);
@@ -80,6 +87,25 @@ describe('createPointerFilter', () => {
         const f = createPointerFilter();
         assert.equal(f.accept('touch'), true);
         assert.equal(f.accept('pen'), true);
+        assert.equal(f.accept('touch'), false);
+    });
+    test('accept_TouchMoreThan30sAfterLastPen_IsAcceptedAgain', () => {
+        let t = 0;
+        const f = createPointerFilter({ now: () => t });
+        f.accept('pen');
+        t = 29_000;
+        assert.equal(f.accept('touch'), false);
+        t = 31_000;
+        assert.equal(f.accept('touch'), true);
+    });
+    test('accept_PenAgainAfterDecay_LocksOutTouchAgain', () => {
+        let t = 0;
+        const f = createPointerFilter({ now: () => t });
+        f.accept('pen');
+        t = 40_000;
+        assert.equal(f.accept('touch'), true);
+        assert.equal(f.accept('pen'), true);
+        t = 41_000;
         assert.equal(f.accept('touch'), false);
     });
     test('accept_MouseAfterPen_IsAccepted', () => {
