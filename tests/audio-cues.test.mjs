@@ -2,14 +2,14 @@
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, access } from 'node:fs/promises';
-import { expandCards } from '../assets/gs/decks/index.js';
+import { expandCards, DECK_FILES } from '../assets/gs/decks/index.js';
 import { generate, generatePattern } from '../assets/gs/generators.js';
 import { UI_CUES } from '../assets/gs/renderers.js';
 import { PAGE_CUES } from '../assets/gs/cues.js';
 import { collectCues, addCue, seededRng, clipPath, sayInput } from '../tools/cues.mjs';
 
 const load = async (n) => JSON.parse(await readFile(new URL(`../assets/gs/decks/${n}.json`, import.meta.url), 'utf8'));
-const decks = [await load('letters'), await load('numbers'), await load('mots-p1')];
+const decks = await Promise.all(DECK_FILES.map(load));
 const cards = expandCards(decks, { firstName: '' });
 const cues = collectCues(cards);
 
@@ -19,7 +19,7 @@ const leaves = (o) => (o.key ? [o] : Object.values(o).flatMap(leaves));
 
 describe('collectCues', () => {
     test('collectCues_ShippedDecks_CoversWordsLettersNumbersAndUi', () => {
-        for (const k of ['word.lapin', 'letter.a.name', 'num.7', 'num.0', 'ui.lets-go', 'ui.syll-match.lapin', 'syl.fa', 'ui.pattern', 'ui.pattern-choice.orange'])
+        for (const k of ['word.lapin', 'letter.a.name', 'num.7', 'num.0', 'ui.lets-go', 'ui.syll-match.lapin', 'syl.fa', 'ui.pattern', 'ui.pattern-choice.orange', 'ui.pattern-choice.etoile'])
             assert.ok(cues.has(k), k);
         for (const [k, v] of cues) assert.ok(typeof v === 'string' && v.length > 0, k);
     });
@@ -99,5 +99,30 @@ describe('manifest', () => {
         assert.deepEqual(manifest, [...manifest].sort());
         assert.deepEqual([...cues.keys()].filter(k => !manifest.includes(k)), []);
         for (const k of manifest) await access(new URL(clipPath(k), OUT));
+    });
+
+    test('manifest_EveryKey_IsACurrentCue', async () => {
+        const manifest = JSON.parse(await readFile(new URL('manifest.json', OUT), 'utf8'));
+        assert.deepEqual(manifest.filter(k => !cues.has(k)), []);
+    });
+
+    test('manifest_EveryClipKey_IsAscii', async () => {
+        const manifest = JSON.parse(await readFile(new URL('manifest.json', OUT), 'utf8'));
+        assert.deepEqual(manifest.filter(k => !/^[a-z0-9.-]+$/.test(k)), []);
+    });
+});
+
+describe('sources', () => {
+    test('sources_EveryCue_RecordedFromItsCurrentText', async () => {
+        // A cue text changed without re-running tools/gen-audio.mjs would leave a clip that says the old text.
+        const src = JSON.parse(await readFile(new URL('../assets/audio/gs/sources.json', import.meta.url), 'utf8'));
+        const stale = [];
+        for (const [k, text] of cues) {
+            const r = src[k];
+            if (!r) stale.push(`${k}: no recipe`);
+            else if (r.manual) { if (r.text !== text) stale.push(`${k}: manual clip recorded for ${JSON.stringify(r.text)}`); }
+            else if (r.input !== (r.engine === 'say' ? sayInput(text) : text)) stale.push(`${k}: recorded from ${JSON.stringify(r.input)}`);
+        }
+        assert.deepEqual(stale, []);
     });
 });

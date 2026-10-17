@@ -12,7 +12,9 @@ const CLOSE_PHONEMES = { f: 'v', v: 'f', s: 'z', z: 's', ch: 'j', j: 'ch', m: 'n
 const CLOSE_LETTERS = { f: 'v', v: 'f', s: 'z', z: 's', m: 'n', n: 'm', l: 'r', r: 'l' };
 // Digits a child confuses by shape: always shown together when one of them is the answer.
 const MIRROR_DIGITS = { 6: 9, 9: 6, 1: 7, 7: 1 };
-const PATTERN_NAMES = { '🔴': 'rouge', '🔵': 'bleu', '🟢': 'vert', '🟡': 'jaune', '⭐': 'étoile', '🌙': 'lune', '🟣': 'violet', '🟠': 'orange', '⚫': 'noir' };
+// Spoken name + ASCII id (the id is the clip key, so clip paths stay plain ASCII).
+const PATTERN_NAMES = { '🔴': ['rouge'], '🔵': ['bleu'], '🟢': ['vert'], '🟡': ['jaune'], '⭐': ['étoile', 'etoile'], '🌙': ['lune'], '🟣': ['violet'], '🟠': ['orange'], '⚫': ['noir'] };
+const patternCue = (e) => { const [name, id = name] = PATTERN_NAMES[e]; return cue(`ui.pattern-choice.${id}`, name); };
 
 const shuffle = (arr, rng) => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const pick = (arr, rng) => arr[Math.floor(rng() * arr.length)];
@@ -267,7 +269,7 @@ export function generatePattern(rng = Math.random) {
     return {
         type: 'pattern', cardId: null, layout: 'tap', prompt: cue('ui.pattern', 'Regarde bien. Qu\'est-ce qui vient après ?'),
         stage: { sequence: [...seq, '?'] },
-        choices: shuffle([pair[0], pair[1], third].map(e => ({ id: e, label: e, emoji: e, say: cue(`ui.pattern-choice.${PATTERN_NAMES[e]}`, PATTERN_NAMES[e]), correct: e === answer })), rng),
+        choices: shuffle([pair[0], pair[1], third].map(e => ({ id: e, label: e, emoji: e, say: patternCue(e), correct: e === answer })), rng),
         success: cue('ui.pattern-ok', 'Bravo, tu as trouvé le motif !'),
     };
 }

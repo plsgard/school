@@ -27,7 +27,7 @@ const voice = args.voice ?? (engine === 'say' ? 'Thomas' : 'coral');
 const rate = Number(args.rate ?? 150); // words per minute (say only): slower than the 175 default, for a 5-year-old
 // 32 kbps mono 22 kHz: the full track at 64 kbps weighed ~11 MB (572 clips, ~23 min of speech).
 const bitrate = String(args.bitrate ?? '32k');
-const jobs = Number(args.jobs ?? 6);
+const jobs = Number.isInteger(Number(args.jobs)) && Number(args.jobs) >= 1 ? Number(args.jobs) : 6;
 const only = typeof args.only === 'string' ? new Set(args.only.split(',')) : null;
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
@@ -46,6 +46,7 @@ const sources = await readFile(sourcesFile, 'utf8').then(JSON.parse, () => ({}))
 const TRIM = 'silenceremove=start_periods=1:start_threshold=-50dB,areverse,silenceremove=start_periods=1:start_threshold=-50dB,areverse,apad=pad_dur=0.08';
 const recipe = (text) => ({ input: engine === 'say' ? sayInput(text) : text, engine, voice, ...(engine === 'say' ? { rate } : {}), bitrate, trim: true });
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+const writeSources = () => writeFile(sourcesFile, `${JSON.stringify(Object.fromEntries(Object.keys(sources).sort().map(k => [k, sources[k]])), null, 1)}\n`);
 
 const tmp = await mkdtemp(join(tmpdir(), 'gs-audio-')); // .aiff never lands in the repo
 async function record(key, r) {
@@ -70,22 +71,27 @@ async function record(key, r) {
 const todo = [];
 for (const [key, text] of cues) {
     if (only && !only.has(key)) continue;
-    // A human recording is marked { "manual": true } in sources.json: never overwritten, unless named with --only + --force.
+    // A human recording is marked { "manual": true, "text": <cue text it says> } in sources.json:
+    // never overwritten, unless named with --only + --force.
     if (sources[key]?.manual && !(only && args.force)) continue;
     const r = recipe(text);
     const mp3 = join(OUT, ...clipPath(key).split('/'));
     if (args.force || !same(sources[key], r) || !(await exists(mp3))) todo.push([key, r]);
 }
 let done = 0;
-await Promise.all(Array.from({ length: Math.max(1, jobs) }, async () => {
-    while (todo.length) {
-        const [key, r] = todo.shift();
-        await record(key, r);
-        sources[key] = r;
-        console.log(`[${++done}] ${key}`);
-    }
-}));
-await rm(tmp, { recursive: true, force: true });
+try {
+    await Promise.all(Array.from({ length: jobs }, async () => {
+        while (todo.length) {
+            const [key, r] = todo.shift();
+            await record(key, r);
+            sources[key] = r;
+            console.log(`[${++done}] ${key}`);
+        }
+    }));
+} finally {
+    await rm(tmp, { recursive: true, force: true });
+    await writeSources(); // keep the recipes of the clips recorded before a failure
+}
 
 // Clips on disk that no cue asks for any more (a renamed key, a removed deck item).
 async function walk(dir) {
@@ -109,7 +115,14 @@ for (const key of cues.keys()) if (await exists(join(OUT, ...clipPath(key).split
 manifest.sort();
 const lines = (arr) => `[\n${arr.map(x => `  ${JSON.stringify(x)}`).join(',\n')}\n]\n`;
 await writeFile(join(OUT, 'manifest.json'), lines(manifest));
-const sorted = Object.fromEntries(Object.keys(sources).sort().map(k => [k, sources[k]]));
-await writeFile(sourcesFile, `${JSON.stringify(sorted, null, 1)}\n`);
+await writeSources();
 const missing = [...cues.keys()].filter(k => !manifest.includes(k));
 console.log(`${done} recorded, ${manifest.length} clips in manifest${missing.length ? `, ${missing.length} cues without a clip` : ''}`);
+
+// A manual clip says the text it was recorded for: if the cue text changed since, the clip is stale.
+const staleManual = [...cues].filter(([k, text]) => sources[k]?.manual && sources[k].text !== text);
+for (const [k, text] of staleManual) {
+    console.error(`STALE manual clip ${k}: recorded for ${JSON.stringify(sources[k].text)}, cue now says ${JSON.stringify(text)}.`
+        + ' Re-record it and update its "text" in sources.json, or drop the entry so the TTS clip is regenerated.');
+}
+if (staleManual.length) process.exitCode = 1;

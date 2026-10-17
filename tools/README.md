@@ -25,6 +25,12 @@ is redone). Re-run after adding or changing a deck. Takes ~4 min for the full tr
 Requires `ffmpeg` (`brew install ffmpeg`). Temporary `.aiff` files go to the OS temp dir, never into the repo.
 Changing the voice, rate or bitrate re-records everything (the recipe changed).
 
+**Stale clips.** `tests/audio-cues.test.mjs` fails when a clip no longer matches its cue: a TTS clip whose
+recorded `input` is not `sayInput(current text)`, or a manual clip whose `text` is not the current cue text. Fix: re-run
+`node tools/gen-audio.mjs` (TTS clips are redone automatically). For a manual clip, the script exits non-zero with a
+`STALE manual clip <key>` message: re-record it and update its `text`, or delete its `sources.json` entry to fall
+back to a TTS clip. Clip keys are ASCII (e.g. `ui.pattern-choice.etoile` says "étoile").
+
 **Size.** 572 clips, ~23 min of speech: ~11 MB at 64 kbps, ~5.6 MB at 32 kbps (the default). Leading/trailing
 silence is trimmed.
 
@@ -59,7 +65,8 @@ zero-crossing voiced/unvoiced profile of each clip, since nobody listened):
 
 The spec wants stretched sounds as real recordings. These 145 clips were made from adapted TTS input and must be
 listened to; re-record the bad ones: save the mp3 at the same path (mono, 32 kbps is enough) and set its
-`sources.json` entry to `{ "manual": true }`, so a re-run never overwrites it (only `--only <key> --force` does):
+`sources.json` entry to `{ "manual": true, "text": "<the cue text it says>" }`, so a re-run never overwrites it
+(only `--only <key> --force` does):
 
 - `ui.sound-pick.{b,ch,f,k,l,m,p,r,s,v}` and `ui.sound-pick-ok.*` (17 words) — "fff", "chchch", "le son beu";
 - `ui.sound-letter.{a,e,i,o,u,n,j,z}`, `ui.sound-letter-ok.{a,e,i,o,u,n,j,z}` — "le son aaa", "nnn";

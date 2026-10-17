@@ -2935,6 +2935,14 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.pattern-choice.etoile": {
+  "input": "étoile",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.pattern-choice.jaune": {
   "input": "jaune",
   "engine": "say",
@@ -2985,14 +2993,6 @@
  },
  "ui.pattern-choice.violet": {
   "input": "violet",
-  "engine": "say",
-  "voice": "Thomas",
-  "rate": 150,
-  "bitrate": "32k",
-  "trim": true
- },
- "ui.pattern-choice.étoile": {
-  "input": "étoile",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
