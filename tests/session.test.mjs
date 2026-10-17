@@ -53,7 +53,7 @@ describe('compose', () => {
             const { slots } = compose({ srs, cards: pool(), today: T });
             const idx = slots.map((s, i) => s.skill === 'trace' ? i : -1).filter(i => i >= 0);
             assert.deepEqual(idx.length, 1);
-            assert.ok(GS_CONSTRAINTS.traceSlots.includes(idx[0]));
+            assert.ok(GS_CONSTRAINTS.specialSlots.includes(idx[0]));
         }
     });
     test('compose_Always_NoSameTypeTwiceInARowAndMax2Numbers', () => {
@@ -115,7 +115,7 @@ describe('compose', () => {
             for (let i = 1; i < slots.length; i++) assert.notEqual(slots[i].skill, slots[i - 1].skill);
             const idx = slots.map((s, i) => s.skill === 'trace' ? i : -1).filter(i => i >= 0);
             assert.ok(idx.length <= 1);
-            if (idx.length) assert.ok(GS_CONSTRAINTS.traceSlots.includes(idx[0]), `trace at ${idx[0]}`);
+            if (idx.length) assert.ok(GS_CONSTRAINTS.specialSlots.includes(idx[0]), `trace at ${idx[0]}`);
         }
     });
     test('compose_EasyCardAvailable_PlacesBox3OrMoreInSlot0Or1', () => {
@@ -125,6 +125,20 @@ describe('compose', () => {
         for (let k = 0; k < 50; k++) {
             const { slots } = compose({ srs, cards: pool(), today: T });
             assert.ok(slots.slice(0, 2).some(s => srs.cards[s.id]?.box >= 3));
+        }
+    });
+    test('compose_OtherTrackConstraints_UsesItsSpecialSkillAndLimitedKind', () => {
+        const cards = [];
+        for (const w of ['cat', 'dog', 'sun', 'pen']) for (const sk of ['spell', 'listen', 'dictation']) cards.push(card(`en/${w}#${sk}`, 'words', sk));
+        for (let n = 1; n <= 4; n++) for (const sk of ['read', 'write']) cards.push(card(`num/${n}#${sk}`, 'nums', sk));
+        const srs = { cards: {}, introduced: {} };
+        for (const c of cards) srs.cards[c.id] = { box: 1, due: T };
+        const constraints = { items: 6, specialSlotSkill: 'dictation', specialSlots: [5], limitedKind: 'nums', maxLimited: 1, newPerDay: {} };
+        for (let k = 0; k < 50; k++) {
+            const { slots } = compose({ srs, cards, today: T, rng: lcg(k), constraints });
+            const idx = slots.map((s, i) => s.skill === 'dictation' ? i : -1).filter(i => i >= 0);
+            assert.deepEqual(idx, [5], slots.map(s => s.id).join());
+            assert.ok(slots.filter(s => s.kind === 'nums').length <= 1);
         }
     });
     test('compose_NumbersTrace_CountsTowardMaxNumbers', () => {
@@ -213,7 +227,7 @@ describe('compose', () => {
             const { slots } = compose({ srs, cards: realCards, today, rng });
             assert.equal(slots.length, 6, `day ${d}`);
             const idx = slots.map((s, i) => s.skill === 'trace' ? i : -1).filter(i => i >= 0);
-            assert.ok(idx.length <= 1 && (!idx.length || GS_CONSTRAINTS.traceSlots.includes(idx[0])), `day ${d} trace ${idx}`);
+            assert.ok(idx.length <= 1 && (!idx.length || GS_CONSTRAINTS.specialSlots.includes(idx[0])), `day ${d} trace ${idx}`);
             for (let i = 1; i < slots.length; i++) assert.notEqual(slots[i].skill, slots[i - 1].skill, `day ${d}`);
             assert.ok(slots.filter(s => s.kind === 'numbers').length <= 2, `day ${d}`);
             const newItems = {};

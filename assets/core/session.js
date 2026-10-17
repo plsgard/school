@@ -3,10 +3,14 @@
 // then arranges them under variety constraints. Track-agnostic: constraints are injected.
 import { dueCards } from './scheduler.js';
 
+// specialSlotSkill: the one skill that may only sit at one of specialSlots (GS: tracing, mid-session);
+// limitedKind: the card kind capped at maxLimited per session (GS: numbers).
 export const GS_CONSTRAINTS = {
     items: 6,
-    traceSlots: [2, 3],
-    maxNumbers: 2,
+    specialSlotSkill: 'trace',
+    specialSlots: [2, 3],
+    limitedKind: 'numbers',
+    maxLimited: 2,
     newPerDay: { letters: 2, words: 3, numbers: 1, name: 1 },
     newSlots: 2,
 };
@@ -87,31 +91,33 @@ function arrange(candidates, constraints, rng, boxOf) {
     // Fills left to right and stops at the first slot it cannot fill: never compacts across a gap,
     // so the trace stays at an allowed index and no two neighbours share a skill.
     const n = constraints.items;
-    const allowed = constraints.traceSlots;
+    const special = constraints.specialSlotSkill;
+    const allowed = constraints.specialSlots ?? [];
+    const limitedKind = constraints.limitedKind;
     const preferred = allowed[Math.floor(rng() * allowed.length)];
     const slots = [];
     const used = new Set();
-    let numbers = 0;
-    let traced = false;
+    let limited = 0;
+    let placedSpecial = false;
     let preferredMissed = false;
     const fits = (c, i) => !used.has(c.id) && c.skill !== slots[i - 1]?.skill &&
-        (c.kind !== 'numbers' || numbers < constraints.maxNumbers);
+        (c.kind !== limitedKind || limited < constraints.maxLimited);
     for (let i = 0; i < n; i++) {
         let pick = null;
-        // Trace goes at the preferred slot; the other allowed slot is a fallback only when it comes later.
-        if (!traced && allowed.includes(i) && (i === preferred || preferredMissed)) {
-            pick = candidates.find(c => c.skill === 'trace' && fits(c, i)) ?? null;
+        // The special skill goes at the preferred slot; the other allowed slot is a fallback only when it comes later.
+        if (!placedSpecial && allowed.includes(i) && (i === preferred || preferredMissed)) {
+            pick = candidates.find(c => c.skill === special && fits(c, i)) ?? null;
             if (!pick && i === preferred) preferredMissed = true;
         }
         // Spec §10.3: one easy card (box >= 3) in slot 0 or 1 when one is available.
         if (!pick && i < 2 && !slots.some(s => boxOf(s) >= EASY_BOX)) {
-            pick = candidates.find(c => c.skill !== 'trace' && boxOf(c) >= EASY_BOX && fits(c, i)) ?? null;
+            pick = candidates.find(c => c.skill !== special && boxOf(c) >= EASY_BOX && fits(c, i)) ?? null;
         }
-        pick ??= candidates.find(c => c.skill !== 'trace' && fits(c, i)) ?? null;
+        pick ??= candidates.find(c => c.skill !== special && fits(c, i)) ?? null;
         if (!pick) break;
         slots.push(pick); used.add(pick.id);
-        if (pick.skill === 'trace') traced = true;
-        if (pick.kind === 'numbers') numbers++;
+        if (pick.skill === special) placedSpecial = true;
+        if (pick.kind === limitedKind) limited++;
     }
     return slots;
 }
