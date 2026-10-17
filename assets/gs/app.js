@@ -1,8 +1,9 @@
 // assets/gs/app.js
-// Grande Section page: home → 6-item session → done. Wires storage, composer, generators, renderers and speech.
-import { getActiveProfileId, setActiveProfileId, loadProfiles, loadSettings, loadSrs, saveSrs, loadSessions, appendSession } from '../storage.js';
-import { recordResult } from '../core/progress.js';
-import { compose, GS_CONSTRAINTS } from '../core/session.js';
+// Grande Section page: home → 6-item daily session → done, or home → themed practice round → done (🔁 Encore).
+// Wires storage, composers, generators, renderers and speech.
+import { getActiveProfileId, setActiveProfileId, loadProfiles, loadSettings, loadSrs, saveSrs, loadSessions, appendSession, appendPractice } from '../storage.js';
+import { recordResult, recordPractice } from '../core/progress.js';
+import { compose, GS_CONSTRAINTS, composePractice, GS_PRACTICE } from '../core/session.js';
 import { createSpeech, createDeviceSource, createClipSource, SILENT_SOURCE } from '../core/speech.js';
 import { celebrate } from '../celebration.js';
 import { loadDecks, expandCards } from './decks/index.js';
@@ -10,7 +11,8 @@ import { generate, generatePattern } from './generators.js';
 import { renderExercise, disposeExercise } from './renderers.js';
 import { PAGE_CUES } from './cues.js';
 import { mountParent } from './parent.js';
-import { localDay, dailyCapReached, effectiveParentMode } from './rules.js';
+import { localDay, dailyCapReached, effectiveParentMode, practiceItems } from './rules.js';
+import { THEMES, inTheme } from './themes.js';
 import { displayName, prefillFirstName, ensureProfiles, trackProfileId } from '../profiles.js';
 import { pruneNameCards } from './name-cards.js';
 import { sayInput } from './say.js';
@@ -71,6 +73,27 @@ function renderHome() {
     $('hello').textContent = name ? `Salut ${name}${NBSP}!` : `Salut${NBSP}!`;
     $('today').textContent = '⭐'.repeat(settings.sessionItems);
     $('today').setAttribute('aria-label', `${settings.sessionItems} jeux aujourd'hui`);
+    // Practice never consumes the daily cap: the theme buttons stay under the 🌙 too. A theme with no card is hidden.
+    for (const b of $('themes').children) b.hidden = !cards.some(inTheme(b.dataset.theme));
+}
+
+// One big picture button per theme; the caption is for the adult, the picture for the child.
+function buildThemes() {
+    $('themes').replaceChildren(...THEMES.map(t => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'gs-theme';
+        b.dataset.theme = t.id;
+        b.setAttribute('aria-label', `Jouer${NBSP}: ${t.label}`);
+        const emoji = document.createElement('span');
+        emoji.className = 'gs-theme-emoji';
+        emoji.setAttribute('aria-hidden', 'true');
+        emoji.textContent = t.emoji;
+        const label = document.createElement('small');
+        label.textContent = t.label;
+        b.append(emoji, label);
+        return b;
+    }));
 }
 
 // iOS only lets audio play after it was started inside a user gesture: prime both engines in the "Jouer" tap.
@@ -86,24 +109,14 @@ function persist(write) {
     try { write(); } catch (err) { console.warn('[gs] progress not saved', err); }
 }
 
-async function runSession() {
-    const sessionProfileId = profileId; // captured: a profile switch mid-session must not leak
-    const n = settings.sessionItems;
-    let srs = loadSrs(sessionProfileId, 'gs');
-    const day = today();
-    // Items count as introduced only when one of their cards is answered (recordResult), never at session start.
-    const { slots } = compose({ srs, cards, today: day, constraints: { ...GS_CONSTRAINTS, items: n } });
-
-    const exercises = slots.map(c => generate(c, { cards }));
-    while (exercises.length < n) exercises.push(generatePattern()); // R13: always a full session
-    // I3: warm the HTTP cache with this session's clips, so the first play of each is not a network round trip.
+// I3: warm the HTTP cache with a round's clips, so the first play of each is not a network round trip.
+const preloadClips = (exercises) =>
     clips.preload(exercises.flatMap(ex => [ex.prompt, ex.success, ex.reveal, ex.trace?.say, ...(ex.choices ?? []).map(c => c.say)]));
-    const items = [];
-    const t0 = Date.now();
-    show('exercise');
-    // First cue inside the "Jouer" gesture: unlocks audio on iOS.
-    await speech.speak(CUE_LETS_GO);
 
+// Plays exercises one by one (counter, progress dots, consigne, prompt autoplay) and returns the answered items.
+// onAnswered(ex, result) records the answer and returns extra fields merged into the item (e.g. { preview: true }).
+async function play(exercises, onAnswered, { badge } = {}) {
+    const items = [];
     const silent = isSilent();
     const parentMode = parentModeOn();
     const waitForTap = silent || parentMode; // R6: the adult advances
@@ -111,7 +124,7 @@ async function runSession() {
     const settle = () => { clearTimeout(promptTimer); replay.disabled = true; };
     for (let i = 0; i < exercises.length; i++) {
         const ex = exercises[i];
-        $('counter').textContent = `${i + 1} / ${exercises.length}`;
+        $('counter').textContent = badge ? `${badge} ${i + 1} / ${exercises.length}` : `${i + 1} / ${exercises.length}`;
         $('progress').replaceChildren(...exercises.map((_, k) => {
             const dot = document.createElement('i');
             if (k < i) dot.className = 'done'; else if (k === i) dot.className = 'now';
@@ -130,37 +143,115 @@ async function runSession() {
         const result = await renderExercise({ stage: $('stage'), choices: $('choices'), feedback: $('feedback'), adult: $('adult') }, ex,
             { speak: speech.speak, parentMode, waitForTap, onSettle: settle });
         clearTimeout(promptTimer);
-        items.push({ cardId: ex.cardId, type: ex.type, ...result });
-        if (ex.cardId) {
-            srs = recordResult(srs, ex.cardId, result.correctFirstTry, day);
-            persist(() => saveSrs(sessionProfileId, 'gs', srs));
-        }
+        items.push({ cardId: ex.cardId, type: ex.type, ...result, ...onAnswered(ex, result) });
     }
+    return items;
+}
 
-    persist(() => appendSession(sessionProfileId, 'gs', { date: new Date().toISOString(), items, durationMs: Date.now() - t0 }));
+// Done screen: the daily variant says "À demain"; the practice variant offers 🔁 Encore on the same theme.
+function showDone(items, { again = null } = {}) {
     show('done');
     const name = displayName(profile, settings);
     $('doneTitle').textContent = name ? `Bravo ${name}${NBSP}!` : `Bravo${NBSP}!`;
     $('doneHero').textContent = `${profile.avatar || '🦊'}🎉`;
     $('stars').textContent = '⭐'.repeat(items.length); // stars only, no score shown to the child
     $('stars').setAttribute('aria-label', `${items.length} étoiles`);
-    $('tomorrow').textContent = 'À demain pour de nouveaux jeux !';
+    $('tomorrow').textContent = `À demain pour de nouveaux jeux${NBSP}!`;
+    $('tomorrow').hidden = again != null;
+    $('again').hidden = again == null;
+    if (again != null) $('again').dataset.theme = again;
     celebrate({ duration: 3000, pieces: 80 });
+}
+
+async function runSession() {
+    const sessionProfileId = profileId; // captured: a profile switch mid-session must not leak
+    const n = settings.sessionItems;
+    let srs = loadSrs(sessionProfileId, 'gs');
+    const day = today();
+    // Items count as introduced only when one of their cards is answered (recordResult), never at session start.
+    const { slots } = compose({ srs, cards, today: day, constraints: { ...GS_CONSTRAINTS, items: n } });
+
+    const exercises = slots.map(c => generate(c, { cards }));
+    while (exercises.length < n) exercises.push(generatePattern()); // R13: always a full session
+    preloadClips(exercises);
+    const t0 = Date.now();
+    show('exercise');
+    // First cue inside the "Jouer" gesture: unlocks audio on iOS.
+    await speech.speak(CUE_LETS_GO);
+
+    const items = await play(exercises, (ex, result) => {
+        if (ex.cardId) {
+            srs = recordResult(srs, ex.cardId, result.correctFirstTry, day);
+            persist(() => saveSrs(sessionProfileId, 'gs', srs));
+        }
+        return {};
+    });
+
+    persist(() => appendSession(sessionProfileId, 'gs', { date: new Date().toISOString(), items, durationMs: Date.now() - t0 }));
+    showDone(items);
     speech.speak(CUE_DONE);
 }
 
-$('play').addEventListener('click', () => {
-    $('play').disabled = true;
+// Themed practice round (spec 2026-10-18 §9.2): as many as she wants, stored apart from the daily sessions so the
+// daily cap (▶ Jouer / 🌙) never moves. Preview cards (a theme she has barely met) are played, never recorded.
+const lastRound = new Map(); // theme id → card ids of its previous round: 🔁 Encore plays something else first
+
+async function runPractice(themeId) {
+    const sessionProfileId = profileId;
+    const theme = THEMES.find(t => t.id === themeId);
+    let srs = loadSrs(sessionProfileId, 'gs');
+    const day = today();
+    const { slots, preview } = composePractice({ srs, cards, today: day, include: inTheme(themeId),
+        constraints: { ...GS_PRACTICE, items: practiceItems(settings) }, recent: lastRound.get(themeId) ?? [] });
+    if (!slots.length) { show('home'); renderHome(); return; }
+    lastRound.set(themeId, slots.map(s => s.id));
+    const previewIds = new Set(preview);
+    const exercises = slots.map(c => generate(c, { cards }));
+    preloadClips(exercises);
+    const t0 = Date.now();
+    show('exercise');
+    await speech.speak(PAGE_CUES.practice[themeId]); // first cue inside the tap: unlocks audio on iOS
+
+    const items = await play(exercises, (ex, result) => {
+        if (previewIds.has(ex.cardId)) return { preview: true };
+        srs = recordPractice(srs, ex.cardId, result.correctFirstTry, day);
+        persist(() => saveSrs(sessionProfileId, 'gs', srs));
+        return {};
+    }, { badge: theme.emoji });
+
+    persist(() => appendPractice(sessionProfileId, 'gs', { date: new Date().toISOString(), theme: themeId, items, durationMs: Date.now() - t0 }));
+    showDone(items, { again: themeId });
+    speech.speak(PAGE_CUES.practiceDone);
+}
+
+// A round starts from a tap (▶ Jouer, a theme button, 🔁 Encore): a second tap while it starts is ignored, and a
+// crash brings the child back home instead of a frozen screen.
+let busy = false;
+function start(run) {
+    if (busy) return;
+    busy = true;
     unlockAudio();
-    runSession().catch(err => {
+    run().catch(err => {
         console.error(err);
         clearTimeout(promptTimer);
         speech.stop();
         disposeExercise();
         $('play').disabled = false;
         show('home');
-    });
+        renderHome();
+    }).finally(() => { busy = false; });
+}
+
+$('play').addEventListener('click', () => {
+    if (busy) return;
+    $('play').disabled = true;
+    start(runSession);
 });
+$('themes').addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-theme]');
+    if (b) start(() => runPractice(b.dataset.theme));
+});
+$('again').addEventListener('click', () => start(() => runPractice($('again').dataset.theme)));
 
 $('moon').addEventListener('click', () => { unlockAudio(); speech.speak(CUE_TOMORROW); });
 
@@ -198,5 +289,6 @@ function openParent() {
 holdToActivate($('parentBtn'), openParent);
 holdToActivate($('avatar'), () => { location.href = 'index.html'; });
 
+buildThemes();
 renderHome();
 show('home');

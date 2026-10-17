@@ -65,6 +65,13 @@ describe('collectCues', () => {
         for (const c of [...leaves(UI_CUES), ...leaves(PAGE_CUES)]) assert.equal(cues.get(c.key), c.text, c.key);
     });
 
+    test('collectCues_PracticeCues_RecordedWithTheirTexts', () => {
+        assert.equal(cues.get('ui.practice.sons'), 'On joue avec les sons !');
+        assert.equal(cues.get('ui.practice.ecrire'), 'On s\'entraîne à écrire !');
+        assert.equal(cues.get('ui.practice-done'), 'Bravo ! On rejoue ?');
+        for (const t of ['sons', 'lettres', 'ecrire', 'nombres']) assert.ok(cues.has(`ui.practice.${t}`), t);
+    });
+
     test('collectCues_FirstNameCard_RecordsOnlyTheFixedPrompt', () => {
         const named = collectCues(expandCards(decks, { firstName: 'Zoé' }));
         assert.ok(named.has('ui.name-spell'));

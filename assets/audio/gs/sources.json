@@ -6047,6 +6047,46 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.practice-done": {
+  "input": "Bravo ! On rejoue ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.practice.ecrire": {
+  "input": "On s'entraîne à écrire !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.practice.lettres": {
+  "input": "On joue avec les lettres !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.practice.nombres": {
+  "input": "On joue avec les nombres !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.practice.sons": {
+  "input": "On joue avec les sons !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.restart": {
   "input": "Recommencer.",
   "engine": "say",

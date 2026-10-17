@@ -108,6 +108,22 @@ body.gs.silent .gs-consigne span::before { content: "👩‍🏫 À lire\00a0:";
 .gs-moon-caption { margin: 8px 0 0; font-weight: 600; }
 .gs-moon { border: 0; background: #223252; color: #ffe08a; width: 140px; height: 140px; border-radius: 50%; font-size: 76px; margin: auto auto 0; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 0 #101a30; touch-action: manipulation; }
 .gs-preview { display: flex; justify-content: center; gap: 10px; font-size: 28px; }
+/* Home: themed practice buttons under ▶ Jouer / 🌙 (2 x 2 on phones, one row on iPad). Light tiles, so ▶ Jouer stays
+   the one green call to action. The grid sits right under ▶ Jouer: the hero takes the free space above them. */
+.gs-themes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.gs-theme { border: 3px solid #d7e2f0; background: #f4f8fd; border-radius: 22px; min-height: 88px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 2px; color: inherit; touch-action: manipulation; padding: 6px;
+    -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+.gs-theme-emoji { font-size: 40px; line-height: 1; }
+.gs-theme small { font-size: 15px; font-weight: 600; color: #6b7a99; }
+.gs-theme:active { transform: translateY(2px); }
+#home .gs-cta { margin-top: 0; }
+#home .gs-hero { margin-top: auto; }
+/* 🔁 Encore: yellow like 🔊, so the child tells it from the green 🏠 Retour without reading */
+#done .gs-again { margin-top: auto; background: #ffb703; color: #4a3400; box-shadow: 0 6px 0 #d79600; }
+#done .gs-again:active { box-shadow: 0 3px 0 #d79600; }
+#done .gs-again:not([hidden]) + .gs-cta { margin-top: 0; }
+@media (max-height: 700px) { #home .gs-hero { display: none; } #home .gs-preview { margin-top: auto; } }
 /* Parental gate: ⚙️ and 🦊 open on a long-press only; the button fills up while held. */
 .hold-gate { position: relative; overflow: hidden; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
 .hold-gate::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: rgba(255, 183, 3, .55); transform: scale(0); pointer-events: none; }
@@ -136,6 +152,10 @@ body.gs.silent .gs-consigne span::before { content: "👩‍🏫 À lire\00a0:";
     .gs-cta { font-size: 30px; padding: 20px 36px; min-height: 72px; }
     .gs-preview { font-size: 40px; }
     .gs-moon { width: 180px; height: 180px; font-size: 100px; }
+    .gs-themes { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+    .gs-theme { min-height: 120px; }
+    .gs-theme-emoji { font-size: 56px; }
+    .gs-theme small { font-size: 17px; }
     .gs-consigne { font-size: 28px; min-height: 68px; }
     .gs-stage { font-size: 110px; }
     .gs-stage .gs-sound { font-size: 96px; }
