@@ -3,7 +3,7 @@
 //
 // One name per child. The profile name (picker card) and settings.firstName (greeting, name-spell game) stay in
 // sync while they agree: renaming either side updates the other when the other was empty, equal to the old
-// name, or still a seeded placeholder ("Enfant 1"). Once a parent sets them apart on purpose (a nickname on the
+// name, or still a legacy placeholder ("Enfant 1", seeded before the real names). Once a parent sets them apart on purpose (a nickname on the
 // card, the real first name in the game), each keeps its own value.
 //
 // The 6ème profile keeps the id 'default': the older child's math history (and the legacy keys migrated to it)
@@ -11,17 +11,32 @@
 import { loadProfiles, saveProfiles, setActiveProfileId, loadSettings, saveSettings } from './storage.js';
 import { holdToActivate } from './hold.js';
 
+// The two children's real first names, seeded as real names (no placeholder): gs.html prefills the GS first name from
+// it (greeting, name-spell game), and a parent can still rename either card.
 const DEFAULTS = [
-    { id: 'kid-gs', name: 'Enfant 1', avatar: '🦊', track: 'gs', placeholder: true },
-    { id: 'default', name: 'Enfant 2', avatar: '🐼', track: 'en', placeholder: true },
+    { id: 'kid-gs', name: 'Apolline', avatar: '🦊', track: 'gs' },
+    { id: 'default', name: 'Louis', avatar: '🐼', track: 'en' },
 ];
+// Placeholders seeded by earlier versions: a profile still carrying one takes its real default name.
+const LEGACY_PLACEHOLDERS = { 'kid-gs': 'Enfant 1', default: 'Enfant 2' };
 const TRACK_LABELS = { gs: 'Grande Section', en: '6e' };
 const TARGET = { gs: 'gs.html' }; // other tracks: the math quizzes ("Autres jeux") until the 6ème track ships
 const MAX_NAME = 30;
 
 export function ensureProfiles() {
     const stored = loadProfiles();
-    if (stored.length) return stored;
+    if (stored.length) {
+        let changed = false;
+        for (const p of stored) {
+            const real = DEFAULTS.find(d => d.id === p.id);
+            if (!real || !p.placeholder || p.name !== LEGACY_PLACEHOLDERS[p.id]) continue;
+            p.name = real.name;
+            delete p.placeholder;
+            changed = true;
+        }
+        if (changed) saveProfiles(stored);
+        return stored;
+    }
     const seeded = DEFAULTS.map(p => ({ ...p }));
     saveProfiles(seeded);
     return seeded;

@@ -2,9 +2,10 @@
 // Parent corner (adult-facing, behind a long-press on ⚙️): settings, audio source and voice, today's session cap,
 // Leitner view, decks and the week's results. Built with DOM nodes only: names, voices and labels go through
 // textContent, never innerHTML.
-import { saveSettings, loadSrs, loadSessions } from '../storage.js';
+import { saveSettings, loadSrs, loadSessions, loadPractice } from '../storage.js';
 import { boxCounts, GS_PROFILE } from '../core/scheduler.js';
-import { cardLabel, extraSessionState } from './rules.js';
+import { cardLabel, extraSessionState, practiceItems } from './rules.js';
+import { THEMES } from './themes.js';
 import { setFirstName } from '../profiles.js';
 import { pruneNameCards } from './name-cards.js';
 import { PAGE_CUES } from './cues.js';
@@ -40,6 +41,17 @@ export function mountParent(root, { profileId, settings, cards, device, speech, 
     const items = week.flatMap(s => s.items ?? []);
     const scored = items.filter(i => i.cardId); // the filler pattern game is not a card
     const firstTry = scored.length ? Math.round(100 * scored.filter(i => i.correctFirstTry).length / scored.length) : 0;
+    // Practice rounds live apart from the daily sessions (they never count toward the daily cap): their own line.
+    const rounds = loadPractice(profileId, 'gs').filter(r => r.date && now - new Date(r.date).getTime() < WEEK_MS);
+    const practiced = rounds.flatMap(r => r.items ?? []).filter(i => i.cardId && !i.preview); // previews are exposure only
+    const practiceLine = () => {
+        if (!rounds.length) return 'Aucun entraînement cette semaine.';
+        const perTheme = THEMES.map(t => [t.emoji, rounds.filter(r => r.theme === t.id).length]).filter(([, n]) => n > 0)
+            .map(([emoji, n]) => `${emoji} ${n}`).join(' · ');
+        const pct = practiced.length
+            ? ` · ${Math.round(100 * practiced.filter(i => i.correctFirstTry).length / practiced.length)}${NBSP}% du premier coup` : '';
+        return `Entraînements${NBSP}: ${plural(rounds.length, 'partie', 'parties')} (${perTheme})${pct}`;
+    };
     const watch = Object.entries(srs.cards).filter(([, c]) => c.lapses >= 2)
         .sort(([, a], [, b]) => b.lapses - a.lapses).slice(0, 8);
     const due = Object.values(srs.cards).filter(c => c.due <= today).length;
@@ -57,6 +69,9 @@ export function mountParent(root, { profileId, settings, cards, device, speech, 
     const sessionItems = h('select', { class: 'form-select', id: 'sessionItems' },
         [5, 6, 7, 8].map(n => h('option', { value: String(n), selected: n === settings.sessionItems }, String(n))));
     sessionItems.addEventListener('change', () => save({ sessionItems: Number(sessionItems.value) }));
+    const practiceSize = h('select', { class: 'form-select', id: 'practiceItems' },
+        [6, 7, 8, 9, 10].map(n => h('option', { value: String(n), selected: n === practiceItems(settings) }, String(n))));
+    practiceSize.addEventListener('change', () => save({ practiceItems: Number(practiceSize.value) }));
     const parentMode = h('input', { class: 'form-check-input', type: 'checkbox', id: 'parentMode', checked: parentModeOn() });
     parentMode.addEventListener('change', () => save({ parentMode: parentMode.checked }));
 
@@ -65,6 +80,9 @@ export function mountParent(root, { profileId, settings, cards, device, speech, 
         firstName,
         h('label', { class: 'form-label w-100 mt-2', for: 'sessionItems' }, 'Nombre de jeux par partie'),
         sessionItems,
+        h('label', { class: 'form-label w-100 mt-2', for: 'practiceItems' },
+            `Nombre de jeux par entraînement (${THEMES.map(t => t.emoji).join(' ')})`),
+        practiceSize,
         h('div', { class: 'form-check mt-2' }, parentMode,
             h('label', { class: 'form-check-label', for: 'parentMode' },
                 'Mode accompagné\u00a0: un adulte est à côté. Une ligne d\'aide s\'affiche pour vous, la réponse n\'est jamais révélée et vous passez au jeu suivant.')));
@@ -142,6 +160,7 @@ export function mountParent(root, { profileId, settings, cards, device, speech, 
 
     const weekCard = card('Cette semaine',
         h('p', { class: 'mb-2' }, `${plural(week.length, 'partie', 'parties')} · ${plural(items.length, 'jeu', 'jeux')} · ${firstTry}${NBSP}% du premier coup`),
+        h('p', { class: 'mb-2', id: 'practiceWeek' }, practiceLine()),
         h('h3', { class: 'mt-2' }, 'À surveiller'),
         watch.length
             ? h('ul', { class: 'mb-0' }, watch.map(([id, c]) => h('li', {}, `${cardLabel(id, cards)} (${plural(c.lapses, 'erreur', 'erreurs')})`)))

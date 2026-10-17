@@ -15,6 +15,23 @@ describe('ensureProfiles', () => {
         assert.deepEqual(profiles.map(x => [x.id, x.track]), [['kid-gs', 'gs'], ['default', 'en']]);
         assert.deepEqual(s.loadProfiles(), profiles);
     });
+    test('ensureProfiles_NothingStored_SeedsApollineAndLouisAsRealNames', () => {
+        const profiles = p.ensureProfiles();
+        assert.deepEqual(profiles.map(x => [x.id, x.name, x.placeholder ?? false]), [['kid-gs', 'Apolline', false], ['default', 'Louis', false]]);
+    });
+    test('ensureProfiles_LegacySeededPlaceholders_TakeTheDefaultNames', () => {
+        s.saveProfiles([
+            { id: 'kid-gs', name: 'Enfant 1', avatar: '🦊', track: 'gs', placeholder: true },
+            { id: 'default', name: 'Enfant 2', avatar: '🐼', track: 'en', placeholder: true },
+        ]);
+        const profiles = p.ensureProfiles();
+        assert.deepEqual(profiles.map(x => [x.id, x.name, x.placeholder ?? false]), [['kid-gs', 'Apolline', false], ['default', 'Louis', false]]);
+        assert.deepEqual(s.loadProfiles(), profiles);
+    });
+    test('ensureProfiles_ProfilesRenamedByAParent_KeepsTheirNames', () => {
+        s.saveProfiles([{ id: 'kid-gs', name: 'Lou', avatar: '🦊', track: 'gs' }, { id: 'default', name: 'Enfant 2', avatar: '🐼', track: 'en' }]);
+        assert.deepEqual(p.ensureProfiles().map(x => x.name), ['Lou', 'Enfant 2']);
+    });
     test('ensureProfiles_ProfilesStored_KeepsThem', () => {
         s.saveProfiles([{ id: 'lou', name: 'Lou', avatar: '🦊', track: 'gs' }]);
         assert.deepEqual(p.ensureProfiles().map(x => x.id), ['lou']);
@@ -60,9 +77,15 @@ describe('renameProfile', () => {
 
 describe('setFirstName', () => {
     test('setFirstName_ProfileStillPlaceholder_RenamesProfileToo', () => {
-        p.ensureProfiles();
+        s.saveProfiles([{ id: 'kid-gs', name: 'Enfant 1', avatar: '🦊', track: 'gs', placeholder: true }]);
         p.setFirstName('kid-gs', 'Zoé');
         assert.equal(s.loadSettings('kid-gs').firstName, 'Zoé');
+        assert.equal(s.loadProfiles().find(x => x.id === 'kid-gs').name, 'Zoé');
+    });
+    test('setFirstName_SeededProfileAfterGamePrefill_RenamesProfileToo', () => {
+        // gs.html prefills the first name from the seeded profile on first open; the parent corner edits it afterwards.
+        p.prefillFirstName(p.ensureProfiles()[0]);
+        p.setFirstName('kid-gs', 'Zoé');
         assert.equal(s.loadProfiles().find(x => x.id === 'kid-gs').name, 'Zoé');
     });
     test('setFirstName_ProfileNamedDifferently_KeepsProfileName', () => {
@@ -100,8 +123,12 @@ describe('prefillFirstName', () => {
         assert.equal(s.loadSettings('lou').firstName, 'Lou');
     });
     test('prefillFirstName_PlaceholderProfile_LeavesItEmpty', () => {
-        p.ensureProfiles();
+        s.saveProfiles([{ id: 'kid-gs', name: 'Enfant 1', avatar: '🦊', track: 'gs', placeholder: true }]);
         assert.equal(p.prefillFirstName(s.loadProfiles()[0]).firstName, '');
+    });
+    test('prefillFirstName_SeededGsProfile_PrefillsApolline', () => {
+        assert.equal(p.prefillFirstName(p.ensureProfiles()[0]).firstName, 'Apolline');
+        assert.equal(s.loadSettings('kid-gs').firstName, 'Apolline');
     });
 });
 
