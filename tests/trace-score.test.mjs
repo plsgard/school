@@ -2,7 +2,7 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { score, createPointerFilter, keepStrokes, firstStrokeDone } from '../assets/gs/trace-score.js';
+import { score, createPointerFilter, keepStrokes, firstStrokeDone, createBlueTracker } from '../assets/gs/trace-score.js';
 
 const model = { pts: [[20, 50], [40, 50], [60, 50], [80, 50]] };
 const letters = JSON.parse(await readFile(new URL('../assets/gs/decks/letters.json', import.meta.url), 'utf8'));
@@ -204,5 +204,24 @@ describe('firstStrokeDone', () => {
     test('firstStrokeDone_OneStrokeModel_IsFalse', () => {
         const a = letters.items.find(it => it.id === 'a').trace;
         assert.equal(firstStrokeDone([ideal(a)], { pts: a }), false);
+    });
+});
+
+describe('createBlueTracker', () => {
+    test('blue_WaitingRightAfterTheCue_IsSilentAndNotAMiss', () => {
+        const t = createBlueTracker();
+        t.stroke(); t.cueSaid();
+        assert.deepEqual(t.blue(), { speak: false, miss: false });
+    });
+    test('blue_AfterAFreshStroke_SpeaksAndIsAMiss', () => {
+        const t = createBlueTracker();
+        t.stroke(); t.cueSaid(); t.blue();
+        t.stroke();
+        assert.deepEqual(t.blue(), { speak: true, miss: true });
+    });
+    test('blue_TwiceWithoutANewStroke_SecondIsSilent', () => {
+        const t = createBlueTracker();
+        t.stroke(); t.blue();
+        assert.deepEqual(t.blue(), { speak: false, miss: false });
     });
 });

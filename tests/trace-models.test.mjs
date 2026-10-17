@@ -20,7 +20,7 @@ const ideal = (wp) => {
     return out;
 };
 const d = (p, q) => Math.hypot(p[0] - q[0], p[1] - q[1]);
-const model = (it) => ({ pts: it.trace, ...(it.trace2 ? { pts2: it.trace2 } : {}), ...(it.dirSpan ? { dirSpan: it.dirSpan } : {}) });
+const model = (it) => ({ pts: it.trace, ...(it.trace2 ? { pts2: it.trace2 } : {}), ...(it.dirOrder ? { dirOrder: it.dirOrder } : {}) });
 const isClosed = (pts) => d(pts[0], pts[pts.length - 1]) < 12.6;
 
 function checkModel(it, label) {
@@ -50,6 +50,11 @@ function checkModel(it, label) {
         assert.ok(d(m.pts2[0], m.pts[0]) >= 8, `${label}: blue dot under the green dot`);
         const onStroke1 = m.pts2.filter(w => ideal(m.pts).some(p => d(p, w) < 9)).length / m.pts2.length;
         assert.ok(onStroke1 <= 0.5, `${label}: blue stroke lies on the green one (${onStroke1})`);
+        for (const w of m.pts2.slice(-2)) assert.ok(!ideal(m.pts).some(p => d(p, w) < 9), `${label}: blue stroke ends on the green one`);
+        const blueFirst = [ideal(m.pts2), ideal(m.pts)];
+        assert.equal(score(blueFirst, m).hintKey, 'start', `${label}: blue stroke first`);
+        const half = ideal(m.pts2).slice(0, Math.ceil(ideal(m.pts2).length / 2));
+        assert.equal(score([ideal(m.pts), half], m).ok, false, `${label}: half of the blue stroke`);
     }
 }
 
@@ -86,8 +91,21 @@ describe('traceModels', () => {
             assert.ok(Math.max(...ys) >= 70 && Math.max(...ys) <= 74, `${x.id} bottom`);
         }
     });
-    // Q7: an 8's two lobes turn opposite ways, so its direction is judged on its first lobe (dirSpan).
+    // An 8's two lobes turn opposite ways; drawn backwards from the green dot it turns the same ways too. Its
+    // direction is judged by order of reach (top band left of the start before the bottom band), whatever the lobe sizes.
     const eight = () => model(digits.find(x => x.id === '8'));
+    // A synthetic 8 whose top lobe takes `r` of the height (30–72), drawn as taught: start top right, top lobe
+    // counter-clockwise, bottom lobe clockwise, back up through the centre.
+    const eightOf = (r) => {
+        const h = 42, ry1 = r * h / 2, ry2 = (1 - r) * h / 2, ct = [50, 30 + ry1], cb = [50, 30 + 2 * ry1 + ry2];
+        const top = (deg) => [ct[0] + 0.8 * ry1 * Math.sin(deg * Math.PI / 180), ct[1] - ry1 * Math.cos(deg * Math.PI / 180)];
+        const bot = (deg) => [cb[0] + 0.8 * ry2 * Math.sin(deg * Math.PI / 180), cb[1] - ry2 * Math.cos(deg * Math.PI / 180)];
+        const pts = [];
+        for (let a = 45; a >= -180; a -= 22.5) pts.push(top(a));
+        for (let a = 30; a < 360; a += 30) pts.push(bot(a));
+        for (let a = -180; a >= -315; a -= 22.5) pts.push(top(a));
+        return { pts: pts.map(([x, y]) => [+x.toFixed(1), +y.toFixed(1)]), dirOrder: 'top-first' };
+    };
     test('traceModels_EightDrawnAsTaught_IsOk', () => {
         assert.equal(score([ideal(eight().pts)], eight()).ok, true);
     });
@@ -98,5 +116,25 @@ describe('traceModels', () => {
         const m = eight(), [s0, e] = [m.pts[0], m.pts[m.pts.length - 3]];
         const k = 8 / d(s0, e), start = [s0[0] + (e[0] - s0[0]) * k, s0[1] + (e[1] - s0[1]) * k];
         assert.equal(score([ideal([start, ...m.pts])], m).ok, true);
+    });
+    for (const r of [0.35, 0.45, 0.6]) {
+        test(`traceModels_EightTopLobe${r * 100}PercentAsTaught_IsOk`, () => {
+            const m = eightOf(r);
+            assert.equal(score([ideal(m.pts)], m).ok, true, JSON.stringify(score([ideal(m.pts)], m)));
+        });
+        test(`traceModels_EightTopLobe${r * 100}PercentReversed_HintsArrows`, () => {
+            const m = eightOf(r);
+            assert.equal(score([ideal(m.pts).slice().reverse()], m).hintKey, 'arrows');
+        });
+    }
+    test('traceModels_EightTopLobeClockwiseFirst_HintsArrows', () => {
+        // top band reached first, but the top lobe goes round the wrong way (clockwise) before the bottom one
+        const m = eightOf(0.45), r = 0.45, ry1 = r * 21, ry2 = (1 - r) * 21, ct = [50, 30 + ry1], cb = [50, 30 + 2 * ry1 + ry2];
+        const at = (c, ry, deg) => [c[0] + 0.8 * ry * Math.sin(deg * Math.PI / 180), c[1] - ry * Math.cos(deg * Math.PI / 180)];
+        const ink = [];
+        for (let a = 45; a <= 405 + 135; a += 22.5) ink.push(at(ct, ry1, a));  // full top loop clockwise, then down the right
+        for (let a = 0; a >= -360; a -= 30) ink.push(at(cb, ry2, a));          // bottom loop counter-clockwise
+        for (let a = 180; a <= 225; a += 22.5) ink.push(at(ct, ry1, a));      // back up through the centre
+        assert.equal(score([ideal(ink)], m).hintKey, 'arrows');
     });
 });

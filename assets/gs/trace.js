@@ -5,7 +5,7 @@
 // continues the same attempt (two-stroke letters, a mid-letter lift). Only once a hint was given does the next
 // pointerdown start a new attempt; the canvas also clears its own ink FAIL_CLEAR_MS after the hint, so every
 // attempt is scored on its own strokes. onResult's contract is unchanged.
-import { score, createPointerFilter, keepStrokes, firstStrokeDone } from './trace-score.js';
+import { score, createPointerFilter, keepStrokes, firstStrokeDone, createBlueTracker } from './trace-score.js';
 import { LIGNAGE, curveSegments, arrowSpots } from './trace-geom.js';
 
 // One filter for the whole page session: once a Pencil has been seen, finger/palm touches stay rejected
@@ -15,14 +15,20 @@ const filter = createPointerFilter();
 const FAIL_CLEAR_MS = 1200;   // after a failed attempt, the ink is cleared so the next try is scored alone
 const LIFT_GRACE_MS = 900;    // a lift shorter than this is part of the same attempt
 const TWO_STROKE_GRACE_MS = 2500; // two-stroke models (x, 4, 5): time to move the hand to the blue dot
+const BLUE_IDLE_MS = 8000;    // nothing drawn this long at the blue dot: the blue cue is said again (once per idle period)
 
 // onStroke1 (optional): two-stroke models only, called once per attempt when the green stroke is done and the
 // grace window for the blue stroke starts (the page says "Maintenant, pars du point bleu !").
+// It is called again after BLUE_IDLE_MS without ink in the blue state. A 'blue' result carries `blueMiss`: false
+// while the child is only waiting (not a miss, the cue was just said), true after a fresh stroke that still left
+// the blue stroke undone (the renderer says the cue again and counts a miss).
 export function mountTrace(container, model, { onResult, onStroke1 = () => {} }) {
     container.innerHTML = '<canvas class="trace-model"></canvas><canvas class="trace-ink"></canvas>';
     const [cm, ci] = container.querySelectorAll('canvas');
     let W = 300, dprUsed = 0, strokes = [], drawing = false, activeId = null, activeType = '', mctx, ictx;
-    let failTimer = null, failPending = false, graceTimer = null, blueSaid = false;
+    let failTimer = null, failPending = false, graceTimer = null, blueSaid = false, idleTimer = null;
+    const blueState = createBlueTracker();
+    const sayBlue = () => { blueState.cueSaid(); onStroke1(); };
 
     function size() {
         const r = container.getBoundingClientRect();
@@ -92,6 +98,7 @@ export function mountTrace(container, model, { onResult, onStroke1 = () => {} })
             if (e.pointerType !== 'pen' || activeType === 'pen') return;
             dropActiveStroke();                                  // palm/finger stroke in progress: the Pencil wins
         }
+        clearTimeout(idleTimer); idleTimer = null;
         if (graceTimer) { clearTimeout(graceTimer); graceTimer = null; } // lifted and came back: same attempt
         else if (failPending) reset();                          // new attempt before the auto-clear fired
         dropStray();                                            // a stray tap must not become this stroke's start
@@ -119,7 +126,8 @@ export function mountTrace(container, model, { onResult, onStroke1 = () => {} })
         if (r.ok) { onResult(r); return; }
         clearTimeout(graceTimer);
         graceTimer = setTimeout(settleLift, model.pts2 ? TWO_STROKE_GRACE_MS : LIFT_GRACE_MS);
-        if (!blueSaid && firstStrokeDone(strokes, model)) { blueSaid = true; onStroke1(); }
+        if (model.pts2) blueState.stroke();
+        if (!blueSaid && firstStrokeDone(strokes, model)) { blueSaid = true; sayBlue(); }
     }
     // The child did not come back within the grace window: score what is there and give the hint.
     function dropStray() {
@@ -137,6 +145,11 @@ export function mountTrace(container, model, { onResult, onStroke1 = () => {} })
             failPending = true;
             failTimer = setTimeout(() => { if (!drawing) reset(); }, FAIL_CLEAR_MS);
         }
+        if (r.hintKey === 'blue') {
+            r.blueMiss = blueState.blue().miss;
+            if (r.blueMiss) blueState.cueSaid();                // the renderer says the cue with the miss
+            idleTimer = setTimeout(() => { idleTimer = null; if (!drawing) sayBlue(); }, BLUE_IDLE_MS);
+        }
         onResult(r);
     }
     function cancel(e) {
@@ -147,6 +160,7 @@ export function mountTrace(container, model, { onResult, onStroke1 = () => {} })
     function reset() {
         clearTimeout(failTimer); failTimer = null; failPending = false;
         clearTimeout(graceTimer); graceTimer = null;
+        clearTimeout(idleTimer); idleTimer = null;
         strokes = []; drawing = false; activeId = null; activeType = ''; blueSaid = false;
         ictx.clearRect(0, 0, W, W); drawModel();
     }
@@ -165,5 +179,5 @@ export function mountTrace(container, model, { onResult, onStroke1 = () => {} })
     ci.addEventListener('pointercancel', cancel);
     window.addEventListener('resize', onResize);
 
-    return { reset, destroy() { clearTimeout(failTimer); clearTimeout(graceTimer); window.removeEventListener('resize', onResize); container.innerHTML = ''; } };
+    return { reset, destroy() { clearTimeout(failTimer); clearTimeout(graceTimer); clearTimeout(idleTimer); window.removeEventListener('resize', onResize); container.innerHTML = ''; } };
 }

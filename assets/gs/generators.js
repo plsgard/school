@@ -210,21 +210,22 @@ const GEN = {
     },
     'trace'(card, { cards }) {
         const it = card.item;
-        const pts2 = it.trace2 ? { pts2: it.trace2 } : {};
+        // Only the fields a model has: pts2 (x, 4, 5), dot (i, j), bar (t, 7), dirOrder (8).
+        const extras = Object.fromEntries([['pts2', it.trace2], ['dot', it.dot], ['bar', it.bar], ['dirOrder', it.dirOrder]].filter(([, v]) => v));
         const go = it.trace2 ? 'Pars du point vert, puis du point bleu.' : 'Pars du point vert.'; // two-stroke models (x, 4, 5)
         if (card.kind === 'numbers') {
             const n = it.n, word = numSay(cards, n);
             return {
                 layout: 'trace',
                 prompt: cue(`ui.trace-digit.${n}`, `Trace le chiffre ${word}. ${go}`, `Trace le chiffre ${n}. ${go}`),
-                trace: { pts: it.trace, ...pts2, ...(it.dirSpan ? { dirSpan: it.dirSpan } : {}), bar: it.bar, label: String(n), say: numCue(cards, n), kind: 'digit' },
+                trace: { pts: it.trace, ...extras, label: String(n), say: numCue(cards, n), kind: 'digit' },
                 success: cue(`ui.trace-digit-ok.${n}`, `Bravo, tu as bien tracé le chiffre ${word} !`, `Bravo, tu as bien tracé le chiffre ${n} !`),
             };
         }
         return {
             layout: 'trace',
             prompt: cue(`ui.trace.${it.id}`, `Trace la lettre ${it.name}. ${go}`, `Trace la lettre ${it.script}. ${go}`),
-            trace: { pts: it.trace, ...pts2, dot: it.dot, bar: it.bar, label: it.cursive, say: cue(`letter.${it.id}.name`, it.name), kind: 'letter' },
+            trace: { pts: it.trace, ...extras, label: it.cursive, say: cue(`letter.${it.id}.name`, it.name), kind: 'letter' },
             success: cue(`ui.trace-ok.${it.id}`, `Bravo, tu as bien tracé la lettre ${it.name} !`, `Bravo, tu as bien tracé la lettre ${it.script} !`),
         };
     },

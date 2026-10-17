@@ -17,45 +17,43 @@ export const TRACE_HINTS = {
 // Shoelace signed area of a closed polyline (y down: > 0 = clockwise on screen). Only its sign is used.
 const signedArea = (poly) => poly.reduce((a, p, i) => { const q = poly[(i + 1) % poly.length]; return a + p[0] * q[1] - q[0] * p[1]; }, 0) / 2;
 const MIN_CLOSED_AREA = 20; // below this the model's turning sense is undefined: no direction check
-// First `f` of a polyline by arc length (at least 3 points), and the rest. An 8's lobes turn opposite ways and
-// cancel in a whole-trace area, so its direction is judged on its first lobe only (model.dirSpan, default 1).
-function splitAt(poly, f) {
-    if (f >= 1) return [poly, []];
-    const seg = poly.slice(1).map((p, i) => Math.hypot(p[0] - poly[i][0], p[1] - poly[i][1]));
-    const total = seg.reduce((a, b) => a + b, 0);
-    let k = 1, run = 0;
-    while (k < poly.length && run + seg[k - 1] <= f * total) run += seg[k++ - 1];
-    k = Math.max(3, k);
-    return [poly.slice(0, k), poly.slice(k)];
+const R_END = 6;         // the last two waypoints of a blue stroke must really be reached (a half stroke is not enough)
+// dirOrder 'top-first' (the 8): its lobes turn opposite ways and cancel in a whole-trace area, and drawn backwards
+// from the green dot it turns the same ways (bottom lobe counter-clockwise first). So its direction is judged by
+// order of reach, whatever the child's lobe sizes: the ink must reach the top band left of the start before the
+// bottom band; and its head (everything before the bottom band) must turn the way the model's head turns.
+function topFirst(poly, model) {
+    const ys = model.pts.map(p => p[1]), top = Math.min(...ys), bottom = Math.max(...ys), h = bottom - top;
+    const inTop = (p) => p[1] < top + 0.2 * h && p[0] < model.pts[0][0] - 6, inBottom = (p) => p[1] > bottom - 0.2 * h;
+    const iTop = poly.findIndex(inTop), iBottom = poly.findIndex(inBottom);
+    return { reached: iTop >= 0 && (iBottom < 0 || iTop < iBottom), head: iBottom < 0 ? poly : poly.slice(0, iBottom) };
 }
-const centroid = (poly) => poly.reduce((c, p) => [c[0] + p[0] / poly.length, c[1] + p[1] / poly.length], [0, 0]);
 
-// model: { pts, pts2? }. With pts2 (x, 4, 5) both strokes must be covered. A closed model (0, 8: start and end
-// within R_START) cannot be told apart by its start, so its direction is checked instead (spec §8.5): the ink
-// must turn the same way as the model (same sign of signed area). Robust to a start a few units off the dot,
+// model: { pts, pts2?, dirOrder? }. With pts2 (x, 4, 5) both strokes must be covered, the blue one to its end, and
+// the attempt must start at the green dot. A closed model (0, 8: start and end within R_START) cannot be told apart
+// by its start, so its direction is checked instead (spec §8.5): the ink must turn the same way as the model (same
+// sign of signed area; the 8 adds its order of reach, see topFirst). Robust to a start a few units off the dot,
 // a wobble or an overshoot, unlike comparing when two waypoints are first reached.
 export function score(strokes, model) {
     const pts = strokes.flat();
     if (pts.length < 8) return { ok: false, coverage: 0, outside: 0, startOk: false, hint: '', hintKey: '' };
     const main = model.pts, second = model.pts2 ?? [];
     const dist = (p, w) => Math.hypot(p[0] - w[0], p[1] - w[1]);
-    const covered = (wp) => wp.filter(w => pts.some(p => dist(p, w) < R)).length / wp.length;
+    const covered = (wp, rEnd = R) => wp.filter((w, i) => pts.some(p => dist(p, w) < (i >= wp.length - 2 ? rEnd : R))).length / wp.length;
     const coverMain = covered(main);
-    const coverage = second.length ? Math.min(coverMain, covered(second)) : coverMain;
+    const coverage = second.length ? Math.min(coverMain, covered(second, R_END)) : coverMain;
     const wp = [...main, ...second];
     const outside = pts.filter(p => !wp.some(w => dist(p, w) < R_OUT)).length / pts.length;
-    const startOk = dist(pts[0], main[0]) < R_START;
+    // Two-stroke models: the attempt starts at the green dot, never at the blue one.
+    const startOk = dist(pts[0], main[0]) < R_START && (!second.length || dist(pts[0], main[0]) < dist(pts[0], second[0]));
     const closed = dist(main[0], main[main.length - 1]) < R_START;
-    const span = model.dirSpan ?? 1;
-    const [modelHead, modelRest] = splitAt(main, span);
-    const [inkHead] = splitAt(pts, span);
-    const modelArea = closed ? signedArea(modelHead) : 0;
-    const turnOk = Math.abs(modelArea) < MIN_CLOSED_AREA || Math.sign(signedArea(inkHead)) === Math.sign(modelArea);
-    // A partial span also has to be in the right place: an 8 drawn backwards from the green dot turns the same
-    // ways (bottom lobe counter-clockwise first), so only the position of its first lobe tells it apart.
-    const placeOk = !closed || !modelRest.length
-        || dist(centroid(inkHead), centroid(modelHead)) < dist(centroid(inkHead), centroid(modelRest));
-    const dirOk = turnOk && placeOk;
+    let dirOk = true;
+    if (closed) {
+        const order = model.dirOrder === 'top-first';
+        const ink = order ? topFirst(pts, model) : { reached: true, head: pts };
+        const modelArea = signedArea(order ? topFirst(main, model).head : main);
+        dirOk = ink.reached && (Math.abs(modelArea) < MIN_CLOSED_AREA || Math.sign(signedArea(ink.head)) === Math.sign(modelArea));
+    }
     const ok = coverage >= 0.85 && outside < 0.25 && startOk && dirOk;
     const blue = second.length > 0 && coverMain >= 0.85 && coverage < 0.85 && outside < 0.25; // only the blue stroke is missing
     const hintKey = ok ? '' : !startOk ? 'start' : blue ? 'blue' : coverage < 0.85 ? 'follow' : !dirOk ? 'arrows' : 'inside';
@@ -69,6 +67,18 @@ export function score(strokes, model) {
 export function firstStrokeDone(strokes, model) {
     if (!model.pts2) return false;
     return score(strokes, { pts: model.pts }).ok && !score(strokes, model).ok;
+}
+
+// Blue-dot state (two-stroke models, green stroke done). Waiting is not a miss (Q8) and stays silent right after the
+// blue cue; a blue result after a fresh stroke drawn since the last cue says the cue again and counts as a miss,
+// so the two-miss "Suivant" can still come.
+export function createBlueTracker() {
+    let fresh = 0;
+    return {
+        cueSaid() { fresh = 0; },
+        stroke() { fresh++; },
+        blue() { const f = fresh > 0; fresh = 0; return { speak: f, miss: f }; },
+    };
 }
 
 export function keepStrokes(strokes, model) {

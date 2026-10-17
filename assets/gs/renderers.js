@@ -419,8 +419,9 @@ export function renderExercise(root, ex, { speak, parentMode = false, waitForTap
                     if (r.ok) { done(); return; }
                     if (!r.hint) return; // a too-short stroke (a tap) is not a miss
                     // Waiting at the blue dot (green stroke done) is not a miss either: no "Suivant" from waiting.
-                    // onStroke1 has already said the blue cue at the lift; it is not said a second time.
-                    if (r.hintKey === 'blue') { tell(UI_CUES.traceHint.blue.text); return; }
+                    // onStroke1 has just said the blue cue. A blue result after a fresh stroke (blueMiss) is a
+                    // real miss: it goes on below, says the cue again and can lead to "Suivant".
+                    if (r.hintKey === 'blue' && !r.blueMiss) { tell(UI_CUES.traceHint.blue.text); return; }
                     misses++;
                     const hint = UI_CUES.traceHint[r.hintKey];
                     tell(hint?.text ?? r.hint);
