@@ -5,7 +5,7 @@
 // continues the same attempt (two-stroke letters, a mid-letter lift). Only once a hint was given does the next
 // pointerdown start a new attempt; the canvas also clears its own ink FAIL_CLEAR_MS after the hint, so every
 // attempt is scored on its own strokes. onResult's contract is unchanged.
-import { score, createPointerFilter } from './trace-score.js';
+import { score, createPointerFilter, keepStrokes } from './trace-score.js';
 
 // One filter for the whole page session: once a Pencil has been seen, finger/palm touches stay rejected
 // on every later trace canvas too, until ~30 s pass without any Pencil input (trace-score.js).
@@ -120,6 +120,7 @@ export function mountTrace(container, model, { onResult }) {
         }
         if (graceTimer) { clearTimeout(graceTimer); graceTimer = null; } // lifted and came back: same attempt
         else if (failPending) reset();                          // new attempt before the auto-clear fired
+        dropStray();                                            // a stray tap must not become this stroke's start
         if (e.pointerType === 'pen' && strokes.some(st => st[0][3] !== 'pen')) {
             strokes = strokes.filter(st => st[0][3] === 'pen');  // the palm landed before the Pencil: drop its ink
             redrawInk();
@@ -146,10 +147,16 @@ export function mountTrace(container, model, { onResult }) {
         graceTimer = setTimeout(settleLift, LIFT_GRACE_MS);
     }
     // The child did not come back within the grace window: score what is there and give the hint.
+    function dropStray() {
+        if (!strokes.length) return;
+        const kept = keepStrokes(strokes, model);
+        if (kept !== strokes) { strokes = kept; redrawInk(); }
+    }
     function settleLift() {
         graceTimer = null;
         if (drawing) return;
         const r = score(strokes, model);
+        if (!r.ok && !r.hintKey) dropStray();                  // too short to score (a tap): wipe it, it is not a miss
         if (!r.ok && r.hintKey) {
             failPending = true;
             failTimer = setTimeout(() => { if (!drawing) reset(); }, FAIL_CLEAR_MS);

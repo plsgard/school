@@ -22,6 +22,13 @@ export function score(strokes, model) {
     return { ok, coverage, outside, startOk, hint: TRACE_HINTS[hintKey] ?? '', hintKey };
 }
 
+// Strokes too short to earn a hint (a stray tap) are dropped before the next stroke starts: otherwise the tap stays
+// first in `strokes` and the real stroke fails "Pars du point vert." (P3). A scored attempt (ok or hinted) is kept.
+export function keepStrokes(strokes, model) {
+    const r = score(strokes, model);
+    return r.ok || r.hintKey ? strokes : [];
+}
+
 // Once a Pencil is seen, touches (palm, fingers) are rejected. The lock decays after penTimeoutMs without pen
 // input, so a child who puts the Pencil down can carry on with a finger.
 export function createPointerFilter({ penTimeoutMs = 30_000, now = () => Date.now() } = {}) {

@@ -48,6 +48,7 @@ export function phoneme(id, letters = []) {
     return { display: id, spoken: SCHWA[id] ?? `${id}eu`, stretched };
 }
 const soundPhrase = (ph) => (ph.stretched ? ph.spoken : `le son ${ph.spoken}`);
+const soundPhraseW = (ph) => (ph.stretched ? ph.display : `le son «\u00a0${ph.display}\u00a0»`); // shown: the letter, not « beu »
 
 function wordChoice(w, correct) {
     return { id: w.id, label: w.text, emoji: w.emoji, say: cue(`word.${w.id}`, w.text), correct };
@@ -81,7 +82,7 @@ const GEN = {
         return {
             layout: 'tap', prompt: cue(`ui.syll-count.${w.id}`, `Frappe dans tes mains en disant ${w.text}. Combien de syllabes ?`),
             stage: { emoji: w.emoji, text: w.text },
-            choices: [1, 2, 3].map(k => ({ id: String(k), label: DOTS[k], say: numCue(cards, k), correct: k === n })),
+            choices: [1, 2, 3].map(k => ({ id: String(k), label: DOTS[k], say: numCue(cards, k), correct: k === n, style: 'dots' })),
             success: cue(`ui.syll-count-ok.${w.id}`, `Bravo ! ${w.syll.join(', ')} : ${n === 1 ? 'une syllabe' : `${numSay(cards, n)} syllabes`}.`,
                 `Bravo ! ${syllW(w).join('-')} : ${n === 1 ? 'une syllabe' : `${numSay(cards, n)} syllabes`}.`),
         };
@@ -98,7 +99,7 @@ const GEN = {
             stage: { emoji: w.emoji, text: w.text },
             choices: shuffle([wordChoice(target, true), ...distractors.map(d => wordChoice(d, false))], rng),
             success: cue(`ui.syll-match-ok.${w.id}.${target.id}`, `Oui ! ${w.text} et ${target.text} commencent pareil : ${w.syll[0]} !`,
-                `Oui ! ${w.text} et ${target.text} commencent pareil : ${syllW(w)[0]} !`),
+                `Oui ! ${w.text} et ${target.text} commencent pareil : ${w.syll[0]} !`), // the shared sound is oral: « ba » for ballon
         };
     },
     'rhyme'(card, { cards, rng }) {
@@ -123,10 +124,11 @@ const GEN = {
         const distractors = pickWithTrap(words.filter(x => x.initial !== w.initial), x => x.initial === close, rng, used);
         const ph = phoneme(w.initial, itemsOf(cards, 'letters'));
         return {
-            layout: 'tap', prompt: cue(`ui.sound-pick.${w.initial}`, `Quel mot commence par ${soundPhrase(ph)} ?`),
+            layout: 'tap', prompt: cue(`ui.sound-pick.${w.initial}`, `Quel mot commence par ${soundPhrase(ph)} ?`, `Quel mot commence par ${soundPhraseW(ph)} ?`),
             stage: { text: ph.display },
             choices: shuffle([wordChoice(target, true), ...distractors.map(d => wordChoice(d, false))], rng),
-            success: cue(`ui.sound-pick-ok.${target.id}`, `Oui ! ${target.text} commence par ${soundPhrase(ph)} !`),
+            success: cue(`ui.sound-pick-ok.${target.id}`, `Oui ! ${target.text} commence par ${soundPhrase(ph)} !`,
+                `Oui ! ${target.text} commence par ${soundPhraseW(ph)} !`),
         };
     },
     'sound-letter'(card, { cards, rng }) {
@@ -194,9 +196,9 @@ const GEN = {
         const it = card.item;
         return {
             layout: 'trace',
-            prompt: cue(`ui.trace.${it.id}`, `Trace la lettre ${it.name}. Pars du point vert.`, `Trace la lettre ${it.cap}. Pars du point vert.`),
+            prompt: cue(`ui.trace.${it.id}`, `Trace la lettre ${it.name}. Pars du point vert.`, `Trace la lettre ${it.script}. Pars du point vert.`),
             trace: { pts: it.trace, dot: it.dot, bar: it.bar, label: it.cursive, say: cue(`letter.${it.id}.name`, it.name) },
-            success: cue(`ui.trace-ok.${it.id}`, `Bravo, tu as bien tracé la lettre ${it.name} !`, `Bravo, tu as bien tracé la lettre ${it.cap} !`),
+            success: cue(`ui.trace-ok.${it.id}`, `Bravo, tu as bien tracé la lettre ${it.name} !`, `Bravo, tu as bien tracé la lettre ${it.script} !`),
         };
     },
     'name-spell'(card, { cards, rng }) {
@@ -237,6 +239,7 @@ const GEN = {
         return {
             layout: 'dots', prompt: cue(`ui.decompose.${n}.${lit}`, `${say(n)}, c'est ${say(lit)} et encore combien ? Allume les ronds.`),
             target: n, lit, total: Math.max(n + 1, 6),
+            reveal: numCue(cards, n - lit), // spoken after « Regarde. » when the dots are lit for the child
             success: cue(`ui.decompose-ok.${n}.${lit}`, `Oui ! ${say(n)}, c'est ${say(lit)} et ${say(n - lit)}.`),
         };
     },

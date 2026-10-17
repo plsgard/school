@@ -2,7 +2,7 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { score, createPointerFilter } from '../assets/gs/trace-score.js';
+import { score, createPointerFilter, keepStrokes } from '../assets/gs/trace-score.js';
 
 const model = { pts: [[20, 50], [40, 50], [60, 50], [80, 50]] };
 const letters = JSON.parse(await readFile(new URL('../assets/gs/decks/letters.json', import.meta.url), 'utf8'));
@@ -112,6 +112,25 @@ describe('createPointerFilter', () => {
         const f = createPointerFilter();
         f.accept('pen');
         assert.equal(f.accept('mouse'), true);
+    });
+});
+
+describe('keepStrokes', () => {
+    test('keepStrokes_StrayTapOnly_DropsIt', () => {
+        assert.deepEqual(keepStrokes([[[70, 20, 0.5, 'pen'], [70.4, 20.2, 0.5, 'pen']]], model), []);
+    });
+    test('keepStrokes_StrokeThatEarnedAHint_KeepsIt', () => {
+        const rev = [along()[0].slice().reverse()];
+        assert.equal(keepStrokes(rev, model), rev);
+    });
+    test('keepStrokes_StrokeThatIsOk_KeepsIt', () => {
+        const ok = along();
+        assert.equal(keepStrokes(ok, model), ok);
+    });
+    test('keepStrokes_StrayTapThenRealStroke_ScoresTheRealStrokeAlone', () => {
+        const tap = [[70, 20, 0.5, 'pen']];
+        assert.equal(score([tap, ...along()], model).hintKey, 'start'); // the bug: the tap became the start point
+        assert.equal(score([...keepStrokes([tap], model), ...along()], model).ok, true);
     });
 });
 

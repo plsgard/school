@@ -11,8 +11,8 @@
  { "id": "kiwi",     "text": "kiwi",     "emoji": "🥝", "syll": ["ki","wi"],        "initial": "k",  "rhyme": "i" },
  { "id": "velo",     "text": "vélo",     "emoji": "🚲", "syll": ["vé","lo"],        "initial": "v",  "rhyme": "o" },
  { "id": "maison",   "text": "maison",   "emoji": "🏡", "syll": ["mai","zon"],  "syllW": ["mai","son"],   "initial": "m",  "rhyme": "on" },
- { "id": "ballon",   "text": "ballon",   "emoji": "🎈", "syll": ["ba","lon"],   "syllW": ["ba","llon"],   "initial": "b",  "rhyme": "on" },
- { "id": "papillon", "text": "papillon", "emoji": "🦋", "syll": ["pa","pi","yon"], "syllW": ["pa","pi","llon"], "initial": "p",  "rhyme": "on" },
+ { "id": "ballon",   "text": "ballon",   "emoji": "🎈", "syll": ["ba","lon"],   "syllW": ["bal","lon"],   "initial": "b",  "rhyme": "on" },
+ { "id": "papillon", "text": "papillon", "emoji": "🦋", "syll": ["pa","pi","yon"], "syllW": ["pa","pil","lon"], "initial": "p",  "rhyme": "on" },
  { "id": "banane",   "text": "banane",   "emoji": "🍌", "syll": ["ba","nane"],      "initial": "b",  "rhyme": "ane" },
  { "id": "voiture",  "text": "voiture",  "emoji": "🚗", "syll": ["voi","ture"],     "initial": "v",  "rhyme": "ure" },
  { "id": "chat",     "text": "chat",     "emoji": "🐱", "syll": ["chat"],           "initial": "ch", "rhyme": "a" }

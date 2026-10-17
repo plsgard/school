@@ -312,8 +312,11 @@ describe('generate', () => {
     test('generate_Trace_ShowsTheWrittenLetter', () => {
         const ex = generate(byId('letters/t#trace'), { cards, rng });
         assert.equal(ex.prompt.text, 'Trace la lettre té. Pars du point vert.');
-        assert.equal(ex.prompt.display, 'Trace la lettre T. Pars du point vert.');
-        assert.equal(ex.success.display, 'Bravo, tu as bien tracé la lettre T\u00a0!');
+        assert.equal(ex.prompt.display, 'Trace la lettre t. Pars du point vert.');
+        assert.equal(ex.success.display, 'Bravo, tu as bien tracé la lettre t\u00a0!');
+        const e = generate(byId('letters/e#trace'), { cards, rng });
+        assert.equal(e.prompt.display ?? e.prompt.text, 'Trace la lettre e. Pars du point vert.');
+        assert.equal(e.success.display ?? e.success.text, 'Bravo, tu as bien tracé la lettre e\u00a0!');
     });
     test('generate_SoundLetter_SuccessShowsTheWrittenLetter', () => {
         const withWord = generate(byId('letters/l#sound-letter'), { cards, rng: () => 0.05 });
@@ -325,12 +328,25 @@ describe('generate', () => {
         const ex = generate(byId('mots-p1/fusee#syll-count'), { cards, rng });
         assert.equal(ex.success.text, 'Bravo\u00a0! Fu, zée\u00a0: deux syllabes.');
         assert.equal(ex.success.display, 'Bravo\u00a0! Fu-sée\u00a0: deux syllabes.');
-        assert.equal(generate(byId('mots-p1/papillon#syll-count'), { cards, rng }).success.display, 'Bravo\u00a0! Pa-pi-llon\u00a0: trois syllabes.');
+        assert.equal(generate(byId('mots-p1/papillon#syll-count'), { cards, rng }).success.display, 'Bravo\u00a0! Pa-pil-lon\u00a0: trois syllabes.');
     });
     test('generate_SyllMatch_ShowsWrittenSyllables', () => {
         const ex = generate(byId('mots-p1/ballon#syll-match'), { cards, rng });
         assert.equal(ex.prompt.text, 'Écoute bien. Quel mot commence comme ba-lon\u00a0?');
-        assert.equal(ex.prompt.display, 'Écoute bien. Quel mot commence comme ba-llon\u00a0?');
+        assert.equal(ex.prompt.display, 'Écoute bien. Quel mot commence comme bal-lon\u00a0?');
+        const ok = generate(byId('mots-p1/ballon#syll-match'), { cards, rng: () => 0.05 }).success;
+        assert.match(ok.display ?? ok.text, /commencent pareil\u00a0: ba\u00a0!$/u);
+    });
+    test('generate_SoundPick_ShowsTheLetterInGuillemetsAndSaysTheSound', () => {
+        const ex = generate(byId('mots-p1/bateau#sound-pick'), { cards, rng });
+        assert.equal(ex.prompt.text, 'Quel mot commence par le son beu\u00a0?');
+        assert.equal(ex.prompt.display, 'Quel mot commence par le son «\u00a0b\u00a0»\u00a0?');
+        assert.match(ex.success.display, /commence par le son «\u00a0b\u00a0»\u00a0!$/u);
+    });
+    test('generate_Decompose_RevealSaysTheMissingNumber', () => {
+        const ex = generate(byId('numbers/5#decompose'), { cards, rng: () => 0.42 });
+        assert.equal(ex.lit, 2);
+        assert.deepEqual(ex.reveal, { key: 'num.3', text: 'trois' });
     });
     test('generate_NameSpell_SuccessShowsLettersNotTheirNames', () => {
         const ex = generate(find('name/lou#name-spell'), { cards, rng });

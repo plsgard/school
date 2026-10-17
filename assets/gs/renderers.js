@@ -152,7 +152,9 @@ export function renderExercise(root, ex, { speak, parentMode = false, waitForTap
     const revealing = () => misses >= 2 && !parentMode;
 
     // What is said after "Regarde." when the answer is revealed: the right choice, or the name spelled for slots.
-    const answerSay = () => (ex.layout === 'slots' ? ex.success : ex.choices?.find(c => c.correct)?.say ?? null);
+    const answerSay = () => ex.reveal ?? (ex.layout === 'slots' ? ex.success : ex.choices?.find(c => c.correct)?.say ?? null);
+    // P4: a miss's async continuation (after its cue or its shake) must never write over the reveal or the praise.
+    const tell = (text) => { if (!finished && !locked) feedback.textContent = text; };
 
     return new Promise(resolve => {
         // praise: false = skipped (trace "Suivant" after two misses): no success cue.
@@ -160,6 +162,7 @@ export function renderExercise(root, ex, { speak, parentMode = false, waitForTap
         const finish = async ({ praise = true, revealed = false } = {}) => {
             if (finished) return;
             finished = true;
+            locked = true;
             onSettle();
             onFinish();
             const ms = Date.now() - t0;
@@ -206,7 +209,7 @@ export function renderExercise(root, ex, { speak, parentMode = false, waitForTap
                         markOk(c.id);
                         if (remaining.size === 0) { done(); return; }
                         const more = UI_CUES.more[remaining.size];
-                        if (more) { feedback.textContent = more.text; speak(more); }
+                        if (more) { tell(more.text); speak(more); }
                         return;
                     }
                     misses++;
@@ -224,7 +227,7 @@ export function renderExercise(root, ex, { speak, parentMode = false, waitForTap
                         reveal();
                         return;
                     }
-                    feedback.textContent = UI_CUES.tryAgain.text;
+                    tell(UI_CUES.tryAgain.text);
                     speak(ex.layout === 'multitap' && c.say ? c.say : UI_CUES.tryAgain);
                     await sleep(400); // let the shake play, then hide the wrong choice for a few seconds
                     b.classList.remove('ko');
@@ -286,10 +289,11 @@ export function renderExercise(root, ex, { speak, parentMode = false, waitForTap
                     return;
                 }
                 ok.disabled = true;
-                feedback.textContent = UI_CUES.tryAgain.text;
+                const wrong = selected;
+                tell(UI_CUES.tryAgain.text);
                 await speak(UI_CUES.tryAgain);
                 b.classList.remove('ko');
-                if (!finished && !locked) select(null);
+                if (!finished && !locked && selected === wrong) select(null); // keep a tile picked while the cue played
             });
             choices.append(row, ok);
         }
@@ -333,7 +337,7 @@ export function renderExercise(root, ex, { speak, parentMode = false, waitForTap
                     return;
                 }
                 const cueMsg = n < ex.target ? UI_CUES.missing : UI_CUES.tooMany;
-                feedback.textContent = cueMsg.text;
+                tell(cueMsg.text);
                 ok.disabled = true;
                 await speak(cueMsg);
                 if (!finished) ok.disabled = false;
@@ -385,7 +389,7 @@ export function renderExercise(root, ex, { speak, parentMode = false, waitForTap
                         reveal();
                         return;
                     }
-                    feedback.textContent = UI_CUES.notThatOne.text;
+                    tell(UI_CUES.notThatOne.text);
                     await speak(UI_CUES.notThatOne);
                     b.classList.remove('ko');
                     if (!finished && !locked) b.disabled = false;
@@ -413,7 +417,7 @@ export function renderExercise(root, ex, { speak, parentMode = false, waitForTap
                     if (!r.hint) return; // a too-short stroke (a tap) is not a miss
                     misses++;
                     const hint = UI_CUES.traceHint[r.hintKey];
-                    feedback.textContent = hint?.text ?? r.hint;
+                    tell(hint?.text ?? r.hint);
                     if (misses >= 2 && !skip) {
                         // Second miss: say the letter, offer a way out (parent mode too, M7: never a praise);
                         // the canvas stays live for one more try.
