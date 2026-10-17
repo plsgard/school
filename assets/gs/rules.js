@@ -31,6 +31,9 @@ export function effectiveParentMode(settings, { hasFrenchVoice, hasClips }) {
     return !canSpeak;
 }
 
+// Games per themed practice round (spec 2026-10-18 §6): 6–10, whatever the stored value.
+export const practiceItems = (s) => Math.min(10, Math.max(6, Math.round(Number(s.practiceItems) || 6)));
+
 const SKILL_LABELS = {
     'syll-count': 'syllabes',
     'syll-match': 'même début',
@@ -45,6 +48,11 @@ const SKILL_LABELS = {
     'compare': 'comparer',
     'decompose': 'décomposer',
     'number-line': 'suite des nombres',
+    'sound-final': 'dernier son',
+    'syll-initial': 'première syllabe',
+    'dice': 'dé',
+    'before-after': 'avant / après',
+    'add': 'additionner',
 };
 
 function itemName(card) {
@@ -72,6 +80,10 @@ export function adultHint(ex) {
         const [c, v, syl] = ex.sounds;
         return `Faites-lui étirer le premier son, puis coller les deux sons${NBSP}: ${c}… ${v}… ${syl}.`;
     }
-    if (ex.type === 'trace') return 'Montrez le point vert, puis tracez la lettre une fois dans l\'air, ensemble.';
+    if (ex.type === 'trace') {
+        const what = ex.trace?.kind === 'digit' ? 'le chiffre' : 'la lettre';
+        const second = ex.trace?.pts2 ? ' Puis le deuxième trait, au point bleu.' : '';
+        return `Montrez le point vert, puis tracez ${what} une fois dans l'air, ensemble.${second}`;
+    }
     return null;
 }

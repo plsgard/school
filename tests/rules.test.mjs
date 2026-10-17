@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { expandCards, DECK_FILES } from '../assets/gs/decks/index.js';
 import { generate } from '../assets/gs/generators.js';
-import { localDay, dailyCapReached, extraSessionState, effectiveParentMode, cardLabel, adultHint } from '../assets/gs/rules.js';
+import { localDay, dailyCapReached, extraSessionState, effectiveParentMode, cardLabel, adultHint, practiceItems } from '../assets/gs/rules.js';
 
 const decks = await Promise.all(DECK_FILES.map(async n => JSON.parse(await readFile(new URL(`../assets/gs/decks/${n}.json`, import.meta.url), 'utf8'))));
 const cards = expandCards(decks, { firstName: 'Lou' });
@@ -91,6 +91,19 @@ describe('cardLabel', () => {
     test('cardLabel_EverySkill_HasAFrenchLabel', () => {
         for (const c of cards) assert.doesNotMatch(cardLabel(c.id, cards), /#|-/, c.id);
     });
+    test('cardLabel_NewSkills_HaveFrenchLabels', () => {
+        // The decks emit these skills only from Task 9: build the cards here so the test is green from Task 3 on.
+        const num = (n, skill) => ({ id: `numbers/${n}#${skill}`, kind: 'numbers', skill, item: { id: String(n), n } });
+        const word = (id, skill) => ({ id: `mots-p1/${id}#${skill}`, kind: 'words', skill, item: { id, text: id } });
+        const extra = [word('chat', 'sound-final'), word('lapin', 'syll-initial'), num(7, 'dice'), num(7, 'before-after'), num(4, 'add'), num(7, 'trace')];
+        const all = [...cards, ...extra];
+        assert.equal(cardLabel('mots-p1/chat#sound-final', all), 'chat · dernier son');
+        assert.equal(cardLabel('mots-p1/lapin#syll-initial', all), 'lapin · première syllabe');
+        assert.equal(cardLabel('numbers/7#dice', all), 'nombre 7 · dé');
+        assert.equal(cardLabel('numbers/7#before-after', all), 'nombre 7 · avant / après');
+        assert.equal(cardLabel('numbers/4#add', all), 'nombre 4 · additionner');
+        assert.equal(cardLabel('numbers/7#trace', all), 'nombre 7 · tracer');
+    });
 });
 
 describe('adultHint', () => {
@@ -104,5 +117,20 @@ describe('adultHint', () => {
     });
     test('adultHint_OtherExercise_ReturnsNull', () => {
         assert.equal(adultHint(generate(cards.find(c => c.id === 'numbers/7#count'), { cards })), null);
+    });
+    test('adultHint_DigitTrace_SaysChiffre', () => {
+        assert.equal(adultHint({ type: 'trace', trace: { kind: 'digit' } }), 'Montrez le point vert, puis tracez le chiffre une fois dans l\'air, ensemble.');
+    });
+    test('adultHint_TwoStrokeTrace_MentionsTheBlueDot', () => {
+        assert.match(adultHint({ type: 'trace', trace: { kind: 'digit', pts2: [[0, 0]] } }), /deuxième trait, au point bleu\.$/);
+    });
+});
+
+describe('practiceItems', () => {
+    test('practiceItems_Missing_Defaults6', () => assert.equal(practiceItems({}), 6));
+    test('practiceItems_OutOfRange_Clamps', () => {
+        assert.equal(practiceItems({ practiceItems: 3 }), 6);
+        assert.equal(practiceItems({ practiceItems: 14 }), 10);
+        assert.equal(practiceItems({ practiceItems: '8' }), 8);
     });
 });
