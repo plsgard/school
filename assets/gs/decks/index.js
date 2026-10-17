@@ -26,8 +26,9 @@ function skillsFor(kind, item, deck) {
             hasPartner(deck, item, x => x.rhyme) ? 'rhyme' : null,
         ].filter(Boolean);
         case 'numbers': return [
-            item.n >= 1 ? 'count' : null, // an empty collection to count is confusing
-            'compare',
+            // an empty collection (0) is confusing for both counting and comparing
+            item.n >= 1 ? 'count' : null,
+            item.n >= 1 ? 'compare' : null,
             item.n >= 2 ? 'decompose' : null,
             item.n >= 1 ? 'number-line' : null,
         ].filter(Boolean);

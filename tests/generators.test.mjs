@@ -3,7 +3,7 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { expandCards } from '../assets/gs/decks/index.js';
-import { generate, generatePattern } from '../assets/gs/generators.js';
+import { generate, generatePattern, phoneme } from '../assets/gs/generators.js';
 
 const load = async (n) => JSON.parse(await readFile(new URL(`../assets/gs/decks/${n}.json`, import.meta.url), 'utf8'));
 const decks = [await load('letters'), await load('numbers'), await load('mots-p1')];
@@ -167,8 +167,8 @@ describe('generate', () => {
     test('generate_SyllCount_PromptDoesNotSegmentAndSuccessDoes', () => {
         const ex = generate(byId('mots-p1/lapin#syll-count'), { cards, rng });
         assert.equal(ex.prompt.text, 'Frappe dans tes mains en disant lapin. Combien de syllabes ?');
-        assert.equal(ex.success.text, 'Bravo ! la, pin : deux syllabes.');
-        assert.equal(generate(byId('mots-p1/chat#syll-count'), { cards, rng }).success.text, 'Bravo ! chat : une syllabe.');
+        assert.equal(ex.success.text, 'Bravo ! La, pin : deux syllabes.');
+        assert.equal(generate(byId('mots-p1/chat#syll-count'), { cards, rng }).success.text, 'Bravo ! Chat : une syllabe.');
     });
     test('generate_Count_SuccessTextUsesNumberWord', () => {
         assert.equal(generate(byId('numbers/7#count'), { cards, rng }).success.text, 'Oui, il y en a sept !');
@@ -192,7 +192,7 @@ describe('generate', () => {
     test('generate_SoundPick_StretchesOnlyContinuantsAndVowels', () => {
         assert.equal(generate(byId('mots-p1/fusee#sound-pick'), { cards, rng }).prompt.text, 'Quel mot commence par fff ?');
         assert.equal(generate(byId('mots-p1/chat#sound-pick'), { cards, rng }).prompt.text, 'Quel mot commence par chchch ?');
-        assert.equal(generate(byId('mots-p1/bateau#sound-pick'), { cards, rng }).prompt.text, 'Quel mot commence par le son b ?');
+        assert.equal(generate(byId('mots-p1/bateau#sound-pick'), { cards, rng }).prompt.text, 'Quel mot commence par le son beu ?');
     });
     test('generate_SyllMatch_OneDistractorRhymesWithTheWord', () => {
         for (const r of RNGS) {
@@ -241,6 +241,56 @@ describe('generate', () => {
             assert.equal(new Set(p.choices.map(c => c.say.key)).size, 3);
             assert.ok(!p.choices.some(c => c.emoji === '🤍'));
             for (const c of p.choices) assert.match(c.say.key, /^ui\.pattern-choice\./);
+        }
+    });
+    test('generate_Compare_ElidesQueBeforeUn', () => {
+        const ex = generate(byId('numbers/2#compare'), { cards, rng: () => 0.05 });
+        assert.equal(ex.success.key, 'ui.compare-ok.2.1');
+        assert.equal(ex.success.text, 'Oui, deux, c\'est plus qu\'un !');
+    });
+    test('generate_Compare_KeepsQueBeforeHuit', () => {
+        const ex = generate(byId('numbers/9#compare'), { cards, rng });
+        assert.equal(ex.success.key, 'ui.compare-ok.9.8');
+        assert.equal(ex.success.text, 'Oui, neuf, c\'est plus que huit !');
+    });
+    test('generate_Compare_NeverShowsAnEmptyCollection', () => {
+        for (const r of RNGS) {
+            for (const card of cards.filter(c => c.skill === 'compare')) {
+                const ex = generate(card, { cards, rng: () => r });
+                for (const ch of ex.choices) assert.ok(ch.collection.length >= 1, `${card.id} @${r}`);
+            }
+        }
+    });
+    test('generate_SoundPick_StageShowsLetterAndSpeechUsesSchwa', () => {
+        const b = generate(byId('mots-p1/bateau#sound-pick'), { cards, rng });
+        assert.equal(b.stage.text, 'b');
+        assert.match(b.success.text, /^Oui ! \p{Lu}\p{Ll}+ commence par le son beu !$/u);
+        const f = generate(byId('mots-p1/fusee#sound-pick'), { cards, rng });
+        assert.equal(f.stage.text, 'fff');
+    });
+    test('phoneme_Occlusive_SpokenWithSchwaDisplayedShort', () => {
+        assert.deepEqual(phoneme('b'), { display: 'b', spoken: 'beu', stretched: false });
+        assert.equal(phoneme('g').spoken, 'gueu');
+        assert.equal(phoneme('k').spoken, 'keu');
+        assert.equal(phoneme('a').spoken, 'aaa');
+        assert.equal(phoneme('ch').display, 'chchch');
+    });
+    test('generate_NameSpell_SpokenNameIsCleaned', () => {
+        const a = expandCards(decks, { firstName: 'Lou#/' });
+        assert.equal(generate(a.find(c => c.kind === 'name'), { cards: a, rng }).success.text, 'Elle, o, u : Lou !');
+        const b = expandCards(decks, { firstName: 'Marie-Anne' });
+        assert.match(generate(b.find(c => c.kind === 'name'), { cards: b, rng }).success.text, / : Marie-Anne !$/);
+    });
+    test('generate_SoundLetter_PromptStartsWithCapital', () => {
+        const ex = generate(byId('letters/l#sound-letter'), { cards, rng: () => 0.05 });
+        assert.equal(ex.prompt.text, 'Lllapin. Quelle lettre chante au début de lapin ?');
+    });
+    test('generate_PromptAndSuccess_EverySentenceStartsWithCapital', () => {
+        for (const r of RNGS) {
+            for (const card of cards) {
+                const ex = generate(card, { cards, rng: () => r });
+                for (const c of [ex.prompt, ex.success]) assert.doesNotMatch(c.text, /(^|[.!?]\s+)\p{Ll}/u, `${card.id}: ${c.text}`);
+            }
         }
     });
 });

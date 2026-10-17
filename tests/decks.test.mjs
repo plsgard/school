@@ -16,9 +16,9 @@ describe('expandCards', () => {
         const p = expandCards(decks, { firstName: '' }).filter(c => c.id.startsWith('letters/p#')).map(c => c.skill);
         assert.deepEqual(p, ['letter-3scripts']);
     });
-    test('expandCards_NumberZero_HasOnlyCompare', () => {
-        const z = expandCards(decks, { firstName: '' }).filter(c => c.id.startsWith('numbers/0#')).map(c => c.skill).sort();
-        assert.deepEqual(z, ['compare']);
+    test('expandCards_NumberZero_HasNoCards', () => {
+        const z = expandCards(decks, { firstName: '' }).filter(c => c.id.startsWith('numbers/0#'));
+        assert.deepEqual(z, []);
     });
     test('expandCards_FirstNameGiven_AddsNameSpellCard', () => {
         const cards = expandCards(decks, { firstName: 'Lou' });

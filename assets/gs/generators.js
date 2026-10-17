@@ -17,17 +17,23 @@ const PATTERN_NAMES = { '🔴': 'rouge', '🔵': 'bleu', '🟢': 'vert', '🟡':
 const shuffle = (arr, rng) => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const pick = (arr, rng) => arr[Math.floor(rng() * arr.length)];
 const cue = (key, text) => ({ key, text });
-const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+// Capitalises the first letter of every sentence (start, and after . ! ?). "…" is not a sentence end.
+const sentences = (s) => s.replace(/(^|[.!?]\s+)(\p{Ll})/gu, (_, sep, ch) => sep + ch.toUpperCase());
+// "que" elides before a vowel-initial word (qu'un); "huit" has an h aspiré (que huit).
+const que = (word) => (/^[aeiouyàâéèêîïôû]/i.test(word) ? `qu'${word}` : `que ${word}`);
 const itemsOf = (cards, kind) => { const seen = new Map(); for (const c of cards) if (c.kind === kind) seen.set(c.item.id, c.item); return [...seen.values()]; };
 const numSay = (cards, k) => itemsOf(cards, 'numbers').find(x => x.n === k)?.say ?? NUM_WORDS[k];
 const numCue = (cards, k) => cue(`num.${k}`, numSay(cards, k));
 
-// R15: only continuants (and vowels) are stretched; occlusives are said short.
+// R15/R17: vowels and continuants are stretched (shown and said "fff"); occlusives are shown short ("b")
+// but spoken with a schwa ("beu"), otherwise TTS would say the letter name ("bé").
+const SCHWA = { b: 'beu', p: 'peu', k: 'keu', t: 'teu', d: 'deu', g: 'gueu' };
 export function phoneme(id, letters = []) {
     const stretched = VOWELS.includes(id) || id === 'ch' || Boolean(letters.find(x => x.id === id)?.continuant);
-    return { text: stretched ? id.repeat(3) : id, stretched };
+    if (stretched) return { display: id.repeat(3), spoken: id.repeat(3), stretched };
+    return { display: id, spoken: SCHWA[id] ?? `${id}eu`, stretched };
 }
-const soundPhrase = (ph) => (ph.stretched ? ph.text : `le son ${ph.text}`);
+const soundPhrase = (ph) => (ph.stretched ? ph.spoken : `le son ${ph.spoken}`);
 
 function wordChoice(w, correct) {
     return { id: w.id, label: w.text, emoji: w.emoji, say: cue(`word.${w.id}`, w.text), correct };
@@ -75,7 +81,7 @@ const GEN = {
             layout: 'tap', prompt: cue(`ui.syll-match.${w.id}`, `Écoute bien. Quel mot commence comme ${w.syll.join('-')} ?`),
             stage: { emoji: w.emoji, text: w.text },
             choices: shuffle([wordChoice(target, true), ...distractors.map(d => wordChoice(d, false))], rng),
-            success: cue(`ui.syll-match-ok.${w.id}.${target.id}`, `Oui ! ${capitalize(w.text)} et ${target.text} commencent pareil : ${w.syll[0]} !`),
+            success: cue(`ui.syll-match-ok.${w.id}.${target.id}`, `Oui ! ${w.text} et ${target.text} commencent pareil : ${w.syll[0]} !`),
         };
     },
     'rhyme'(card, { cards, rng }) {
@@ -88,7 +94,7 @@ const GEN = {
             layout: 'tap', prompt: cue(`ui.rhyme.${w.id}`, `Qu'est-ce qui rime avec ${w.text} ?`),
             stage: { emoji: w.emoji, text: w.text },
             choices: shuffle([wordChoice(target, true), ...distractors.map(d => wordChoice(d, false))], rng),
-            success: cue(`ui.rhyme-ok.${w.id}.${target.id}`, `Oui ! ${capitalize(w.text)}, ${target.text}, ça rime !`),
+            success: cue(`ui.rhyme-ok.${w.id}.${target.id}`, `Oui ! ${w.text}, ${target.text}, ça rime !`),
         };
     },
     'sound-pick'(card, { cards, rng }) {
@@ -101,9 +107,9 @@ const GEN = {
         const ph = phoneme(w.initial, itemsOf(cards, 'letters'));
         return {
             layout: 'tap', prompt: cue(`ui.sound-pick.${w.initial}`, `Quel mot commence par ${soundPhrase(ph)} ?`),
-            stage: { text: ph.text },
+            stage: { text: ph.display },
             choices: shuffle([wordChoice(target, true), ...distractors.map(d => wordChoice(d, false))], rng),
-            success: cue(`ui.sound-pick-ok.${target.id}`, `Oui ! ${capitalize(target.text)} commence par ${soundPhrase(ph)} !`),
+            success: cue(`ui.sound-pick-ok.${target.id}`, `Oui ! ${target.text} commence par ${soundPhrase(ph)} !`),
         };
     },
     'sound-letter'(card, { cards, rng }) {
@@ -120,13 +126,13 @@ const GEN = {
         return {
             layout: 'tap',
             prompt: w
-                ? cue(`ui.sound-letter.${l.id}.${w.id}`, `${ph.text}${w.text.slice(w.initial.length)}. Quelle lettre chante au début de ${w.text} ?`)
-                : cue(`ui.sound-letter.${l.id}`, `Quelle lettre fait le son ${ph.text} ?`),
-            stage: w ? { emoji: w.emoji, text: w.text } : { text: ph.text },
+                ? cue(`ui.sound-letter.${l.id}.${w.id}`, `${ph.spoken}${w.text.slice(w.initial.length)}. Quelle lettre chante au début de ${w.text} ?`)
+                : cue(`ui.sound-letter.${l.id}`, `Quelle lettre fait le son ${ph.spoken} ?`),
+            stage: w ? { emoji: w.emoji, text: w.text } : { text: ph.display },
             choices: shuffle([letterChoice(l, true), letterChoice(conf, false), letterChoice(other, false)], rng),
             success: w
                 ? cue(`ui.sound-letter-ok.${l.id}.${w.id}`, `Oui ! C'est la lettre ${l.name}, comme au début de ${w.text} !`)
-                : cue(`ui.sound-letter-ok.${l.id}`, `Oui ! La lettre ${l.name} fait ${ph.text} !`),
+                : cue(`ui.sound-letter-ok.${l.id}`, `Oui ! La lettre ${l.name} fait ${ph.spoken} !`),
         };
     },
     'letter-3scripts'(card, { cards, rng }) {
@@ -147,8 +153,8 @@ const GEN = {
     },
     'blend'(card, { cards, rng }) {
         const l = card.item;
-        const c = phoneme(l.id, itemsOf(cards, 'letters')).text;
-        const v = pick(VOWELS, rng), vv = phoneme(v).text;
+        const c = phoneme(l.id, itemsOf(cards, 'letters')).spoken;
+        const v = pick(VOWELS, rng), vv = phoneme(v).spoken;
         const others = shuffle(VOWELS.filter(x => x !== v), rng).slice(0, 1);
         const confC = pick(['s', 'v', 'f', 'r', 'l', 'm', 'n', 'j', 'z'].filter(x => x !== l.id), rng);
         const choices = shuffle([
@@ -176,8 +182,10 @@ const GEN = {
         const letters = itemsOf(cards, 'letters');
         const chars = (card.item.text.match(/\p{L}/gu) ?? []).map(ch => ch.toLowerCase());
         const says = chars.map(ch => letterCue(ch, letters));
+        // Same cleaning as the tiles (letters only), but keep the hyphen/space between name parts.
+        const clean = card.item.text.replace(/[^\p{L}\s-]/gu, '').replace(/\s+/g, ' ').trim();
         // An all-caps first name would be spelled out by TTS: say it in title case.
-        const spoken = /\p{Lu}\p{Lu}/u.test(card.item.text) ? card.item.text.toLowerCase().replace(/(^|[\s-])(\p{L})/gu, (_, sep, ch) => sep + ch.toUpperCase()) : card.item.text;
+        const spoken = /\p{Lu}\p{Lu}/u.test(clean) ? clean.toLowerCase().replace(/(^|[\s-])(\p{L})/gu, (_, sep, ch) => sep + ch.toUpperCase()) : clean;
         return {
             layout: 'slots', prompt: cue('ui.name-spell', 'Remets les lettres de ton prénom dans l\'ordre.'),
             answer: chars.join('').toUpperCase(),
@@ -205,14 +213,14 @@ const GEN = {
         const n = card.item.n, lit = 1 + Math.floor(rng() * (n - 1));
         const say = (k) => numSay(cards, k);
         return {
-            layout: 'dots', prompt: cue(`ui.decompose.${n}.${lit}`, `${capitalize(say(n))}, c'est ${say(lit)} et encore combien ? Allume les ronds.`),
+            layout: 'dots', prompt: cue(`ui.decompose.${n}.${lit}`, `${say(n)}, c'est ${say(lit)} et encore combien ? Allume les ronds.`),
             target: n, lit, total: Math.max(n + 1, 6),
-            success: cue(`ui.decompose-ok.${n}.${lit}`, `Oui ! ${capitalize(say(n))}, c'est ${say(lit)} et ${say(n - lit)}.`),
+            success: cue(`ui.decompose-ok.${n}.${lit}`, `Oui ! ${say(n)}, c'est ${say(lit)} et ${say(n - lit)}.`),
         };
     },
     'compare'(card, { cards, rng }) {
         const n = card.item.n;
-        const others = itemsOf(cards, 'numbers').filter(x => x.n !== n);
+        const others = itemsOf(cards, 'numbers').filter(x => x.n !== n && x.n >= 1); // never an empty collection
         const close = others.filter(x => Math.abs(x.n - n) <= 2);
         const o = pick(close.length ? close : others, rng);
         const emoji = pick(EMOJI_SETS, rng);
@@ -222,7 +230,7 @@ const GEN = {
             layout: 'tap', prompt: cue('ui.compare', 'Où y en a-t-il le plus ?'),
             stage: { showCollections: true },
             choices: shuffle([mk(card.item), mk(o)], rng),
-            success: cue(`ui.compare-ok.${hi}.${lo}`, `Oui, ${numSay(cards, hi)}, c'est plus que ${numSay(cards, lo)} !`),
+            success: cue(`ui.compare-ok.${hi}.${lo}`, `Oui, ${numSay(cards, hi)}, c'est plus ${que(numSay(cards, lo))} !`),
         };
     },
     'number-line'(card, { cards, rng }) {
@@ -243,7 +251,8 @@ const GEN = {
 export function generate(card, { cards = [], rng = Math.random } = {}) {
     const gen = GEN[card.skill];
     if (!gen) throw new Error(`No generator for skill ${card.skill}`);
-    return { type: card.skill, cardId: card.id, ...gen(card, { cards, rng }) };
+    const ex = gen(card, { cards, rng });
+    return { type: card.skill, cardId: card.id, ...ex, prompt: cue(ex.prompt.key, sentences(ex.prompt.text)), success: cue(ex.success.key, sentences(ex.success.text)) };
 }
 
 export function generatePattern(rng = Math.random) {
