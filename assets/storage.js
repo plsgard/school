@@ -68,7 +68,8 @@ export function migrateLegacyHistory() {
 // ---- Profiles, settings, spaced repetition, sessions (learning tracks) ----
 
 const SESSIONS_LIMIT = 14;
-const DEFAULT_SETTINGS = { sessionItems: 6, parentMode: false, firstName: '', audio: 'clips', voice: '' };
+// parentMode: null = never set by a parent (auto: on when the device has no French voice, spec §9).
+const DEFAULT_SETTINGS = { sessionItems: 6, parentMode: null, firstName: '', audio: 'clips', voice: '' };
 
 export function loadProfiles() {
     return readJSON(`${NS}.profiles`, []);

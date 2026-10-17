@@ -9,10 +9,8 @@ import { loadDecks, expandCards } from './decks/index.js';
 import { generate, generatePattern } from './generators.js';
 import { renderExercise, disposeExercise } from './renderers.js';
 import { mountParent } from './parent.js';
+import { localDay, dailyCapReached, effectiveParentMode } from './rules.js';
 
-// R7: local calendar day (France is UTC+1/+2; a UTC date would merge or skip days around midnight).
-const pad = (n) => String(n).padStart(2, '0');
-const localDay = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 const today = () => localDay(new Date());
 const $ = (id) => document.getElementById(id);
 // `hidden` (display: none), not .visually-hidden: a hidden control must not stay focusable.
@@ -28,7 +26,8 @@ const profileId = getActiveProfileId();
 const profile = loadProfiles().find(p => p.id === profileId) ?? { id: profileId, name: '', avatar: '🦊' };
 const settings = loadSettings(profileId);
 const decks = await loadDecks();
-const cards = expandCards(decks, { firstName: settings.firstName });
+// Rebuilt when the parent corner closes: a new first name changes the name-spell card of the next session.
+let cards = expandCards(decks, { firstName: settings.firstName });
 
 let manifest = new Set();
 try {
@@ -39,16 +38,14 @@ const device = createDeviceSource({ preferredVoice: settings.voice });
 const clips = createClipSource({ baseUrl: 'assets/audio/gs', manifest });
 const speech = createSpeech({ sources: [clips, device, SILENT_SOURCE] });
 speech.setSource(settings.audio);
-const silent = settings.audio === 'silent';
-document.body.classList.toggle('silent', silent);
+// Settings can change in the parent corner without a reload: read them when needed, never cache them.
+const isSilent = () => settings.audio === 'silent';
+const parentModeOn = () => effectiveParentMode(settings, device.listVoices().length > 0);
+document.body.classList.toggle('silent', isSilent());
 
 // Child-facing home: avatar, greeting, one ⭐ per game of the day, ▶ Jouer. Stats live in the parent corner.
-// Spec §13 R4: one session a day. A parent can open one more (Task 11 sets settings.extraSessionOn = today).
-function playedToday() {
-    const day = today();
-    if (settings.extraSessionOn === day) return false;
-    return loadSessions(profileId, 'gs').some(s => s.date && localDay(new Date(s.date)) === day);
-}
+// Spec §13 R4: one completed session a day; the parent corner can allow exactly one more today (R24).
+const playedToday = () => dailyCapReached(loadSessions(profileId, 'gs'), settings, today());
 
 function renderHome() {
     const rest = playedToday();
@@ -85,7 +82,9 @@ async function runSession() {
     // First cue inside the "Jouer" gesture: unlocks audio on iOS.
     await speech.speak(CUE_LETS_GO);
 
-    const waitForTap = silent || settings.parentMode; // R6: the adult advances
+    const silent = isSilent();
+    const parentMode = parentModeOn();
+    const waitForTap = silent || parentMode; // R6: the adult advances
     const replay = $('replay');
     const settle = () => { clearTimeout(promptTimer); replay.disabled = true; };
     for (let i = 0; i < exercises.length; i++) {
@@ -106,8 +105,8 @@ async function runSession() {
                 speech.speak(ex.prompt);
             }, 350);
         }
-        const result = await renderExercise({ stage: $('stage'), choices: $('choices'), feedback: $('feedback') }, ex,
-            { speak: speech.speak, parentMode: settings.parentMode, waitForTap, onSettle: settle });
+        const result = await renderExercise({ stage: $('stage'), choices: $('choices'), feedback: $('feedback'), adult: $('adult') }, ex,
+            { speak: speech.speak, parentMode, waitForTap, onSettle: settle });
         clearTimeout(promptTimer);
         items.push({ cardId: ex.cardId, type: ex.type, ...result });
         if (ex.cardId) { srs = recordResult(srs, ex.cardId, result.correctFirstTry, day); saveSrs(sessionProfileId, 'gs', srs); }
@@ -156,11 +155,37 @@ function quit() { clearTimeout(promptTimer); speech.stop(); disposeExercise(); l
         armed = setTimeout(() => { armed = null; btn.classList.remove('armed'); }, 2000);
     });
 }
-$('parentBtn').addEventListener('click', (e) => {
-    e.preventDefault();
+// Parental gate: ⚙️ (parent corner) and 🦊 (profile picker) open only on a 1.5 s long-press that fills the button.
+// A child's tap does nothing and says nothing.
+function holdToOpen(btn, open, ms = 1500) {
+    let hold = null;
+    btn.classList.add('gs-hold');
+    btn.style.setProperty('--hold-ms', `${ms}ms`);
+    const release = () => { clearTimeout(hold); hold = null; btn.classList.remove('holding'); };
+    btn.addEventListener('pointerdown', (e) => {
+        if (e.button > 0) return;
+        release();
+        btn.classList.add('holding');
+        hold = setTimeout(() => { release(); open(); }, ms);
+    });
+    for (const ev of ['pointerup', 'pointerleave', 'pointercancel']) btn.addEventListener(ev, release);
+    btn.addEventListener('contextmenu', (e) => e.preventDefault());
+    btn.addEventListener('click', (e) => e.preventDefault()); // a tap on the link must not navigate
+}
+
+function openParent() {
     show('parent');
-    mountParent($('parent'), { profileId, settings, cards, device, speech, onBack: () => { show('home'); renderHome(); } });
-});
+    mountParent($('parent'), {
+        profileId, settings, cards, device, speech, today: today(), parentModeOn,
+        onBack: () => {
+            cards = expandCards(decks, { firstName: settings.firstName });
+            show('home');
+            renderHome();
+        },
+    });
+}
+holdToOpen($('parentBtn'), openParent);
+holdToOpen($('avatar'), () => { location.href = 'index.html'; });
 
 renderHome();
 show('home');

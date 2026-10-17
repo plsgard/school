@@ -6,6 +6,7 @@
 // correctFirstTry = misses === 0; attempts = misses + 1. The second miss reveals the answer (except in parent mode).
 // Every text that comes from data goes through textContent, never innerHTML.
 import { mountTrace } from './trace.js';
+import { adultHint } from './rules.js';
 
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 const HIDE_MS = 3000;          // a wrong choice hides for a few seconds
@@ -119,7 +120,7 @@ export function disposeExercise() { disposeCurrent?.(); disposeCurrent = null; }
 
 // onSettle(): called once, when the exercise is solved or skipped (the page clears its prompt timer, disables 🔊).
 export function renderExercise(root, ex, { speak, parentMode = false, waitForTap = false, onSettle = () => {} }) {
-    const { stage, choices, feedback } = root;
+    const { stage, choices, feedback, adult } = root;
     const t0 = Date.now();
     let misses = 0;
     let finished = false;
@@ -136,6 +137,12 @@ export function renderExercise(root, ex, { speak, parentMode = false, waitForTap
     choices.replaceChildren();
     choices.className = 'gs-choices';
     feedback.replaceChildren();
+    // Parent mode (spec §4): the child screen is unchanged, plus one written line for the adult (never spoken).
+    if (adult) {
+        const hint = parentMode ? adultHint(ex) : null;
+        adult.textContent = hint ? `👩‍🏫 ${hint}` : '';
+        adult.hidden = !hint;
+    }
     // Two-miss rule (spec §7): the second miss reveals the answer. Parent mode never reveals (R22): the adult guides.
     const revealing = () => misses >= 2 && !parentMode;
 

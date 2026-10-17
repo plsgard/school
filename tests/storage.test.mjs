@@ -24,7 +24,7 @@ describe('profiles', () => {
 
 describe('settings', () => {
     test('loadSettings_WhenEmpty_ReturnsDefaults', () => {
-        assert.deepEqual(s.loadSettings('lou'), { sessionItems: 6, parentMode: false, firstName: '', audio: 'clips', voice: '' });
+        assert.deepEqual(s.loadSettings('lou'), { sessionItems: 6, parentMode: null, firstName: '', audio: 'clips', voice: '' });
     });
     test('saveSettings_MergesOverDefaults', () => {
         s.saveSettings('lou', { firstName: 'Lou' });

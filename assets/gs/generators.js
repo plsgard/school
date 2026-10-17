@@ -168,6 +168,7 @@ const GEN = {
             layout: 'tap', prompt: cue(`ui.blend.${l.id}${v}`, `Colle les sons : ${c}… ${vv}… Qu'est-ce que ça fait ?`),
             stage: { html: `<span class="tile">${l.id}</span><span class="plus">+</span><span class="tile">${v}</span>` },
             choices,
+            sounds: [c, vv, `${l.id}${v}`], // parent mode: the adult prompt spells the blend
             success: cue(`ui.blend-ok.${l.id}${v}`, `Oui ! ${c} et ${vv}, ça fait ${l.id}${v} !`),
         };
     },
