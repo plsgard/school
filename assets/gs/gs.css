@@ -91,9 +91,9 @@ body.gs.silent .gs-consigne span::before { content: "👩‍🏫 À lire\00a0:";
 .gs-moon { border: 0; background: #223252; color: #ffe08a; width: 140px; height: 140px; border-radius: 50%; font-size: 76px; margin: auto auto 0; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 0 #101a30; touch-action: manipulation; }
 .gs-preview { display: flex; justify-content: center; gap: 10px; font-size: 28px; }
 /* Parental gate: ⚙️ and 🦊 open on a long-press only; the button fills up while held. */
-.gs-hold { position: relative; overflow: hidden; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
-.gs-hold::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: rgba(255, 183, 3, .55); transform: scale(0); pointer-events: none; }
-.gs-hold.holding::after { transform: scale(1); transition: transform var(--hold-ms, 1.5s) linear; }
+.hold-gate { position: relative; overflow: hidden; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+.hold-gate::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: rgba(255, 183, 3, .55); transform: scale(0); pointer-events: none; }
+.hold-gate.holding::after { transform: scale(1); transition: transform var(--hold-ms, 1.5s) linear; }
 /* Parent mode: one written line for the adult, under the consigne. */
 .gs-adult { margin: 0; background: #fff7e0; border: 2px dashed #ffb703; border-radius: 14px; padding: 8px 12px; font-size: 16px; color: #4a3400; }
 /* Parent corner: plain, readable adult page. */
@@ -105,4 +105,4 @@ body.gs.silent .gs-consigne span::before { content: "👩‍🏫 À lire\00a0:";
 .gs-parent .gs-boxes { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; text-align: center; }
 .gs-parent .gs-boxes b { display: block; font-size: 22px; }
 .gs-parent .btn { min-height: 44px; }
-@media (prefers-reduced-motion: reduce) { .gs-choice.ko, .gs-speak.pulse, .gs-ok-btn.pulse, .gs-cta.next.pulse { animation: none; } .gs-quit.holding::after, .gs-hold.holding::after { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .gs-choice.ko, .gs-speak.pulse, .gs-ok-btn.pulse, .gs-cta.next.pulse { animation: none; } .gs-quit.holding::after, .hold-gate.holding::after { transition: none; } }

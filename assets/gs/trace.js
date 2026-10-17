@@ -123,6 +123,7 @@ export function mountTrace(container, model, { onResult }) {
         if (!drawing || e.pointerId !== activeId) return;
         e.preventDefault();
         const p = pos(e), st = strokes[strokes.length - 1];
+        if (!st) { drawing = false; return; } // defensive: a move with no stroke (reset mid-gesture)
         inkSegment(st[st.length - 1], p);
         st.push(p);
     }

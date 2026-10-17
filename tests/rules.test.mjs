@@ -52,17 +52,23 @@ describe('extraSessionState', () => {
 });
 
 describe('effectiveParentMode', () => {
-    test('effectiveParentMode_NeverSetAndNoFrenchVoice_ReturnsTrue', () => {
-        assert.equal(effectiveParentMode({ parentMode: null }, false), true);
+    test('effectiveParentMode_NeverSetNoFrenchVoiceNoClips_ReturnsTrue', () => {
+        assert.equal(effectiveParentMode({ parentMode: null, audio: 'clips' }, { hasFrenchVoice: false, hasClips: false }), true);
+    });
+    test('effectiveParentMode_NeverSetNoFrenchVoiceButClipsPlay_ReturnsFalse', () => {
+        assert.equal(effectiveParentMode({ parentMode: null, audio: 'clips' }, { hasFrenchVoice: false, hasClips: true }), false);
+    });
+    test('effectiveParentMode_NeverSetDeviceSourceNoFrenchVoice_ReturnsTrueEvenWithClips', () => {
+        assert.equal(effectiveParentMode({ parentMode: null, audio: 'device' }, { hasFrenchVoice: false, hasClips: true }), true);
     });
     test('effectiveParentMode_NeverSetWithFrenchVoice_ReturnsFalse', () => {
-        assert.equal(effectiveParentMode({ parentMode: null }, true), false);
+        assert.equal(effectiveParentMode({ parentMode: null, audio: 'device' }, { hasFrenchVoice: true, hasClips: false }), false);
     });
     test('effectiveParentMode_ExplicitlyOff_StaysOffWithoutVoice', () => {
-        assert.equal(effectiveParentMode({ parentMode: false }, false), false);
+        assert.equal(effectiveParentMode({ parentMode: false, audio: 'device' }, { hasFrenchVoice: false, hasClips: false }), false);
     });
     test('effectiveParentMode_ExplicitlyOn_StaysOn', () => {
-        assert.equal(effectiveParentMode({ parentMode: true }, true), true);
+        assert.equal(effectiveParentMode({ parentMode: true, audio: 'clips' }, { hasFrenchVoice: true, hasClips: true }), true);
     });
 });
 
@@ -90,7 +96,7 @@ describe('cardLabel', () => {
 describe('adultHint', () => {
     test('adultHint_Blend_SpellsTheStretchedSoundsAndSyllable', () => {
         const ex = generate(cards.find(c => c.id === 'letters/f#blend'), { cards, rng: () => 0 });
-        assert.equal(adultHint(ex), 'Faites-lui étirer le premier son, puis coller : fff… aaa… fa.');
+        assert.equal(adultHint(ex), 'Faites-lui étirer le premier son, puis coller les deux sons\u00a0: fff… aaa… fa.');
     });
     test('adultHint_Trace_ShowsTheGreenDotHint', () => {
         const ex = generate(cards.find(c => c.id === 'letters/a#trace'), { cards });

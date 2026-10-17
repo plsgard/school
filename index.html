@@ -21,6 +21,10 @@
         .picker .rename { color: #6b7a99; }
         .picker summary { padding: 10px 0; font-weight: 600; }
         .picker details li { margin: 6px 0; }
+        /* Parent-only rename: long-press, the button fills from the left while held. */
+        .hold-gate { position: relative; overflow: hidden; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+        .hold-gate::after { content: ""; position: absolute; inset: 0; background: rgba(255, 183, 3, .45); transform: scaleX(0); transform-origin: left; pointer-events: none; }
+        .hold-gate.holding::after { transform: scaleX(1); transition: transform var(--hold-ms, 1.5s) linear; }
     </style>
 </head>
 
@@ -29,7 +33,7 @@
         <h1 class="mb-3">Qui joue&nbsp;?</h1>
         <div id="profiles"></div>
         <div class="text-center mt-2">
-            <button type="button" class="btn btn-link btn-sm rename" id="rename">✏️ Modifier les prénoms</button>
+            <button type="button" class="btn btn-link btn-sm rename" id="rename">✏️ Modifier les prénoms (appui long)</button>
         </div>
         <details class="mt-3" id="math">
             <summary>Autres jeux</summary>

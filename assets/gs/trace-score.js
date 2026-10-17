@@ -5,6 +5,9 @@ const R = 9;             // waypoint hit radius
 const R_OUT = 13.5;      // beyond this from every waypoint = outside the corridor
 const R_START = 12.6;
 
+// Same texts as the ui.trace-hint.* cues in renderers.js (one text per clip key; tested).
+export const TRACE_HINTS = { start: 'Pars du point vert.', follow: 'Suis le chemin gris.', inside: 'Presque\u00a0! Reste dans le chemin.' };
+
 export function score(strokes, model) {
     const pts = strokes.flat();
     if (pts.length < 8) return { ok: false, coverage: 0, outside: 0, startOk: false, hint: '', hintKey: '' };
@@ -15,9 +18,8 @@ export function score(strokes, model) {
     const coverage = hit / wp.length;
     const startOk = dist(pts[0], wp[0]) < R_START;
     const ok = coverage >= 0.85 && outside < 0.25 && startOk;
-    const HINTS = { start: 'Pars du point vert', follow: 'Suis le chemin gris', inside: 'Presque ! Reste dans le chemin' };
     const hintKey = ok ? '' : !startOk ? 'start' : coverage < 0.85 ? 'follow' : 'inside';
-    return { ok, coverage, outside, startOk, hint: HINTS[hintKey] ?? '', hintKey };
+    return { ok, coverage, outside, startOk, hint: TRACE_HINTS[hintKey] ?? '', hintKey };
 }
 
 export function createPointerFilter() {

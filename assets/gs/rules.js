@@ -23,9 +23,12 @@ export function extraSessionState(sessions, settings, day) {
     return n >= 1 ? 'can-grant' : 'not-played';
 }
 
-// Spec §9: with no French voice on the device, parent mode is on until a parent sets it explicitly.
-export function effectiveParentMode(settings, hasFrenchVoice) {
-    return typeof settings.parentMode === 'boolean' ? settings.parentMode : !hasFrenchVoice;
+// Spec §9: with no way to speak French, parent mode is on until a parent sets it explicitly. Recorded clips
+// count as a way to speak when they are the selected source (clips fall back to the device voice, not the reverse).
+export function effectiveParentMode(settings, { hasFrenchVoice, hasClips }) {
+    if (typeof settings.parentMode === 'boolean') return settings.parentMode;
+    const canSpeak = hasFrenchVoice || (settings.audio === 'clips' && hasClips);
+    return !canSpeak;
 }
 
 const SKILL_LABELS = {
@@ -67,7 +70,7 @@ export function cardLabel(cardId, cards) {
 export function adultHint(ex) {
     if (ex.type === 'blend' && ex.sounds) {
         const [c, v, syl] = ex.sounds;
-        return `Faites-lui étirer le premier son, puis coller${NBSP}: ${c}… ${v}… ${syl}.`;
+        return `Faites-lui étirer le premier son, puis coller les deux sons${NBSP}: ${c}… ${v}… ${syl}.`;
     }
     if (ex.type === 'trace') return 'Montrez le point vert, puis tracez la lettre une fois dans l\'air, ensemble.';
     return null;

@@ -37,6 +37,9 @@ function skillsFor(kind, item, deck) {
     }
 }
 
+// Item id of the first-name card: its letters only, lowercased (hyphens, spaces, symbols are not tiles).
+export const nameItemId = (firstName) => (firstName.trim().match(/\p{L}/gu) ?? []).join('').toLowerCase();
+
 export function expandCards(decks, { firstName = '' } = {}) {
     const cards = [];
     for (const deck of decks) {
@@ -47,7 +50,7 @@ export function expandCards(decks, { firstName = '' } = {}) {
         }
     }
     const name = firstName.trim();
-    const id = (name.match(/\p{L}/gu) ?? []).join('').toLowerCase(); // hyphens, spaces, symbols are not tiles
+    const id = nameItemId(name);
     if (id) {
         const item = { id, text: name };
         const deck = { id: 'name', kind: 'name', label: 'Prénom', items: [item] };

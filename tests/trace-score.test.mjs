@@ -29,7 +29,7 @@ describe('score', () => {
         const rev = [along()[0].slice().reverse()];
         const r = score(rev, model);
         assert.equal(r.startOk, false);
-        assert.equal(r.hint, 'Pars du point vert');
+        assert.equal(r.hint, 'Pars du point vert.');
         assert.equal(r.hintKey, 'start');
     });
     test('score_StrokeFarFromModel_FailsCoverage', () => {
@@ -37,7 +37,7 @@ describe('score', () => {
         const away = [Array.from({ length: 40 }, (_, i) => [20, 50 + i, 0.5, 'pen'])];
         const r = score(away, model);
         assert.equal(r.ok, false);
-        assert.equal(r.hint, 'Suis le chemin gris');
+        assert.equal(r.hint, 'Suis le chemin gris.');
         assert.equal(r.hintKey, 'follow');
     });
     test('score_IdealStrokeForEveryShippedLetter_IsOk', () => {
@@ -57,7 +57,7 @@ describe('score', () => {
         assert.equal(r.coverage, 1);
         assert.ok(r.outside >= 0.25);
         assert.equal(r.hintKey, 'inside');
-        assert.equal(r.hint, 'Presque ! Reste dans le chemin');
+        assert.equal(r.hint, 'Presque\u00a0! Reste dans le chemin.');
     });
     test('score_TooFewPoints_IsNotOkWithoutHint', () => {
         const r = score([[[20, 50, 0.5, 'pen']]], model);
@@ -86,5 +86,14 @@ describe('createPointerFilter', () => {
         const f = createPointerFilter();
         f.accept('pen');
         assert.equal(f.accept('mouse'), true);
+    });
+});
+
+describe('TRACE_HINTS', () => {
+    test('TRACE_HINTS_EveryKey_MatchesTheSpokenUiCueText', async () => {
+        const { TRACE_HINTS } = await import('../assets/gs/trace-score.js');
+        const { UI_CUES } = await import('../assets/gs/renderers.js');
+        assert.deepEqual(Object.keys(TRACE_HINTS).sort(), Object.keys(UI_CUES.traceHint).sort());
+        for (const [k, text] of Object.entries(TRACE_HINTS)) assert.equal(text, UI_CUES.traceHint[k].text, k);
     });
 });

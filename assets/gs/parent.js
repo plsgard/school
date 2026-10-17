@@ -5,6 +5,7 @@
 import { saveSettings, loadSrs, loadSessions } from '../storage.js';
 import { boxCounts, GS_PROFILE } from '../core/scheduler.js';
 import { cardLabel, extraSessionState } from './rules.js';
+import { setFirstName } from '../profiles.js';
 
 const NBSP = ' ';
 const WEEK_MS = 7 * 864e5;
@@ -44,7 +45,9 @@ export function mountParent(root, { profileId, settings, cards, device, speech, 
 
     // ---- Settings
     const firstName = h('input', { class: 'form-control', id: 'firstName', value: settings.firstName, autocomplete: 'off', maxLength: 30 });
-    firstName.addEventListener('change', () => save({ firstName: firstName.value.trim() }));
+    // One name per child: also renames a placeholder picker card and drops the old name card's progress.
+    const commitFirstName = () => { if (firstName.value.trim() !== settings.firstName) Object.assign(settings, setFirstName(profileId, firstName.value)); };
+    firstName.addEventListener('change', commitFirstName);
     const sessionItems = h('select', { class: 'form-select', id: 'sessionItems' },
         [5, 6, 7, 8].map(n => h('option', { value: String(n), selected: n === settings.sessionItems }, String(n))));
     sessionItems.addEventListener('change', () => save({ sessionItems: Number(sessionItems.value) }));
@@ -63,7 +66,7 @@ export function mountParent(root, { profileId, settings, cards, device, speech, 
     // ---- Audio
     const voiceSelect = h('select', { class: 'form-select', id: 'voice' });
     const noVoice = h('div', { class: 'alert alert-warning small mt-2 mb-0', hidden: true },
-        `Aucune voix française sur cet appareil. Le mode accompagné est activé par défaut${NBSP}: lisez les consignes à l'enfant.`);
+        `Aucune voix française sur cet appareil. Sans clips enregistrés, le mode accompagné est activé par défaut${NBSP}: lisez les consignes à l'enfant.`);
     const fillVoices = () => {
         const voices = device.listVoices();
         voiceSelect.replaceChildren(...(voices.length
@@ -86,6 +89,7 @@ export function mountParent(root, { profileId, settings, cards, device, speech, 
             save({ audio: value });
             speech.setSource(value);
             document.body.classList.toggle('silent', value === 'silent');
+            if (settings.parentMode == null) parentMode.checked = parentModeOn(); // auto mode depends on the source
         });
         return h('div', { class: 'form-check' }, input, h('label', { class: 'form-check-label', for: `audio-${value}` }, label));
     });
@@ -140,7 +144,7 @@ export function mountParent(root, { profileId, settings, cards, device, speech, 
     const back = h('button', { type: 'button', class: 'gs-icon', id: 'parentBack', 'aria-label': 'Retour' }, '‹');
     back.addEventListener('click', () => {
         synth?.removeEventListener?.('voiceschanged', fillVoices);
-        if (firstName.value.trim() !== settings.firstName) save({ firstName: firstName.value.trim() }); // typed, not blurred
+        commitFirstName(); // typed, not blurred
         onBack();
     });
 

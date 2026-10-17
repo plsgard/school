@@ -10,6 +10,8 @@ import { generate, generatePattern } from './generators.js';
 import { renderExercise, disposeExercise } from './renderers.js';
 import { mountParent } from './parent.js';
 import { localDay, dailyCapReached, effectiveParentMode } from './rules.js';
+import { displayName, prefillFirstName } from '../profiles.js';
+import { holdToActivate } from '../hold.js';
 
 const today = () => localDay(new Date());
 const $ = (id) => document.getElementById(id);
@@ -23,8 +25,10 @@ const CUE_TOMORROW = { key: 'ui.come-back-tomorrow', text: 'Tu as déjà joué a
 const CUE_DONE = { key: 'ui.done', text: 'Bravo ! Tu as fini pour aujourd\'hui.' };
 
 const profileId = getActiveProfileId();
-const profile = loadProfiles().find(p => p.id === profileId) ?? { id: profileId, name: '', avatar: '🦊' };
-const settings = loadSettings(profileId);
+const stored = loadProfiles().find(p => p.id === profileId);
+const profile = stored ?? { id: profileId, name: '', avatar: '🦊' };
+// One name per child (see profiles.js): a named profile seeds the first name once.
+const settings = stored ? prefillFirstName(stored) : loadSettings(profileId);
 const decks = await loadDecks();
 // Rebuilt when the parent corner closes: a new first name changes the name-spell card of the next session.
 let cards = expandCards(decks, { firstName: settings.firstName });
@@ -40,7 +44,7 @@ const speech = createSpeech({ sources: [clips, device, SILENT_SOURCE] });
 speech.setSource(settings.audio);
 // Settings can change in the parent corner without a reload: read them when needed, never cache them.
 const isSilent = () => settings.audio === 'silent';
-const parentModeOn = () => effectiveParentMode(settings, device.listVoices().length > 0);
+const parentModeOn = () => effectiveParentMode(settings, { hasFrenchVoice: device.listVoices().length > 0, hasClips: manifest.size > 0 });
 document.body.classList.toggle('silent', isSilent());
 
 // Child-facing home: avatar, greeting, one ⭐ per game of the day, ▶ Jouer. Stats live in the parent corner.
@@ -53,7 +57,8 @@ function renderHome() {
     $('today').hidden = rest;
     $('moon').hidden = !rest;
     $('avatar').textContent = profile.avatar || '🦊';
-    $('hello').textContent = profile.name ? `Salut ${profile.name}${NBSP}!` : `Salut${NBSP}!`;
+    const name = displayName(profile, settings);
+    $('hello').textContent = name ? `Salut ${name}${NBSP}!` : `Salut${NBSP}!`;
     $('today').textContent = '⭐'.repeat(settings.sessionItems);
     $('today').setAttribute('aria-label', `${settings.sessionItems} jeux aujourd'hui`);
 }
@@ -114,7 +119,8 @@ async function runSession() {
 
     appendSession(sessionProfileId, 'gs', { date: new Date().toISOString(), items, durationMs: Date.now() - t0 });
     show('done');
-    $('doneTitle').textContent = profile.name ? `Bravo ${profile.name}${NBSP}!` : `Bravo${NBSP}!`;
+    const name = displayName(profile, settings);
+    $('doneTitle').textContent = name ? `Bravo ${name}${NBSP}!` : `Bravo${NBSP}!`;
     $('stars').textContent = '⭐'.repeat(items.length); // stars only, no score shown to the child
     $('stars').setAttribute('aria-label', `${items.length} étoiles`);
     $('tomorrow').textContent = 'À demain pour de nouveaux jeux !';
@@ -157,22 +163,6 @@ function quit() { clearTimeout(promptTimer); speech.stop(); disposeExercise(); l
 }
 // Parental gate: ⚙️ (parent corner) and 🦊 (profile picker) open only on a 1.5 s long-press that fills the button.
 // A child's tap does nothing and says nothing.
-function holdToOpen(btn, open, ms = 1500) {
-    let hold = null;
-    btn.classList.add('gs-hold');
-    btn.style.setProperty('--hold-ms', `${ms}ms`);
-    const release = () => { clearTimeout(hold); hold = null; btn.classList.remove('holding'); };
-    btn.addEventListener('pointerdown', (e) => {
-        if (e.button > 0) return;
-        release();
-        btn.classList.add('holding');
-        hold = setTimeout(() => { release(); open(); }, ms);
-    });
-    for (const ev of ['pointerup', 'pointerleave', 'pointercancel']) btn.addEventListener(ev, release);
-    btn.addEventListener('contextmenu', (e) => e.preventDefault());
-    btn.addEventListener('click', (e) => e.preventDefault()); // a tap on the link must not navigate
-}
-
 function openParent() {
     show('parent');
     mountParent($('parent'), {
@@ -184,8 +174,8 @@ function openParent() {
         },
     });
 }
-holdToOpen($('parentBtn'), openParent);
-holdToOpen($('avatar'), () => { location.href = 'index.html'; });
+holdToActivate($('parentBtn'), openParent);
+holdToActivate($('avatar'), () => { location.href = 'index.html'; });
 
 renderHome();
 show('home');
