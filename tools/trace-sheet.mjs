@@ -25,7 +25,7 @@ export function modelSvg(model, { size = 400, points = false, title = '' } = {})
         line(L.ascender, '#eef2f8', 0.35), line(L.xHeight, '#dfe7f2', 0.35), line(L.baseline, '#9fb2cf', 0.7), line(L.descender, '#eef2f8', 0.35),
         line(L.hampe, '#f5c6c6', 0.25, '1 1'), // check-only guide for t/d/digit tops (not drawn by the app)
         corridor(model.pts), model.pts2 ? corridor(model.pts2) : '', model.bar ? corridor(model.bar) : '',
-        model.dot ? `<circle cx="${model.dot[0]}" cy="${model.dot[1]}" r="3" fill="#c9d4e4"/>` : '',
+        model.dot ? `<circle cx="${model.dot[0]}" cy="${model.dot[1]}" r="3" fill="#b9c6d9"/>` : '',
         arrows(model.pts), model.pts2 ? arrows(model.pts2) : '',
         model.pts2 ? `<circle cx="${model.pts2[0][0]}" cy="${model.pts2[0][1]}" r="2.4" fill="#4c8fd9"/>` : '',
         `<circle cx="${model.pts[0][0]}" cy="${model.pts[0][1]}" r="3.2" fill="#4cb944"/>`,

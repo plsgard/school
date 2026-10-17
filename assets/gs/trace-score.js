@@ -13,8 +13,14 @@ export const TRACE_HINTS = {
     arrows: 'Suis les flèches.',
 };
 
+// Shoelace signed area of a closed polyline (y down: > 0 = clockwise on screen). Only its sign is used.
+const signedArea = (poly) => poly.reduce((a, p, i) => { const q = poly[(i + 1) % poly.length]; return a + p[0] * q[1] - q[0] * p[1]; }, 0) / 2;
+const MIN_CLOSED_AREA = 20; // below this the model's turning sense is undefined (balanced 8): no direction check
+
 // model: { pts, pts2? }. With pts2 (x, 4, 5) both strokes must be covered. A closed model (0, 8: start and end
-// within R_START) cannot be told apart by its start, so its direction is checked instead (spec §8.5).
+// within R_START) cannot be told apart by its start, so its direction is checked instead (spec §8.5): the ink
+// must turn the same way as the model (same sign of signed area). Robust to a start a few units off the dot,
+// a wobble or an overshoot, unlike comparing when two waypoints are first reached.
 export function score(strokes, model) {
     const pts = strokes.flat();
     if (pts.length < 8) return { ok: false, coverage: 0, outside: 0, startOk: false, hint: '', hintKey: '' };
@@ -26,13 +32,15 @@ export function score(strokes, model) {
     const outside = pts.filter(p => !wp.some(w => dist(p, w) < R_OUT)).length / pts.length;
     const startOk = dist(pts[0], main[0]) < R_START;
     const closed = dist(main[0], main[main.length - 1]) < R_START;
-    const firstHit = (w) => pts.findIndex(p => dist(p, w) < R);
-    const dirOk = !closed || firstHit(main[2]) < firstHit(main[main.length - 3]);
+    const modelArea = closed ? signedArea(main) : 0;
+    const dirOk = Math.abs(modelArea) < MIN_CLOSED_AREA || Math.sign(signedArea(pts)) === Math.sign(modelArea);
     const ok = coverage >= 0.85 && outside < 0.25 && startOk && dirOk;
     const hintKey = ok ? '' : !startOk ? 'start' : coverage < 0.85 ? 'follow' : !dirOk ? 'arrows' : 'inside';
     return { ok, coverage, outside, startOk, hint: TRACE_HINTS[hintKey] ?? '', hintKey };
 }
 
+// Strokes too short to earn a hint (a stray tap) are dropped before the next stroke starts: otherwise the tap stays
+// first in `strokes` and the real stroke fails "Pars du point vert." (P3). A scored attempt (ok or hinted) is kept.
 export function keepStrokes(strokes, model) {
     const r = score(strokes, model);
     return r.ok || r.hintKey ? strokes : [];

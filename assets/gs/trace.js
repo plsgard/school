@@ -35,12 +35,14 @@ export function mountTrace(container, model, { onResult }) {
     function drawModel() {
         const s = W / 100, L = LIGNAGE;
         mctx.clearRect(0, 0, W, W);
+        // Simplified GS lignage: tinted x-height band, faint ascender and descender lines, x-height line, strong baseline.
         mctx.fillStyle = '#f3f7fc'; mctx.fillRect(0, L.xHeight * s, W, (L.baseline - L.xHeight) * s);
         const line = (y, color, width) => { mctx.strokeStyle = color; mctx.lineWidth = width; mctx.beginPath(); mctx.moveTo(0, y * s); mctx.lineTo(W, y * s); mctx.stroke(); };
         line(L.ascender, '#eef2f8', 1);
         line(L.xHeight, '#dfe7f2', 1);
         line(L.baseline, '#9fb2cf', 2);
         line(L.descender, '#eef2f8', 1);
+        // Corridor drawn as a Catmull-Rom curve through every waypoint (trace-geom.js curveSegments).
         const path = (pts, width, color) => {
             mctx.strokeStyle = color; mctx.lineWidth = width * s; mctx.lineCap = 'round'; mctx.lineJoin = 'round';
             mctx.beginPath(); mctx.moveTo(pts[0][0] * s, pts[0][1] * s);

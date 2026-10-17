@@ -71,24 +71,52 @@ describe('score', () => {
         assert.equal(r.ok, false);
         assert.equal(r.hint, '');
     });
+    // Two strokes far apart (≥ 22 units): no waypoint of one is within R of the other, so each must really be drawn.
+    const twoStroke = {
+        pts: [[20, 72], [30, 72], [40, 72], [50, 72], [60, 72], [70, 72], [80, 72]],
+        pts2: [[50, 20], [50, 25], [50, 30], [50, 35], [50, 40], [50, 45], [50, 50]],
+    };
     test('score_TwoStrokeModelFirstStrokeOnly_IsNotOk', () => {
-        const m = { pts: [[20, 50], [40, 50], [60, 50], [80, 50], [80, 60], [80, 70]], pts2: [[50, 30], [50, 40], [50, 50]] };
-        const r = score([ideal(m.pts)], m);
+        const r = score([ideal(twoStroke.pts)], twoStroke);
         assert.equal(r.ok, false);
         assert.equal(r.hintKey, 'follow');
     });
-    test('score_TwoStrokeModelBothStrokes_IsOk', () => {
-        const m = { pts: [[20, 50], [40, 50], [60, 50], [80, 50], [80, 60], [80, 70]], pts2: [[50, 30], [50, 40], [50, 50]] };
-        assert.equal(score([ideal(m.pts), ideal(m.pts2)], m).ok, true);
+    test('score_TwoStrokeModelSecondStrokeOnly_IsNotOk', () => {
+        const r = score([ideal(twoStroke.pts2)], twoStroke);
+        assert.equal(r.ok, false);
+        assert.equal(r.hintKey, 'start');
     });
+    test('score_TwoStrokeModelBothStrokes_IsOk', () => {
+        assert.equal(score([ideal(twoStroke.pts), ideal(twoStroke.pts2)], twoStroke).ok, true);
+    });
+    // Closed model (0, 8): start and end share the green dot, so direction is told by the signed area.
+    const ring = Array.from({ length: 17 }, (_, i) => [50 + 20 * Math.sin(-i * Math.PI / 8), 50 - 20 * Math.cos(i * Math.PI / 8)]);
     test('score_ClosedModelReversed_HintsArrows', () => {
-        const ring = Array.from({ length: 17 }, (_, i) => [50 + 20 * Math.sin(-i * Math.PI / 8), 50 - 20 * Math.cos(i * Math.PI / 8)]);
         const r = score([ideal(ring).slice().reverse()], { pts: ring });
         assert.equal(r.startOk, true);
         assert.equal(r.ok, false);
         assert.equal(r.hintKey, 'arrows');
         assert.equal(r.hint, 'Suis les flèches.');
+    });
+    test('score_ClosedModelRightDirection_IsOk', () => {
         assert.equal(score([ideal(ring)], { pts: ring }).ok, true);
+    });
+    for (const off of [8, 10]) {
+        test(`score_ClosedModelStartOffset${off}TowardTheEnd_IsOk`, () => {
+            const [s0, e] = [ring[0], ring[ring.length - 3]];
+            const k = off / Math.hypot(e[0] - s0[0], e[1] - s0[1]);
+            const start = [s0[0] + (e[0] - s0[0]) * k, s0[1] + (e[1] - s0[1]) * k];
+            const r = score([ideal([start, ...ring])], { pts: ring });
+            assert.equal(r.ok, true, JSON.stringify(r));
+        });
+    }
+    test('score_ClosedModelOneStepWobbleAtStart_IsOk', () => {
+        const r = score([ideal([ring[0], ring[ring.length - 2], ...ring])], { pts: ring });
+        assert.equal(r.ok, true, JSON.stringify(r));
+    });
+    test('score_ClosedModelOvershoot_IsOk', () => {
+        const r = score([ideal([...ring, ring[1], ring[2], ring[3]])], { pts: ring });
+        assert.equal(r.ok, true, JSON.stringify(r));
     });
 });
 

@@ -5,7 +5,9 @@
 // Lignage, top to bottom (spec §8.1). The hampe line (t, d, digit tops) is a guide only: never drawn by the app.
 export const LIGNAGE = { ascender: 16, hampe: 30, xHeight: 42, baseline: 72, descender: 92 };
 
-// Catmull-Rom through the waypoints, as cubic Bézier segments [c1x, c1y, c2x, c2y, x, y] (one per waypoint pair).
+// Catmull-Rom through the waypoints, as cubic Bézier segments [c1x, c1y, c2x, c2y, x, y] (one per waypoint pair):
+// sharp at retrace reversals, smooth elsewhere. Midpoint quadratics were tried and rejected: they cut reversals
+// short (m/n legs, s closure).
 export function curveSegments(pts) {
     const segs = [];
     for (let i = 0; i < pts.length - 1; i++) {
@@ -19,7 +21,7 @@ export function curveSegments(pts) {
     return segs;
 }
 
-// Direction arrows spaced by arc length along the polyline; none on a retraced part (it would point both ways).
+// Arrow positions by arc length, skipping spots that sit on a retraced part of the path (they would point both ways).
 export function arrowSpots(pts, every = 22, first = 12) {
     const segs = [];
     let total = 0;
