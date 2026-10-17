@@ -134,7 +134,8 @@ export function score(ink, model) {
     else hintKey = 'arrows';
     const ok = hintKey === '';
     const hint = hintKey === 'next' ? NEXT_HINTS[next] : TRACE_HINTS[hintKey] ?? '';
-    return { ok, coverage, outside, startOk, hint, hintKey, next, waiting, keep: ok ? ink.length : keep };
+    // An 'inside' miss: the wandering ink sits in done strokes too, so nothing is kept (a clean redraw must pass).
+    return { ok, coverage, outside, startOk, hint, hintKey, next, waiting, keep: ok ? ink.length : hintKey === 'inside' ? 0 : keep };
 }
 
 // Strokes too short to earn a hint (a stray tap) are dropped before the next stroke starts: otherwise the tap stays

@@ -295,6 +295,23 @@ describe('score (N strokes)', () => {
         assert.equal(score([I[0], I[1].slice(0, 20)], tri).keep, 1);
         assert.equal(score([I[0], I[1], I[2].slice(0, 20)], tri).keep, 2);
     });
+    test('score_AllStrokesDoneButOutside_KeepsNothing', () => {
+        const wander = ideal([[70, 70], [90, 95], [60, 95], [90, 92], [40, 95]]);
+        const r = score([I[0], I[1], [...I[2], ...wander]], tri);
+        assert.deepEqual([r.ok, r.hintKey, r.keep], [false, 'inside', 0]);
+    });
+    test('score_RedrawAfterAnInsideMiss_IsOk', () => {
+        const a = letters.items.find(it => it.id === 'a').trace, ma = { pts: a };
+        const badA = [[...ideal(a), ...ideal([a.at(-1), [90, 30], [95, 90], [85, 20], [95, 85]])]];
+        const ra = score(badA, ma);
+        assert.equal(ra.hintKey, 'inside');
+        assert.equal(score([...badA.slice(0, ra.keep), ideal(a)], ma).ok, true);
+        const E = letters.items.find(it => it.id === 'e').capTrace, me = { strokes: E }, IE = E.map(ideal);
+        const badE = [...IE.slice(0, 3), [...IE[3], ...ideal([[70, 72], [90, 95], [60, 95], [90, 92], [40, 95]])]];
+        const re = score(badE, me);
+        assert.equal(re.hintKey, 'inside');
+        assert.equal(score([...badE.slice(0, re.keep), ...IE], me).ok, true);
+    });
     // Q12: a corner (end of stroke k = start of stroke k + 1) may be drawn without lifting the pen.
     const L = { strokes: [
         [[30, 16], [30, 24], [30, 32], [30, 40], [30, 48], [30, 56], [30, 64], [30, 72]],

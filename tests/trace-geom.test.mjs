@@ -62,6 +62,9 @@ describe('startDots', () => {
         assert.deepEqual(startDots(A, 0).map(d => d.n), [1, 3]);
         assert.deepEqual(startDots(A, 1).map(d => [d.n, d.active]), [[2, true], [3, false]]);
     });
+    test('startDots_NoCur_DefaultsToNothingDone', () => {
+        assert.deepEqual(startDots(A), startDots(A, 0));
+    });
     test('startDots_DoneStrokes_LoseTheirDot', () => {
         assert.deepEqual(startDots(A, 2).map(d => d.n), [3]);
         assert.deepEqual(startDots(A, 3), []);

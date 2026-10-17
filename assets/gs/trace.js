@@ -167,6 +167,11 @@ export function mountTrace(container, model, { onResult, onNext = () => {} }) {
         if (!k) { reset(); return; }
         clearTimeout(failTimer); failTimer = null; failPending = false;
         strokes = strokes.slice(0, k); redrawInk(); drawModel(lastResult.next);
+        // The child now waits at dot `next` again: its cue may be said on the next waiting lift, and after NEXT_IDLE_MS.
+        const next = lastResult.next;
+        cued = Math.min(cued, next - 1);
+        clearTimeout(idleTimer); idleTimer = null;
+        if (!drawing) idleTimer = setTimeout(() => { idleTimer = null; if (!drawing && strokes.length === k) onNext(next); }, NEXT_IDLE_MS);
     }
     function cancel(e) {
         if (!drawing || e.pointerId !== activeId) return;

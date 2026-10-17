@@ -28,7 +28,7 @@ const COINCIDENT = 7; // a pending dot this close to a dot already shown waits u
 
 // Dots to draw while `cur` strokes are done (addendum D5): done strokes lose their dot, the active one is filled,
 // pending ones are rings. Digits only on multi-stroke models. Shared by trace.js and tools/trace-sheet.mjs.
-export function startDots(strokes, cur) {
+export function startDots(strokes, cur = 0) {
     const digit = strokes.length >= 2, shown = [];
     for (let k = cur; k < strokes.length; k++) {
         const [x, y] = strokes[k][0];
