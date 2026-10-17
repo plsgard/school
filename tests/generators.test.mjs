@@ -2,11 +2,11 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { expandCards } from '../assets/gs/decks/index.js';
+import { expandCards, DECK_FILES } from '../assets/gs/decks/index.js';
 import { generate, generatePattern, phoneme, heard } from '../assets/gs/generators.js';
 
 const load = async (n) => JSON.parse(await readFile(new URL(`../assets/gs/decks/${n}.json`, import.meta.url), 'utf8'));
-const decks = [await load('letters'), await load('numbers'), await load('mots-p1')];
+const decks = await Promise.all(DECK_FILES.map(load));
 const cards = expandCards(decks, { firstName: 'Lou' });
 const find = (id) => cards.find(c => c.id === id);
 const rng = () => 0.42;
@@ -244,14 +244,14 @@ describe('generate', () => {
         for (const r of RNGS) {
             const ex = generate(byId('mots-p1/lapin#syll-match'), { cards, rng: () => r });
             assertChoiceSet(ex, 3);
-            assert.ok(ex.choices.some(c => !c.correct && ['sapin', 'raisin'].includes(c.id)), `@${r}`);
+            assert.ok(ex.choices.some(c => !c.correct && ['sapin', 'raisin', 'requin', 'dauphin'].includes(c.id)), `@${r}`);
         }
     });
     test('generate_SoundPick_OneDistractorHasClosePhoneme', () => {
         for (const r of RNGS) {
             const ex = generate(byId('mots-p1/fusee#sound-pick'), { cards, rng: () => r });
             assertChoiceSet(ex, 3);
-            assert.ok(ex.choices.some(c => !c.correct && ['velo', 'voiture'].includes(c.id)), `@${r}`);
+            assert.ok(ex.choices.some(c => !c.correct && ['velo', 'voiture', 'vache'].includes(c.id)), `@${r}`);
         }
     });
     test('generate_SoundLetter_OtherDistractorIsClosePhoneme', () => {

@@ -295,6 +295,134 @@
   "bitrate": "32k",
   "trim": true
  },
+ "syl.ballon.1": {
+  "input": "ba",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.ballon.2": {
+  "input": "lon",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.banane.1": {
+  "input": "ba",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.banane.2": {
+  "input": "nane",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.bateau.1": {
+  "input": "ba",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.bateau.2": {
+  "input": "teau",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.bebe.1": {
+  "input": "bé",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.chameau.1": {
+  "input": "cha",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.chameau.2": {
+  "input": "meau",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.chapeau.1": {
+  "input": "cha",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.chapeau.2": {
+  "input": "peau",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.chat.1": {
+  "input": "chat",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.chateau.1": {
+  "input": "cha",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.chateau.2": {
+  "input": "teau",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.dauphin.1": {
+  "input": "dau",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.dauphin.2": {
+  "input": "phin",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "syl.fa": {
   "input": "fa",
   "engine": "say",
@@ -327,8 +455,56 @@
   "bitrate": "32k",
   "trim": true
  },
+ "syl.fourmi.1": {
+  "input": "four",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.fourmi.2": {
+  "input": "mi",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "syl.fu": {
   "input": "fu",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.fusee.1": {
+  "input": "fu",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.fusee.2": {
+  "input": "zée",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.gateau.1": {
+  "input": "gâ",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.gateau.2": {
+  "input": "teau",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -375,8 +551,56 @@
   "bitrate": "32k",
   "trim": true
  },
+ "syl.kiwi.1": {
+  "input": "ki",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.kiwi.2": {
+  "input": "wi",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "syl.la": {
   "input": "la",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.lama.1": {
+  "input": "la",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.lama.2": {
+  "input": "ma",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.lapin.1": {
+  "input": "la",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.lapin.2": {
+  "input": "pin",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -393,6 +617,14 @@
  },
  "syl.li": {
   "input": "li",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.lit.1": {
+  "input": "lit",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -423,6 +655,22 @@
   "bitrate": "32k",
   "trim": true
  },
+ "syl.maison.1": {
+  "input": "mai",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.maison.2": {
+  "input": "zon",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "syl.me": {
   "input": "me",
   "engine": "say",
@@ -441,6 +689,38 @@
  },
  "syl.mo": {
   "input": "mo",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.moto.1": {
+  "input": "mo",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.moto.2": {
+  "input": "to",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.mouton.1": {
+  "input": "mou",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.mouton.2": {
+  "input": "ton",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -471,6 +751,14 @@
   "bitrate": "32k",
   "trim": true
  },
+ "syl.nez.1": {
+  "input": "nez",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "syl.ni": {
   "input": "ni",
   "engine": "say",
@@ -495,6 +783,38 @@
   "bitrate": "32k",
   "trim": true
  },
+ "syl.nuage.1": {
+  "input": "nu",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.nuage.2": {
+  "input": "age",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.papillon.1": {
+  "input": "pa",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.papillon.3": {
+  "input": "yon",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "syl.ra": {
   "input": "ra",
   "engine": "say",
@@ -503,8 +823,40 @@
   "bitrate": "32k",
   "trim": true
  },
+ "syl.raisin.1": {
+  "input": "rai",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.raisin.2": {
+  "input": "zin",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "syl.re": {
   "input": "re",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.requin.1": {
+  "input": "reu",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.requin.2": {
+  "input": "quin",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -527,6 +879,22 @@
   "bitrate": "32k",
   "trim": true
  },
+ "syl.robot.1": {
+  "input": "ro",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.robot.2": {
+  "input": "bo",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "syl.ru": {
   "input": "ru",
   "engine": "say",
@@ -537,6 +905,54 @@
  },
  "syl.sa": {
   "input": "sa",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.salade.1": {
+  "input": "sa",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.salade.2": {
+  "input": "lade",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.sapin.1": {
+  "input": "sa",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.sapin.2": {
+  "input": "pin",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.savon.1": {
+  "input": "sa",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.savon.2": {
+  "input": "von",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -567,8 +983,56 @@
   "bitrate": "32k",
   "trim": true
  },
+ "syl.souris.1": {
+  "input": "sou",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.souris.2": {
+  "input": "ris",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "syl.su": {
   "input": "su",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.tomate.1": {
+  "input": "to",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.tomate.2": {
+  "input": "mate",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.tortue.1": {
+  "input": "tor",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.tortue.2": {
+  "input": "tue",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -583,8 +1047,32 @@
   "bitrate": "32k",
   "trim": true
  },
+ "syl.vache.1": {
+  "input": "vache",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "syl.ve": {
   "input": "ve",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.velo.1": {
+  "input": "vé",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.velo.2": {
+  "input": "lo",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -601,6 +1089,22 @@
  },
  "syl.vo": {
   "input": "vo",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.voiture.1": {
+  "input": "voi",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.voiture.2": {
+  "input": "ture",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -649,6 +1153,1270 @@
  },
  "syl.zu": {
   "input": "zu",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.coccinelle.1.1": {
+  "input": "Oui ! Une coccinelle et une coccinelle, ça fait deux coccinelles.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.coccinelle.1.2": {
+  "input": "Oui ! Une coccinelle et deux coccinelles, ça fait trois coccinelles.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.coccinelle.1.3": {
+  "input": "Oui ! Une coccinelle et trois coccinelles, ça fait quatre coccinelles.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.coccinelle.1.4": {
+  "input": "Oui ! Une coccinelle et quatre coccinelles, ça fait cinq coccinelles.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.coccinelle.2.1": {
+  "input": "Oui ! Deux coccinelles et une coccinelle, ça fait trois coccinelles.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.coccinelle.2.2": {
+  "input": "Oui ! Deux coccinelles et deux coccinelles, ça fait quatre coccinelles.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.coccinelle.2.3": {
+  "input": "Oui ! Deux coccinelles et trois coccinelles, ça fait cinq coccinelles.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.coccinelle.3.1": {
+  "input": "Oui ! Trois coccinelles et une coccinelle, ça fait quatre coccinelles.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.coccinelle.3.2": {
+  "input": "Oui ! Trois coccinelles et deux coccinelles, ça fait cinq coccinelles.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.coccinelle.4.1": {
+  "input": "Oui ! Quatre coccinelles et une coccinelle, ça fait cinq coccinelles.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.etoile.1.1": {
+  "input": "Oui ! Une étoile et une étoile, ça fait deux étoiles.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.etoile.1.2": {
+  "input": "Oui ! Une étoile et deux étoiles, ça fait trois étoiles.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.etoile.1.3": {
+  "input": "Oui ! Une étoile et trois étoiles, ça fait quatre étoiles.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.etoile.1.4": {
+  "input": "Oui ! Une étoile et quatre étoiles, ça fait cinq étoiles.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.etoile.2.1": {
+  "input": "Oui ! Deux étoiles et une étoile, ça fait trois étoiles.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.etoile.2.2": {
+  "input": "Oui ! Deux étoiles et deux étoiles, ça fait quatre étoiles.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.etoile.2.3": {
+  "input": "Oui ! Deux étoiles et trois étoiles, ça fait cinq étoiles.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.etoile.3.1": {
+  "input": "Oui ! Trois étoiles et une étoile, ça fait quatre étoiles.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.etoile.3.2": {
+  "input": "Oui ! Trois étoiles et deux étoiles, ça fait cinq étoiles.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.etoile.4.1": {
+  "input": "Oui ! Quatre étoiles et une étoile, ça fait cinq étoiles.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.fleur.1.1": {
+  "input": "Oui ! Une fleur et une fleur, ça fait deux fleurs.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.fleur.1.2": {
+  "input": "Oui ! Une fleur et deux fleurs, ça fait trois fleurs.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.fleur.1.3": {
+  "input": "Oui ! Une fleur et trois fleurs, ça fait quatre fleurs.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.fleur.1.4": {
+  "input": "Oui ! Une fleur et quatre fleurs, ça fait cinq fleurs.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.fleur.2.1": {
+  "input": "Oui ! Deux fleurs et une fleur, ça fait trois fleurs.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.fleur.2.2": {
+  "input": "Oui ! Deux fleurs et deux fleurs, ça fait quatre fleurs.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.fleur.2.3": {
+  "input": "Oui ! Deux fleurs et trois fleurs, ça fait cinq fleurs.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.fleur.3.1": {
+  "input": "Oui ! Trois fleurs et une fleur, ça fait quatre fleurs.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.fleur.3.2": {
+  "input": "Oui ! Trois fleurs et deux fleurs, ça fait cinq fleurs.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.fleur.4.1": {
+  "input": "Oui ! Quatre fleurs et une fleur, ça fait cinq fleurs.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.fraise.1.1": {
+  "input": "Oui ! Une fraise et une fraise, ça fait deux fraises.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.fraise.1.2": {
+  "input": "Oui ! Une fraise et deux fraises, ça fait trois fraises.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.fraise.1.3": {
+  "input": "Oui ! Une fraise et trois fraises, ça fait quatre fraises.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.fraise.1.4": {
+  "input": "Oui ! Une fraise et quatre fraises, ça fait cinq fraises.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.fraise.2.1": {
+  "input": "Oui ! Deux fraises et une fraise, ça fait trois fraises.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.fraise.2.2": {
+  "input": "Oui ! Deux fraises et deux fraises, ça fait quatre fraises.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.fraise.2.3": {
+  "input": "Oui ! Deux fraises et trois fraises, ça fait cinq fraises.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.fraise.3.1": {
+  "input": "Oui ! Trois fraises et une fraise, ça fait quatre fraises.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.fraise.3.2": {
+  "input": "Oui ! Trois fraises et deux fraises, ça fait cinq fraises.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.fraise.4.1": {
+  "input": "Oui ! Quatre fraises et une fraise, ça fait cinq fraises.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.poisson.1.1": {
+  "input": "Oui ! Un poisson et un poisson, ça fait deux poissons.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.poisson.1.2": {
+  "input": "Oui ! Un poisson et deux poissons, ça fait trois poissons.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.poisson.1.3": {
+  "input": "Oui ! Un poisson et trois poissons, ça fait quatre poissons.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.poisson.1.4": {
+  "input": "Oui ! Un poisson et quatre poissons, ça fait cinq poissons.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.poisson.2.1": {
+  "input": "Oui ! Deux poissons et un poisson, ça fait trois poissons.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.poisson.2.2": {
+  "input": "Oui ! Deux poissons et deux poissons, ça fait quatre poissons.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.poisson.2.3": {
+  "input": "Oui ! Deux poissons et trois poissons, ça fait cinq poissons.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.poisson.3.1": {
+  "input": "Oui ! Trois poissons et un poisson, ça fait quatre poissons.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.poisson.3.2": {
+  "input": "Oui ! Trois poissons et deux poissons, ça fait cinq poissons.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.poisson.4.1": {
+  "input": "Oui ! Quatre poissons et un poisson, ça fait cinq poissons.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.pomme.1.1": {
+  "input": "Oui ! Une pomme et une pomme, ça fait deux pommes.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.pomme.1.2": {
+  "input": "Oui ! Une pomme et deux pommes, ça fait trois pommes.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.pomme.1.3": {
+  "input": "Oui ! Une pomme et trois pommes, ça fait quatre pommes.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.pomme.1.4": {
+  "input": "Oui ! Une pomme et quatre pommes, ça fait cinq pommes.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.pomme.2.1": {
+  "input": "Oui ! Deux pommes et une pomme, ça fait trois pommes.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.pomme.2.2": {
+  "input": "Oui ! Deux pommes et deux pommes, ça fait quatre pommes.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.pomme.2.3": {
+  "input": "Oui ! Deux pommes et trois pommes, ça fait cinq pommes.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.pomme.3.1": {
+  "input": "Oui ! Trois pommes et une pomme, ça fait quatre pommes.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.pomme.3.2": {
+  "input": "Oui ! Trois pommes et deux pommes, ça fait cinq pommes.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add-ok.pomme.4.1": {
+  "input": "Oui ! Quatre pommes et une pomme, ça fait cinq pommes.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.coccinelle.1.1": {
+  "input": "Une coccinelle et une coccinelle, ça fait combien de coccinelles ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.coccinelle.1.2": {
+  "input": "Une coccinelle et deux coccinelles, ça fait combien de coccinelles ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.coccinelle.1.3": {
+  "input": "Une coccinelle et trois coccinelles, ça fait combien de coccinelles ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.coccinelle.1.4": {
+  "input": "Une coccinelle et quatre coccinelles, ça fait combien de coccinelles ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.coccinelle.2.1": {
+  "input": "Deux coccinelles et une coccinelle, ça fait combien de coccinelles ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.coccinelle.2.2": {
+  "input": "Deux coccinelles et deux coccinelles, ça fait combien de coccinelles ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.coccinelle.2.3": {
+  "input": "Deux coccinelles et trois coccinelles, ça fait combien de coccinelles ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.coccinelle.3.1": {
+  "input": "Trois coccinelles et une coccinelle, ça fait combien de coccinelles ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.coccinelle.3.2": {
+  "input": "Trois coccinelles et deux coccinelles, ça fait combien de coccinelles ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.coccinelle.4.1": {
+  "input": "Quatre coccinelles et une coccinelle, ça fait combien de coccinelles ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.etoile.1.1": {
+  "input": "Une étoile et une étoile, ça fait combien d'étoiles ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.etoile.1.2": {
+  "input": "Une étoile et deux étoiles, ça fait combien d'étoiles ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.etoile.1.3": {
+  "input": "Une étoile et trois étoiles, ça fait combien d'étoiles ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.etoile.1.4": {
+  "input": "Une étoile et quatre étoiles, ça fait combien d'étoiles ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.etoile.2.1": {
+  "input": "Deux étoiles et une étoile, ça fait combien d'étoiles ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.etoile.2.2": {
+  "input": "Deux étoiles et deux étoiles, ça fait combien d'étoiles ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.etoile.2.3": {
+  "input": "Deux étoiles et trois étoiles, ça fait combien d'étoiles ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.etoile.3.1": {
+  "input": "Trois étoiles et une étoile, ça fait combien d'étoiles ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.etoile.3.2": {
+  "input": "Trois étoiles et deux étoiles, ça fait combien d'étoiles ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.etoile.4.1": {
+  "input": "Quatre étoiles et une étoile, ça fait combien d'étoiles ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.fleur.1.1": {
+  "input": "Une fleur et une fleur, ça fait combien de fleurs ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.fleur.1.2": {
+  "input": "Une fleur et deux fleurs, ça fait combien de fleurs ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.fleur.1.3": {
+  "input": "Une fleur et trois fleurs, ça fait combien de fleurs ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.fleur.1.4": {
+  "input": "Une fleur et quatre fleurs, ça fait combien de fleurs ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.fleur.2.1": {
+  "input": "Deux fleurs et une fleur, ça fait combien de fleurs ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.fleur.2.2": {
+  "input": "Deux fleurs et deux fleurs, ça fait combien de fleurs ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.fleur.2.3": {
+  "input": "Deux fleurs et trois fleurs, ça fait combien de fleurs ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.fleur.3.1": {
+  "input": "Trois fleurs et une fleur, ça fait combien de fleurs ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.fleur.3.2": {
+  "input": "Trois fleurs et deux fleurs, ça fait combien de fleurs ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.fleur.4.1": {
+  "input": "Quatre fleurs et une fleur, ça fait combien de fleurs ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.fraise.1.1": {
+  "input": "Une fraise et une fraise, ça fait combien de fraises ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.fraise.1.2": {
+  "input": "Une fraise et deux fraises, ça fait combien de fraises ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.fraise.1.3": {
+  "input": "Une fraise et trois fraises, ça fait combien de fraises ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.fraise.1.4": {
+  "input": "Une fraise et quatre fraises, ça fait combien de fraises ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.fraise.2.1": {
+  "input": "Deux fraises et une fraise, ça fait combien de fraises ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.fraise.2.2": {
+  "input": "Deux fraises et deux fraises, ça fait combien de fraises ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.fraise.2.3": {
+  "input": "Deux fraises et trois fraises, ça fait combien de fraises ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.fraise.3.1": {
+  "input": "Trois fraises et une fraise, ça fait combien de fraises ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.fraise.3.2": {
+  "input": "Trois fraises et deux fraises, ça fait combien de fraises ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.fraise.4.1": {
+  "input": "Quatre fraises et une fraise, ça fait combien de fraises ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.poisson.1.1": {
+  "input": "Un poisson et un poisson, ça fait combien de poissons ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.poisson.1.2": {
+  "input": "Un poisson et deux poissons, ça fait combien de poissons ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.poisson.1.3": {
+  "input": "Un poisson et trois poissons, ça fait combien de poissons ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.poisson.1.4": {
+  "input": "Un poisson et quatre poissons, ça fait combien de poissons ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.poisson.2.1": {
+  "input": "Deux poissons et un poisson, ça fait combien de poissons ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.poisson.2.2": {
+  "input": "Deux poissons et deux poissons, ça fait combien de poissons ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.poisson.2.3": {
+  "input": "Deux poissons et trois poissons, ça fait combien de poissons ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.poisson.3.1": {
+  "input": "Trois poissons et un poisson, ça fait combien de poissons ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.poisson.3.2": {
+  "input": "Trois poissons et deux poissons, ça fait combien de poissons ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.poisson.4.1": {
+  "input": "Quatre poissons et un poisson, ça fait combien de poissons ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.pomme.1.1": {
+  "input": "Une pomme et une pomme, ça fait combien de pommes ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.pomme.1.2": {
+  "input": "Une pomme et deux pommes, ça fait combien de pommes ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.pomme.1.3": {
+  "input": "Une pomme et trois pommes, ça fait combien de pommes ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.pomme.1.4": {
+  "input": "Une pomme et quatre pommes, ça fait combien de pommes ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.pomme.2.1": {
+  "input": "Deux pommes et une pomme, ça fait combien de pommes ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.pomme.2.2": {
+  "input": "Deux pommes et deux pommes, ça fait combien de pommes ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.pomme.2.3": {
+  "input": "Deux pommes et trois pommes, ça fait combien de pommes ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.pomme.3.1": {
+  "input": "Trois pommes et une pomme, ça fait combien de pommes ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.pomme.3.2": {
+  "input": "Trois pommes et deux pommes, ça fait combien de pommes ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.add.pomme.4.1": {
+  "input": "Quatre pommes et une pomme, ça fait combien de pommes ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.after-ok.0": {
+  "input": "Oui ! Après zéro, il y a un.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.after-ok.1": {
+  "input": "Oui ! Après un, il y a deux.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.after-ok.2": {
+  "input": "Oui ! Après deux, il y a trois.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.after-ok.3": {
+  "input": "Oui ! Après trois, il y a quatre.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.after-ok.4": {
+  "input": "Oui ! Après quatre, il y a cinq.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.after-ok.5": {
+  "input": "Oui ! Après cinq, il y a six.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.after-ok.6": {
+  "input": "Oui ! Après six, il y a sept.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.after-ok.7": {
+  "input": "Oui ! Après sept, il y a huit.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.after-ok.8": {
+  "input": "Oui ! Après huit, il y a neuf.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.after-ok.9": {
+  "input": "Oui ! Après neuf, il y a dix.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.after.0": {
+  "input": "Quel nombre vient juste après zéro ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.after.1": {
+  "input": "Quel nombre vient juste après un ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.after.2": {
+  "input": "Quel nombre vient juste après deux ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.after.3": {
+  "input": "Quel nombre vient juste après trois ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.after.4": {
+  "input": "Quel nombre vient juste après quatre ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.after.5": {
+  "input": "Quel nombre vient juste après cinq ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.after.6": {
+  "input": "Quel nombre vient juste après six ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.after.7": {
+  "input": "Quel nombre vient juste après sept ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.after.8": {
+  "input": "Quel nombre vient juste après huit ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.after.9": {
+  "input": "Quel nombre vient juste après neuf ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.before-ok.10": {
+  "input": "Oui ! Avant dix, il y a neuf.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.before-ok.2": {
+  "input": "Oui ! Avant deux, il y a un.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.before-ok.3": {
+  "input": "Oui ! Avant trois, il y a deux.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.before-ok.4": {
+  "input": "Oui ! Avant quatre, il y a trois.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.before-ok.5": {
+  "input": "Oui ! Avant cinq, il y a quatre.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.before-ok.6": {
+  "input": "Oui ! Avant six, il y a cinq.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.before-ok.7": {
+  "input": "Oui ! Avant sept, il y a six.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.before-ok.8": {
+  "input": "Oui ! Avant huit, il y a sept.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.before-ok.9": {
+  "input": "Oui ! Avant neuf, il y a huit.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.before.10": {
+  "input": "Quel nombre vient juste avant dix ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.before.2": {
+  "input": "Quel nombre vient juste avant deux ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.before.3": {
+  "input": "Quel nombre vient juste avant trois ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.before.4": {
+  "input": "Quel nombre vient juste avant quatre ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.before.5": {
+  "input": "Quel nombre vient juste avant cinq ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.before.6": {
+  "input": "Quel nombre vient juste avant six ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.before.7": {
+  "input": "Quel nombre vient juste avant sept ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.before.8": {
+  "input": "Quel nombre vient juste avant huit ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.before.9": {
+  "input": "Quel nombre vient juste avant neuf ?",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -3503,6 +5271,102 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.dice-ok.1": {
+  "input": "Oui, il y a un point !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.dice-ok.10": {
+  "input": "Oui, il y a dix points !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.dice-ok.2": {
+  "input": "Oui, il y a deux points !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.dice-ok.3": {
+  "input": "Oui, il y a trois points !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.dice-ok.4": {
+  "input": "Oui, il y a quatre points !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.dice-ok.5": {
+  "input": "Oui, il y a cinq points !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.dice-ok.6": {
+  "input": "Oui, il y a six points !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.dice-ok.7": {
+  "input": "Oui, il y a sept points !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.dice-ok.8": {
+  "input": "Oui, il y a huit points !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.dice-ok.9": {
+  "input": "Oui, il y a neuf points !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.dice.one": {
+  "input": "Combien de points sur le dé ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.dice.two": {
+  "input": "Combien de points sur les deux dés ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.done": {
   "input": "Bravo ! Tu as fini pour aujourd'hui.",
   "engine": "say",
@@ -4199,8 +6063,32 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.rhyme-ok.ballon.mouton": {
+  "input": "Oui ! Ballon, mouton, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.rhyme-ok.ballon.papillon": {
   "input": "Oui ! Ballon, papillon, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.ballon.savon": {
+  "input": "Oui ! Ballon, savon, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.bateau.chameau": {
+  "input": "Oui ! Bateau, chameau, ça rime !",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -4215,8 +6103,32 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.rhyme-ok.bateau.chateau": {
+  "input": "Oui ! Bateau, château, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.bateau.gateau": {
+  "input": "Oui ! Bateau, gâteau, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.rhyme-ok.bateau.moto": {
   "input": "Oui ! Bateau, moto, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.bateau.robot": {
+  "input": "Oui ! Bateau, robot, ça rime !",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -4231,6 +6143,78 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.rhyme-ok.bebe.fusee": {
+  "input": "Oui ! Bébé, fusée, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.bebe.nez": {
+  "input": "Oui ! Bébé, nez, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.chameau.bateau": {
+  "input": "Oui ! Chameau, bateau, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.chameau.chapeau": {
+  "input": "Oui ! Chameau, chapeau, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.chameau.chateau": {
+  "input": "Oui ! Chameau, château, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.chameau.gateau": {
+  "input": "Oui ! Chameau, gâteau, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.chameau.moto": {
+  "input": "Oui ! Chameau, moto, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.chameau.robot": {
+  "input": "Oui ! Chameau, robot, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.chameau.velo": {
+  "input": "Oui ! Chameau, vélo, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.rhyme-ok.chapeau.bateau": {
   "input": "Oui ! Chapeau, bateau, ça rime !",
   "engine": "say",
@@ -4239,8 +6223,40 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.rhyme-ok.chapeau.chameau": {
+  "input": "Oui ! Chapeau, chameau, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.chapeau.chateau": {
+  "input": "Oui ! Chapeau, château, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.chapeau.gateau": {
+  "input": "Oui ! Chapeau, gâteau, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.rhyme-ok.chapeau.moto": {
   "input": "Oui ! Chapeau, moto, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.chapeau.robot": {
+  "input": "Oui ! Chapeau, robot, ça rime !",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -4263,6 +6279,190 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.rhyme-ok.chateau.bateau": {
+  "input": "Oui ! Château, bateau, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.chateau.chameau": {
+  "input": "Oui ! Château, chameau, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.chateau.chapeau": {
+  "input": "Oui ! Château, chapeau, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.chateau.gateau": {
+  "input": "Oui ! Château, gâteau, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.chateau.moto": {
+  "input": "Oui ! Château, moto, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.chateau.robot": {
+  "input": "Oui ! Château, robot, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.chateau.velo": {
+  "input": "Oui ! Château, vélo, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.dauphin.lapin": {
+  "input": "Oui ! Dauphin, lapin, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.dauphin.raisin": {
+  "input": "Oui ! Dauphin, raisin, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.dauphin.requin": {
+  "input": "Oui ! Dauphin, requin, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.dauphin.sapin": {
+  "input": "Oui ! Dauphin, sapin, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.fourmi.kiwi": {
+  "input": "Oui ! Fourmi, kiwi, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.fourmi.lit": {
+  "input": "Oui ! Fourmi, lit, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.fourmi.souris": {
+  "input": "Oui ! Fourmi, souris, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.gateau.bateau": {
+  "input": "Oui ! Gâteau, bateau, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.gateau.chameau": {
+  "input": "Oui ! Gâteau, chameau, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.gateau.chapeau": {
+  "input": "Oui ! Gâteau, chapeau, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.gateau.chateau": {
+  "input": "Oui ! Gâteau, château, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.gateau.moto": {
+  "input": "Oui ! Gâteau, moto, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.gateau.robot": {
+  "input": "Oui ! Gâteau, robot, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.gateau.velo": {
+  "input": "Oui ! Gâteau, vélo, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.kiwi.fourmi": {
+  "input": "Oui ! Kiwi, fourmi, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.kiwi.lit": {
+  "input": "Oui ! Kiwi, lit, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.rhyme-ok.kiwi.souris": {
   "input": "Oui ! Kiwi, souris, ça rime !",
   "engine": "say",
@@ -4279,8 +6479,24 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.rhyme-ok.lapin.dauphin": {
+  "input": "Oui ! Lapin, dauphin, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.rhyme-ok.lapin.raisin": {
   "input": "Oui ! Lapin, raisin, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.lapin.requin": {
+  "input": "Oui ! Lapin, requin, ça rime !",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -4295,8 +6511,40 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.rhyme-ok.lit.fourmi": {
+  "input": "Oui ! Lit, fourmi, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.lit.kiwi": {
+  "input": "Oui ! Lit, kiwi, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.lit.souris": {
+  "input": "Oui ! Lit, souris, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.rhyme-ok.maison.ballon": {
   "input": "Oui ! Maison, ballon, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.maison.mouton": {
+  "input": "Oui ! Maison, mouton, ça rime !",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -4311,8 +6559,24 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.rhyme-ok.maison.savon": {
+  "input": "Oui ! Maison, savon, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.rhyme-ok.moto.bateau": {
   "input": "Oui ! Moto, bateau, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.moto.chameau": {
+  "input": "Oui ! Moto, chameau, ça rime !",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -4327,8 +6591,80 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.rhyme-ok.moto.chateau": {
+  "input": "Oui ! Moto, château, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.moto.gateau": {
+  "input": "Oui ! Moto, gâteau, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.moto.robot": {
+  "input": "Oui ! Moto, robot, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.rhyme-ok.moto.velo": {
   "input": "Oui ! Moto, vélo, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.mouton.ballon": {
+  "input": "Oui ! Mouton, ballon, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.mouton.maison": {
+  "input": "Oui ! Mouton, maison, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.mouton.papillon": {
+  "input": "Oui ! Mouton, papillon, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.mouton.savon": {
+  "input": "Oui ! Mouton, savon, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.nez.bebe": {
+  "input": "Oui ! Nez, bébé, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.nez.fusee": {
+  "input": "Oui ! Nez, fusée, ça rime !",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -4351,6 +6687,30 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.rhyme-ok.papillon.mouton": {
+  "input": "Oui ! Papillon, mouton, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.papillon.savon": {
+  "input": "Oui ! Papillon, savon, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.raisin.dauphin": {
+  "input": "Oui ! Raisin, dauphin, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.rhyme-ok.raisin.lapin": {
   "input": "Oui ! Raisin, lapin, ça rime !",
   "engine": "say",
@@ -4359,8 +6719,112 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.rhyme-ok.raisin.requin": {
+  "input": "Oui ! Raisin, requin, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.rhyme-ok.raisin.sapin": {
   "input": "Oui ! Raisin, sapin, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.requin.dauphin": {
+  "input": "Oui ! Requin, dauphin, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.requin.lapin": {
+  "input": "Oui ! Requin, lapin, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.requin.raisin": {
+  "input": "Oui ! Requin, raisin, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.requin.sapin": {
+  "input": "Oui ! Requin, sapin, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.robot.bateau": {
+  "input": "Oui ! Robot, bateau, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.robot.chameau": {
+  "input": "Oui ! Robot, chameau, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.robot.chapeau": {
+  "input": "Oui ! Robot, chapeau, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.robot.chateau": {
+  "input": "Oui ! Robot, château, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.robot.gateau": {
+  "input": "Oui ! Robot, gâteau, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.robot.moto": {
+  "input": "Oui ! Robot, moto, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.robot.velo": {
+  "input": "Oui ! Robot, vélo, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.sapin.dauphin": {
+  "input": "Oui ! Sapin, dauphin, ça rime !",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -4383,8 +6847,64 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.rhyme-ok.sapin.requin": {
+  "input": "Oui ! Sapin, requin, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.savon.ballon": {
+  "input": "Oui ! Savon, ballon, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.savon.maison": {
+  "input": "Oui ! Savon, maison, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.savon.mouton": {
+  "input": "Oui ! Savon, mouton, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.savon.papillon": {
+  "input": "Oui ! Savon, papillon, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.souris.fourmi": {
+  "input": "Oui ! Souris, fourmi, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.rhyme-ok.souris.kiwi": {
   "input": "Oui ! Souris, kiwi, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.souris.lit": {
+  "input": "Oui ! Souris, lit, ça rime !",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -4399,6 +6919,14 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.rhyme-ok.velo.chameau": {
+  "input": "Oui ! Vélo, chameau, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.rhyme-ok.velo.chapeau": {
   "input": "Oui ! Vélo, chapeau, ça rime !",
   "engine": "say",
@@ -4407,8 +6935,32 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.rhyme-ok.velo.chateau": {
+  "input": "Oui ! Vélo, château, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.velo.gateau": {
+  "input": "Oui ! Vélo, gâteau, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.rhyme-ok.velo.moto": {
   "input": "Oui ! Vélo, moto, ça rime !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme-ok.velo.robot": {
+  "input": "Oui ! Vélo, robot, ça rime !",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -4431,6 +6983,22 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.rhyme.bebe": {
+  "input": "Qu'est-ce qui rime avec bébé ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme.chameau": {
+  "input": "Qu'est-ce qui rime avec chameau ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.rhyme.chapeau": {
   "input": "Qu'est-ce qui rime avec chapeau ?",
   "engine": "say",
@@ -4441,6 +7009,38 @@
  },
  "ui.rhyme.chat": {
   "input": "Qu'est-ce qui rime avec chat ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme.chateau": {
+  "input": "Qu'est-ce qui rime avec château ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme.dauphin": {
+  "input": "Qu'est-ce qui rime avec dauphin ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme.fourmi": {
+  "input": "Qu'est-ce qui rime avec fourmi ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme.gateau": {
+  "input": "Qu'est-ce qui rime avec gâteau ?",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -4471,6 +7071,14 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.rhyme.lit": {
+  "input": "Qu'est-ce qui rime avec lit ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.rhyme.maison": {
   "input": "Qu'est-ce qui rime avec maison ?",
   "engine": "say",
@@ -4481,6 +7089,22 @@
  },
  "ui.rhyme.moto": {
   "input": "Qu'est-ce qui rime avec moto ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme.mouton": {
+  "input": "Qu'est-ce qui rime avec mouton ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme.nez": {
+  "input": "Qu'est-ce qui rime avec nez ?",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -4503,8 +7127,32 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.rhyme.requin": {
+  "input": "Qu'est-ce qui rime avec requin ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme.robot": {
+  "input": "Qu'est-ce qui rime avec robot ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.rhyme.sapin": {
   "input": "Qu'est-ce qui rime avec sapin ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.rhyme.savon": {
+  "input": "Qu'est-ce qui rime avec savon ?",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -4527,6 +7175,286 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.sound-final-ok.banane": {
+  "input": "Oui ! Banane finit par nnnnnneu !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final-ok.bateau": {
+  "input": "Oui ! Bateau finit par oooooo !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final-ok.bebe": {
+  "input": "Oui ! Bébé finit par éééééé !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final-ok.chameau": {
+  "input": "Oui ! Chameau finit par oooooo !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final-ok.chapeau": {
+  "input": "Oui ! Chapeau finit par oooooo !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final-ok.chat": {
+  "input": "Oui ! Chat finit par aaaaaa !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final-ok.chateau": {
+  "input": "Oui ! Château finit par oooooo !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final-ok.fourmi": {
+  "input": "Oui ! Fourmi finit par iiiiii !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final-ok.fusee": {
+  "input": "Oui ! Fusée finit par éééééé !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final-ok.gateau": {
+  "input": "Oui ! Gâteau finit par oooooo !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final-ok.kiwi": {
+  "input": "Oui ! Kiwi finit par iiiiii !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final-ok.lama": {
+  "input": "Oui ! Lama finit par aaaaaa !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final-ok.lit": {
+  "input": "Oui ! Lit finit par iiiiii !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final-ok.moto": {
+  "input": "Oui ! Moto finit par oooooo !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final-ok.nez": {
+  "input": "Oui ! Nez finit par éééééé !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final-ok.nuage": {
+  "input": "Oui ! Nuage finit par jjjjjjeu !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final-ok.robot": {
+  "input": "Oui ! Robot finit par oooooo !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final-ok.salade": {
+  "input": "Oui ! Salade finit par le son deu !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final-ok.souris": {
+  "input": "Oui ! Souris finit par iiiiii !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final-ok.tomate": {
+  "input": "Oui ! Tomate finit par le son teu !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final-ok.tortue": {
+  "input": "Oui ! Tortue finit par uuuuuu !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final-ok.vache": {
+  "input": "Oui ! Vache finit par chchchchchcheu !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final-ok.velo": {
+  "input": "Oui ! Vélo finit par oooooo !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final-ok.voiture": {
+  "input": "Oui ! Voiture finit par rrrrrreu !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final.a": {
+  "input": "Quel mot finit par aaaaaa ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final.ch": {
+  "input": "Quel mot finit par chchchchchcheu ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final.d": {
+  "input": "Quel mot finit par le son deu ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final.eacute": {
+  "input": "Quel mot finit par éééééé ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final.i": {
+  "input": "Quel mot finit par iiiiii ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final.j": {
+  "input": "Quel mot finit par jjjjjjeu ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final.n": {
+  "input": "Quel mot finit par nnnnnneu ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final.o": {
+  "input": "Quel mot finit par oooooo ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final.r": {
+  "input": "Quel mot finit par rrrrrreu ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final.t": {
+  "input": "Quel mot finit par le son teu ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final.u": {
+  "input": "Quel mot finit par uuuuuu ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.sound-letter-ok.a": {
   "input": "Oui ! La lettre a fait aaaaaa !",
   "engine": "say",
@@ -4537,6 +7465,14 @@
  },
  "ui.sound-letter-ok.e": {
   "input": "Oui ! La lettre e fait eeeeee !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-letter-ok.f.fourmi": {
+  "input": "Oui ! C'est la lettre effe, comme au début de fourmi !",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -4583,6 +7519,14 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.sound-letter-ok.l.lit": {
+  "input": "Oui ! C'est la lettre elle, comme au début de lit !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.sound-letter-ok.m.maison": {
   "input": "Oui ! C'est la lettre emme, comme au début de maison !",
   "engine": "say",
@@ -4599,8 +7543,24 @@
   "bitrate": "32k",
   "trim": true
  },
- "ui.sound-letter-ok.n": {
-  "input": "Oui ! La lettre enne fait nnnnnneu !",
+ "ui.sound-letter-ok.m.mouton": {
+  "input": "Oui ! C'est la lettre emme, comme au début de mouton !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-letter-ok.n.nez": {
+  "input": "Oui ! C'est la lettre enne, comme au début de nez !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-letter-ok.n.nuage": {
+  "input": "Oui ! C'est la lettre enne, comme au début de nuage !",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -4623,8 +7583,40 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.sound-letter-ok.r.requin": {
+  "input": "Oui ! C'est la lettre erre, comme au début de requin !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-letter-ok.r.robot": {
+  "input": "Oui ! C'est la lettre erre, comme au début de robot !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-letter-ok.s.salade": {
+  "input": "Oui ! C'est la lettre esse, comme au début de salade !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.sound-letter-ok.s.sapin": {
   "input": "Oui ! C'est la lettre esse, comme au début de sapin !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-letter-ok.s.savon": {
+  "input": "Oui ! C'est la lettre esse, comme au début de savon !",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -4641,6 +7633,14 @@
  },
  "ui.sound-letter-ok.u": {
   "input": "Oui ! La lettre u fait uuuuuu !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-letter-ok.v.vache": {
+  "input": "Oui ! C'est la lettre vé, comme au début de vache !",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -4687,6 +7687,14 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.sound-letter.f.fourmi": {
+  "input": "Ffffffourmi. Quelle lettre chante au début de fourmi ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.sound-letter.f.fusee": {
   "input": "Ffffffusée. Quelle lettre chante au début de fusée ?",
   "engine": "say",
@@ -4727,6 +7735,14 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.sound-letter.l.lit": {
+  "input": "Llllllit. Quelle lettre chante au début de lit ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.sound-letter.m.maison": {
   "input": "Mmmmmmaison. Quelle lettre chante au début de maison ?",
   "engine": "say",
@@ -4743,8 +7759,24 @@
   "bitrate": "32k",
   "trim": true
  },
- "ui.sound-letter.n": {
-  "input": "Quelle lettre fait le son nnnnnneu ?",
+ "ui.sound-letter.m.mouton": {
+  "input": "Mmmmmmouton. Quelle lettre chante au début de mouton ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-letter.n.nez": {
+  "input": "Nnnnnnez. Quelle lettre chante au début de nez ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-letter.n.nuage": {
+  "input": "Nnnnnnuage. Quelle lettre chante au début de nuage ?",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -4767,8 +7799,40 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.sound-letter.r.requin": {
+  "input": "Rrrrrrequin. Quelle lettre chante au début de requin ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-letter.r.robot": {
+  "input": "Rrrrrrobot. Quelle lettre chante au début de robot ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-letter.s.salade": {
+  "input": "Ssssssalade. Quelle lettre chante au début de salade ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.sound-letter.s.sapin": {
   "input": "Ssssssapin. Quelle lettre chante au début de sapin ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-letter.s.savon": {
+  "input": "Ssssssavon. Quelle lettre chante au début de savon ?",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -4785,6 +7849,14 @@
  },
  "ui.sound-letter.u": {
   "input": "Quelle lettre fait le son uuuuuu ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-letter.v.vache": {
+  "input": "Vvvvvvache. Quelle lettre chante au début de vache ?",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -4839,6 +7911,22 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.sound-pick-ok.bebe": {
+  "input": "Oui ! Bébé commence par le son beu !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-pick-ok.chameau": {
+  "input": "Oui ! Chameau commence par chchchchchcheu !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.sound-pick-ok.chapeau": {
   "input": "Oui ! Chapeau commence par chchchchchcheu !",
   "engine": "say",
@@ -4855,8 +7943,40 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.sound-pick-ok.chateau": {
+  "input": "Oui ! Château commence par chchchchchcheu !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-pick-ok.dauphin": {
+  "input": "Oui ! Dauphin commence par le son deu !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-pick-ok.fourmi": {
+  "input": "Oui ! Fourmi commence par ffffffeu !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.sound-pick-ok.fusee": {
   "input": "Oui ! Fusée commence par ffffffeu !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-pick-ok.gateau": {
+  "input": "Oui ! Gâteau commence par le son gueu !",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -4887,6 +8007,14 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.sound-pick-ok.lit": {
+  "input": "Oui ! Lit commence par lllllleu !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.sound-pick-ok.maison": {
   "input": "Oui ! Maison commence par mmmmmmeu !",
   "engine": "say",
@@ -4897,6 +8025,30 @@
  },
  "ui.sound-pick-ok.moto": {
   "input": "Oui ! Moto commence par mmmmmmeu !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-pick-ok.mouton": {
+  "input": "Oui ! Mouton commence par mmmmmmeu !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-pick-ok.nez": {
+  "input": "Oui ! Nez commence par nnnnnneu !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-pick-ok.nuage": {
+  "input": "Oui ! Nuage commence par nnnnnneu !",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -4919,6 +8071,30 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.sound-pick-ok.requin": {
+  "input": "Oui ! Requin commence par rrrrrreu !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-pick-ok.robot": {
+  "input": "Oui ! Robot commence par rrrrrreu !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-pick-ok.salade": {
+  "input": "Oui ! Salade commence par sssssseu !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.sound-pick-ok.sapin": {
   "input": "Oui ! Sapin commence par sssssseu !",
   "engine": "say",
@@ -4927,8 +8103,40 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.sound-pick-ok.savon": {
+  "input": "Oui ! Savon commence par sssssseu !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.sound-pick-ok.souris": {
   "input": "Oui ! Souris commence par sssssseu !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-pick-ok.tomate": {
+  "input": "Oui ! Tomate commence par le son teu !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-pick-ok.tortue": {
+  "input": "Oui ! Tortue commence par le son teu !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-pick-ok.vache": {
+  "input": "Oui ! Vache commence par vvvvvveu !",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -4967,8 +8175,24 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.sound-pick.d": {
+  "input": "Quel mot commence par le son deu ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.sound-pick.f": {
   "input": "Quel mot commence par ffffffeu ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-pick.g": {
+  "input": "Quel mot commence par le son gueu ?",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -4999,6 +8223,14 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.sound-pick.n": {
+  "input": "Quel mot commence par nnnnnneu ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.sound-pick.p": {
   "input": "Quel mot commence par le son peu ?",
   "engine": "say",
@@ -5017,6 +8249,14 @@
  },
  "ui.sound-pick.s": {
   "input": "Quel mot commence par sssssseu ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-pick.t": {
+  "input": "Quel mot commence par le son teu ?",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -5055,6 +8295,22 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.syll-count-ok.bebe": {
+  "input": "Bravo ! Bé, bé : deux syllabes.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-count-ok.chameau": {
+  "input": "Bravo ! Cha, meau : deux syllabes.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.syll-count-ok.chapeau": {
   "input": "Bravo ! Cha, peau : deux syllabes.",
   "engine": "say",
@@ -5071,8 +8327,40 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.syll-count-ok.chateau": {
+  "input": "Bravo ! Cha, teau : deux syllabes.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-count-ok.dauphin": {
+  "input": "Bravo ! Dau, phin : deux syllabes.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-count-ok.fourmi": {
+  "input": "Bravo ! Four, mi : deux syllabes.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.syll-count-ok.fusee": {
   "input": "Bravo ! Fu, zée : deux syllabes.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-count-ok.gateau": {
+  "input": "Bravo ! Gâ, teau : deux syllabes.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -5103,6 +8391,14 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.syll-count-ok.lit": {
+  "input": "Bravo ! Lit : une syllabe.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.syll-count-ok.maison": {
   "input": "Bravo ! Mai, zon : deux syllabes.",
   "engine": "say",
@@ -5113,6 +8409,30 @@
  },
  "ui.syll-count-ok.moto": {
   "input": "Bravo ! Mo, to : deux syllabes.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-count-ok.mouton": {
+  "input": "Bravo ! Mou, ton : deux syllabes.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-count-ok.nez": {
+  "input": "Bravo ! Nez : une syllabe.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-count-ok.nuage": {
+  "input": "Bravo ! Nu, age : deux syllabes.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -5135,6 +8455,30 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.syll-count-ok.requin": {
+  "input": "Bravo ! Reu, quin : deux syllabes.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-count-ok.robot": {
+  "input": "Bravo ! Ro, bo : deux syllabes.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-count-ok.salade": {
+  "input": "Bravo ! Sa, lade : deux syllabes.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.syll-count-ok.sapin": {
   "input": "Bravo ! Sa, pin : deux syllabes.",
   "engine": "say",
@@ -5143,8 +8487,40 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.syll-count-ok.savon": {
+  "input": "Bravo ! Sa, von : deux syllabes.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.syll-count-ok.souris": {
   "input": "Bravo ! Sou, ris : deux syllabes.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-count-ok.tomate": {
+  "input": "Bravo ! To, mate : deux syllabes.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-count-ok.tortue": {
+  "input": "Bravo ! Tor, tue : deux syllabes.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-count-ok.vache": {
+  "input": "Bravo ! Vache : une syllabe.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -5191,6 +8567,22 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.syll-count.bebe": {
+  "input": "Frappe dans tes mains en disant bébé. Combien de syllabes ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-count.chameau": {
+  "input": "Frappe dans tes mains en disant chameau. Combien de syllabes ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.syll-count.chapeau": {
   "input": "Frappe dans tes mains en disant chapeau. Combien de syllabes ?",
   "engine": "say",
@@ -5207,8 +8599,40 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.syll-count.chateau": {
+  "input": "Frappe dans tes mains en disant château. Combien de syllabes ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-count.dauphin": {
+  "input": "Frappe dans tes mains en disant dauphin. Combien de syllabes ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-count.fourmi": {
+  "input": "Frappe dans tes mains en disant fourmi. Combien de syllabes ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.syll-count.fusee": {
   "input": "Frappe dans tes mains en disant fusée. Combien de syllabes ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-count.gateau": {
+  "input": "Frappe dans tes mains en disant gâteau. Combien de syllabes ?",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -5239,6 +8663,14 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.syll-count.lit": {
+  "input": "Frappe dans tes mains en disant lit. Combien de syllabes ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.syll-count.maison": {
   "input": "Frappe dans tes mains en disant maison. Combien de syllabes ?",
   "engine": "say",
@@ -5249,6 +8681,30 @@
  },
  "ui.syll-count.moto": {
   "input": "Frappe dans tes mains en disant moto. Combien de syllabes ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-count.mouton": {
+  "input": "Frappe dans tes mains en disant mouton. Combien de syllabes ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-count.nez": {
+  "input": "Frappe dans tes mains en disant nez. Combien de syllabes ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-count.nuage": {
+  "input": "Frappe dans tes mains en disant nuage. Combien de syllabes ?",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -5271,6 +8727,30 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.syll-count.requin": {
+  "input": "Frappe dans tes mains en disant requin. Combien de syllabes ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-count.robot": {
+  "input": "Frappe dans tes mains en disant robot. Combien de syllabes ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-count.salade": {
+  "input": "Frappe dans tes mains en disant salade. Combien de syllabes ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.syll-count.sapin": {
   "input": "Frappe dans tes mains en disant sapin. Combien de syllabes ?",
   "engine": "say",
@@ -5279,8 +8759,40 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.syll-count.savon": {
+  "input": "Frappe dans tes mains en disant savon. Combien de syllabes ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.syll-count.souris": {
   "input": "Frappe dans tes mains en disant souris. Combien de syllabes ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-count.tomate": {
+  "input": "Frappe dans tes mains en disant tomate. Combien de syllabes ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-count.tortue": {
+  "input": "Frappe dans tes mains en disant tortue. Combien de syllabes ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-count.vache": {
+  "input": "Frappe dans tes mains en disant vache. Combien de syllabes ?",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -5297,6 +8809,486 @@
  },
  "ui.syll-count.voiture": {
   "input": "Frappe dans tes mains en disant voiture. Combien de syllabes ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial-ok.ballon": {
+  "input": "Oui ! Ballon commence par ba !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial-ok.banane": {
+  "input": "Oui ! Banane commence par ba !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial-ok.bateau": {
+  "input": "Oui ! Bateau commence par ba !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial-ok.bebe": {
+  "input": "Oui ! Bébé commence par bé !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial-ok.chameau": {
+  "input": "Oui ! Chameau commence par cha !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial-ok.chapeau": {
+  "input": "Oui ! Chapeau commence par cha !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial-ok.chateau": {
+  "input": "Oui ! Château commence par cha !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial-ok.dauphin": {
+  "input": "Oui ! Dauphin commence par dau !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial-ok.fourmi": {
+  "input": "Oui ! Fourmi commence par four !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial-ok.fusee": {
+  "input": "Oui ! Fusée commence par fu !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial-ok.gateau": {
+  "input": "Oui ! Gâteau commence par gâ !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial-ok.kiwi": {
+  "input": "Oui ! Kiwi commence par ki !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial-ok.lama": {
+  "input": "Oui ! Lama commence par la !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial-ok.lapin": {
+  "input": "Oui ! Lapin commence par la !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial-ok.maison": {
+  "input": "Oui ! Maison commence par mai !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial-ok.moto": {
+  "input": "Oui ! Moto commence par mo !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial-ok.mouton": {
+  "input": "Oui ! Mouton commence par mou !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial-ok.nuage": {
+  "input": "Oui ! Nuage commence par nu !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial-ok.papillon": {
+  "input": "Oui ! Papillon commence par pa !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial-ok.raisin": {
+  "input": "Oui ! Raisin commence par rai !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial-ok.requin": {
+  "input": "Oui ! Requin commence par reu !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial-ok.robot": {
+  "input": "Oui ! Robot commence par ro !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial-ok.salade": {
+  "input": "Oui ! Salade commence par sa !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial-ok.sapin": {
+  "input": "Oui ! Sapin commence par sa !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial-ok.savon": {
+  "input": "Oui ! Savon commence par sa !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial-ok.souris": {
+  "input": "Oui ! Souris commence par sou !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial-ok.tomate": {
+  "input": "Oui ! Tomate commence par to !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial-ok.tortue": {
+  "input": "Oui ! Tortue commence par tor !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial-ok.velo": {
+  "input": "Oui ! Vélo commence par vé !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial-ok.voiture": {
+  "input": "Oui ! Voiture commence par voi !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial.ballon": {
+  "input": "Écoute les syllabes. Par quelle syllabe commence ballon ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial.banane": {
+  "input": "Écoute les syllabes. Par quelle syllabe commence banane ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial.bateau": {
+  "input": "Écoute les syllabes. Par quelle syllabe commence bateau ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial.bebe": {
+  "input": "Écoute les syllabes. Par quelle syllabe commence bébé ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial.chameau": {
+  "input": "Écoute les syllabes. Par quelle syllabe commence chameau ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial.chapeau": {
+  "input": "Écoute les syllabes. Par quelle syllabe commence chapeau ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial.chateau": {
+  "input": "Écoute les syllabes. Par quelle syllabe commence château ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial.dauphin": {
+  "input": "Écoute les syllabes. Par quelle syllabe commence dauphin ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial.fourmi": {
+  "input": "Écoute les syllabes. Par quelle syllabe commence fourmi ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial.fusee": {
+  "input": "Écoute les syllabes. Par quelle syllabe commence fusée ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial.gateau": {
+  "input": "Écoute les syllabes. Par quelle syllabe commence gâteau ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial.kiwi": {
+  "input": "Écoute les syllabes. Par quelle syllabe commence kiwi ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial.lama": {
+  "input": "Écoute les syllabes. Par quelle syllabe commence lama ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial.lapin": {
+  "input": "Écoute les syllabes. Par quelle syllabe commence lapin ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial.maison": {
+  "input": "Écoute les syllabes. Par quelle syllabe commence maison ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial.moto": {
+  "input": "Écoute les syllabes. Par quelle syllabe commence moto ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial.mouton": {
+  "input": "Écoute les syllabes. Par quelle syllabe commence mouton ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial.nuage": {
+  "input": "Écoute les syllabes. Par quelle syllabe commence nuage ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial.papillon": {
+  "input": "Écoute les syllabes. Par quelle syllabe commence papillon ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial.raisin": {
+  "input": "Écoute les syllabes. Par quelle syllabe commence raisin ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial.requin": {
+  "input": "Écoute les syllabes. Par quelle syllabe commence requin ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial.robot": {
+  "input": "Écoute les syllabes. Par quelle syllabe commence robot ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial.salade": {
+  "input": "Écoute les syllabes. Par quelle syllabe commence salade ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial.sapin": {
+  "input": "Écoute les syllabes. Par quelle syllabe commence sapin ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial.savon": {
+  "input": "Écoute les syllabes. Par quelle syllabe commence savon ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial.souris": {
+  "input": "Écoute les syllabes. Par quelle syllabe commence souris ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial.tomate": {
+  "input": "Écoute les syllabes. Par quelle syllabe commence tomate ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial.tortue": {
+  "input": "Écoute les syllabes. Par quelle syllabe commence tortue ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial.velo": {
+  "input": "Écoute les syllabes. Par quelle syllabe commence vélo ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial.voiture": {
+  "input": "Écoute les syllabes. Par quelle syllabe commence voiture ?",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -5351,6 +9343,38 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.syll-match-ok.chameau.chapeau": {
+  "input": "Oui ! Chameau et chapeau commencent pareil : cha !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-match-ok.chameau.chateau": {
+  "input": "Oui ! Chameau et château commencent pareil : cha !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-match-ok.chateau.chameau": {
+  "input": "Oui ! Château et chameau commencent pareil : cha !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-match-ok.chateau.chapeau": {
+  "input": "Oui ! Château et chapeau commencent pareil : cha !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.syll-match-ok.lama.lapin": {
   "input": "Oui ! Lama et lapin commencent pareil : la !",
   "engine": "say",
@@ -5361,6 +9385,38 @@
  },
  "ui.syll-match-ok.lapin.lama": {
   "input": "Oui ! Lapin et lama commencent pareil : la !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-match-ok.salade.sapin": {
+  "input": "Oui ! Salade et sapin commencent pareil : sa !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-match-ok.salade.savon": {
+  "input": "Oui ! Salade et savon commencent pareil : sa !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-match-ok.savon.salade": {
+  "input": "Oui ! Savon et salade commencent pareil : sa !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-match-ok.savon.sapin": {
+  "input": "Oui ! Savon et sapin commencent pareil : sa !",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -5391,6 +9447,22 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.syll-match.chameau": {
+  "input": "Écoute bien. Quel mot commence comme cha-meau ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-match.chateau": {
+  "input": "Écoute bien. Quel mot commence comme cha-teau ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.syll-match.lama": {
   "input": "Écoute bien. Quel mot commence comme la-ma ?",
   "engine": "say",
@@ -5401,6 +9473,22 @@
  },
  "ui.syll-match.lapin": {
   "input": "Écoute bien. Quel mot commence comme la-pin ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-match.salade": {
+  "input": "Écoute bien. Quel mot commence comme sa-lade ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-match.savon": {
+  "input": "Écoute bien. Quel mot commence comme sa-von ?",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -6071,6 +10159,22 @@
   "bitrate": "32k",
   "trim": true
  },
+ "word.bebe": {
+  "input": "bébé",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "word.chameau": {
+  "input": "chameau",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "word.chapeau": {
   "input": "chapeau",
   "engine": "say",
@@ -6087,8 +10191,40 @@
   "bitrate": "32k",
   "trim": true
  },
+ "word.chateau": {
+  "input": "château",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "word.dauphin": {
+  "input": "dauphin",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "word.fourmi": {
+  "input": "fourmi",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "word.fusee": {
   "input": "fusée",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "word.gateau": {
+  "input": "gâteau",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -6119,6 +10255,14 @@
   "bitrate": "32k",
   "trim": true
  },
+ "word.lit": {
+  "input": "lit",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "word.maison": {
   "input": "maison",
   "engine": "say",
@@ -6129,6 +10273,30 @@
  },
  "word.moto": {
   "input": "moto",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "word.mouton": {
+  "input": "mouton",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "word.nez": {
+  "input": "nez",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "word.nuage": {
+  "input": "nuage",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -6151,6 +10319,30 @@
   "bitrate": "32k",
   "trim": true
  },
+ "word.requin": {
+  "input": "requin",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "word.robot": {
+  "input": "robot",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "word.salade": {
+  "input": "salade",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "word.sapin": {
   "input": "sapin",
   "engine": "say",
@@ -6159,8 +10351,40 @@
   "bitrate": "32k",
   "trim": true
  },
+ "word.savon": {
+  "input": "savon",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "word.souris": {
   "input": "souris",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "word.tomate": {
+  "input": "tomate",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "word.tortue": {
+  "input": "tortue",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "word.vache": {
+  "input": "vache",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,

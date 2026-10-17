@@ -2,10 +2,14 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { expandCards } from '../assets/gs/decks/index.js';
+import { expandCards, DECK_FILES } from '../assets/gs/decks/index.js';
 
 const load = async (n) => JSON.parse(await readFile(new URL(`../assets/gs/decks/${n}.json`, import.meta.url), 'utf8'));
-const decks = [await load('letters'), await load('numbers'), await load('mots-p1')];
+const decks = await Promise.all(DECK_FILES.map(load));
+const wordDecks = decks.filter(d => d.kind === 'words');
+const allWords = wordDecks.flatMap(d => d.items);
+// Card ids shipped before this iteration (progress on the iPad is keyed by them), expanded from the plan's base commit.
+const BEFORE = JSON.parse(await readFile(new URL('./helpers/card-ids-2026-10-17.json', import.meta.url), 'utf8'));
 
 describe('expandCards', () => {
     test('expandCards_LetterWithSoundAndTrace_HasFourSkills', () => {
@@ -32,7 +36,7 @@ describe('expandCards', () => {
         assert.ok(cards.some(c => c.id === 'name/lou#name-spell'));
     });
     test('expandCards_Words_WrittenSyllablesSpellTheWord', () => {
-        for (const w of decks[2].items) {
+        for (const w of allWords) {
             const written = w.syllW ?? w.syll;
             assert.equal(written.length, w.syll.length, w.id);
             assert.equal(written.join(''), w.text, w.id);
@@ -44,14 +48,14 @@ describe('expandCards', () => {
         const words = first('words');
         for (const sk of ['syll-count', 'sound-pick']) assert.ok(words.filter(x => x === sk).length >= 3, `${sk}: ${words}`);
         assert.ok(first('letters').every(sk => sk === 'letter-3scripts'));
-        for (const w of decks[2].items) {
+        for (const w of allWords) {
             const skills = cards.filter(c => c.item.id === w.id && c.kind === 'words').map(c => c.skill);
             assert.equal(new Set(skills).size, skills.length, w.id);
             assert.ok(skills.includes('syll-count') && skills.includes('sound-pick'), w.id);
         }
     });
     test('expandCards_Words_EmojiNeverClashesWithAControl', () => {
-        for (const w of decks[2].items) assert.ok(!['🏠', '🌙', '⭐', '🔊'].includes(w.emoji), `${w.id} ${w.emoji}`);
+        for (const w of allWords) assert.ok(!['🏠', '🌙', '⭐', '🔊'].includes(w.emoji), `${w.id} ${w.emoji}`);
     });
     test('expandCards_Always_IdsAreUnique', () => {
         const ids = expandCards(decks, { firstName: 'Lou' }).map(c => c.id);
@@ -73,6 +77,53 @@ describe('expandCards', () => {
         assert.ok(cards.some(c => c.id === 'mots-p1/lama#syll-match'));
         assert.ok(!cards.some(c => c.id === 'mots-p1/sapin#syll-match'));
     });
+    test('expandCards_ExistingCardIds_AllStillPresent', () => {
+        const ids = new Set(expandCards(decks, { firstName: 'Lou' }).map(c => c.id));
+        assert.deepEqual(BEFORE.filter(id => !ids.has(id)), []);
+    });
+    test('expandCards_ExistingWords_FirstSkillUnchanged', () => {
+        const first = {};
+        for (const c of expandCards(decks, { firstName: '' })) if (c.deckId === 'mots-p1') first[c.item.id] ??= c.skill;
+        const firstBefore = {};
+        for (const id of BEFORE.filter(id => id.startsWith('mots-p1/'))) { const [p, s] = id.split('#'); firstBefore[p.split('/')[1]] ??= s; }
+        assert.deepEqual(first, firstBefore);
+    });
+    test('expandCards_SoundFinal_OnlyForWordsWithAFinal', () => {
+        const cards = expandCards(decks, { firstName: '' });
+        for (const d of wordDecks) for (const w of d.items) assert.equal(cards.some(c => c.id === `${d.id}/${w.id}#sound-final`), w.final !== null, w.id);
+    });
+    test('expandCards_SyllInitial_OnlyForWordsWithTwoSyllablesOrMore', () => {
+        const cards = expandCards(decks, { firstName: '' });
+        for (const d of wordDecks) for (const w of d.items) assert.equal(cards.some(c => c.id === `${d.id}/${w.id}#syll-initial`), w.syll.length >= 2, w.id);
+    });
+    test('expandCards_NumberGames_Ranges', () => {
+        const ids = new Set(expandCards(decks, { firstName: '' }).map(c => c.id));
+        const has = (n, s) => ids.has(`numbers/${n}#${s}`);
+        for (let n = 0; n <= 10; n++) {
+            assert.equal(has(n, 'dice'), n >= 1, `dice ${n}`);
+            assert.equal(has(n, 'before-after'), n >= 1, `before-after ${n}`);
+            assert.equal(has(n, 'add'), n >= 2 && n <= 5, `add ${n}`);
+        }
+    });
+    test('wordDecks_AllWords_EmojiAndIdsUniqueAcrossDecksAndNoReservedEmoji', () => {
+        assert.equal(new Set(allWords.map(w => w.id)).size, allWords.length);
+        assert.equal(new Set(allWords.map(w => w.emoji)).size, allWords.length);
+        const reserved = ['🏠', '🌙', '⭐', '🔊', '🦊', '🐼', '🍎', '🐞', '🐟', '🍓', '🌼', '🔴', '🔵', '🟢', '🟡', '❤️', '🟣', '🟠', '⚫'];
+        for (const w of allWords) assert.ok(!reserved.includes(w.emoji), `${w.id} ${w.emoji}`);
+    });
+    test('wordDecks_AllWords_WrittenStartIsTheInitialAndIdsAscii', () => {
+        const fold = (s) => s.normalize('NFD').replace(/\p{M}/gu, '');
+        for (const w of allWords) {
+            assert.ok(fold(w.text).startsWith(w.initial), `${w.id}: ${w.text} / ${w.initial}`);
+            assert.match(w.id, /^[a-z]+$/);
+            assert.equal((w.syllW ?? w.syll).join(''), w.text, w.id);
+        }
+    });
+    test('motsGs_Deck_HasInternalSyllAndRhymePartners', () => {
+        const cards = expandCards(decks, { firstName: '' });
+        for (const id of ['chateau', 'chameau', 'savon', 'salade']) assert.ok(cards.some(c => c.id === `mots-gs/${id}#syll-match`), id);
+        for (const id of ['robot', 'fourmi', 'mouton', 'requin', 'bebe']) assert.ok(cards.some(c => c.id === `mots-gs/${id}#rhyme`), id);
+    });
     test('expandCards_FirstNameWithNonLetters_IdKeepsOnlyLetters', () => {
         const cards = expandCards(decks, { firstName: ' Marie-Lou ' });
         assert.ok(cards.some(c => c.id === 'name/marielou#name-spell'));
@@ -92,13 +143,13 @@ describe('expandCards', () => {
         assert.equal(new Set(sounds).size, sounds.length);
     });
     test('words_Deck_EmojiAndIdsAreUnique', () => {
-        const words = decks[2].items;
+        const words = allWords;
         assert.equal(new Set(words.map(w => w.emoji)).size, words.length);
         assert.equal(new Set(words.map(w => w.id)).size, words.length);
     });
     const FINALS = ['a', 'é', 'i', 'o', 'u', 'l', 'm', 'n', 'r', 's', 'v', 'z', 'j', 'ch', 'f', 'p', 'b', 't', 'd', 'k', 'g'];
     test('words_Deck_FinalIsAKnownSoundOrNullOnlyForNasalEndings', () => {
-        for (const w of decks[2].items) {
+        for (const w of allWords) {
             assert.ok('final' in w, w.id);
             if (w.final === null) assert.ok(['in', 'on', 'an', 'en', 'ou', 'oin'].includes(w.rhyme), w.id);
             else assert.ok(FINALS.includes(w.final), `${w.id} ${w.final}`);

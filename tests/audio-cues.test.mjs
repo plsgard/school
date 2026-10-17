@@ -24,6 +24,13 @@ describe('collectCues', () => {
         for (const [k, v] of cues) assert.ok(typeof v === 'string' && v.length > 0, k);
     });
 
+    test('collectCues_ThisIteration_NewGameKeysPresent', () => {
+        for (const k of ['ui.dice.one', 'ui.dice.two', 'ui.dice-ok.10', 'ui.after.0', 'ui.before.10', 'ui.add.pomme.3.2', 'ui.add-ok.fleur.1.1',
+            'ui.sound-final.o', 'ui.sound-final.eacute', 'ui.sound-final-ok.gateau', 'ui.syll-initial.lapin', 'syl.lapin.1', 'syl.chateau.1',
+            'ui.trace-digit.0', 'ui.trace.x', 'word.chameau']) assert.ok(cues.has(k), k);
+        assert.equal(cues.get('syl.chateau.1'), 'cha');
+    });
+
     test('collectCues_LargeSeededSweep_EmitsNoKeyMissingFromTheCues', () => {
         // Seeds disjoint from the ones collectCues sweeps: an rng-dependent key it missed would show up here.
         const missing = new Set();

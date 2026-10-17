@@ -1,7 +1,7 @@
 // assets/gs/decks/index.js
 // Loads deck JSON and expands every item into (item, skill) cards. Pure except loadDecks.
 
-export const DECK_FILES = ['letters', 'numbers', 'mots-p1'];
+export const DECK_FILES = ['letters', 'numbers', 'mots-p1', 'mots-gs'];
 
 export async function loadDecks(fetchImpl = fetch, base = 'assets/gs/decks') {
     return Promise.all(DECK_FILES.map(async n => (await fetchImpl(`${base}/${n}.json`)).json()));
@@ -31,7 +31,9 @@ function skillsFor(kind, item, deck) {
             const firsts = ['syll-count', 'sound-pick', 'syll-match', 'rhyme'].filter(sk => skills.includes(sk));
             const index = Math.max(0, (deck?.items ?? []).indexOf(item));
             const first = firsts[index % firsts.length];
-            return [first, ...skills.filter(sk => sk !== first)];
+            // New skills go last: the first skill of existing words (and so their first card) stays as shipped.
+            return [first, ...skills.filter(sk => sk !== first),
+                item.final ? 'sound-final' : null, item.syll.length >= 2 ? 'syll-initial' : null].filter(Boolean);
         }
         case 'numbers': return [
             // an empty collection (0) is confusing for both counting and comparing
@@ -39,6 +41,9 @@ function skillsFor(kind, item, deck) {
             item.n >= 1 ? 'compare' : null,
             item.n >= 2 ? 'decompose' : null,
             item.n >= 1 ? 'number-line' : null,
+            item.n >= 1 ? 'dice' : null,
+            item.n >= 1 ? 'before-after' : null,
+            item.n >= 2 && item.n <= 5 ? 'add' : null,
             item.trace ? 'trace' : null, // digits 0–9; 0 has only this card (and is introduced last)
         ].filter(Boolean);
         case 'name': return ['name-spell']; // v1: tracing the whole first name is deferred (needs composite waypoints)

@@ -1,0 +1,19 @@
+{ "id": "mots-gs", "kind": "words", "label": "Mots de Grande Section", "items": [
+ { "id": "robot",   "text": "robot",   "emoji": "🤖", "syll": ["ro","bo"],    "syllW": ["ro","bot"],   "initial": "r",  "rhyme": "o",   "final": "o" },
+ { "id": "gateau",  "text": "gâteau",  "emoji": "🎂", "syll": ["gâ","teau"],                            "initial": "g",  "rhyme": "o",   "final": "o" },
+ { "id": "chateau", "text": "château", "emoji": "🏰", "syll": ["cha","teau"], "syllW": ["châ","teau"],  "initial": "ch", "rhyme": "o",   "final": "o" },
+ { "id": "chameau", "text": "chameau", "emoji": "🐫", "syll": ["cha","meau"],                           "initial": "ch", "rhyme": "o",   "final": "o" },
+ { "id": "fourmi",  "text": "fourmi",  "emoji": "🐜", "syll": ["four","mi"],                            "initial": "f",  "rhyme": "i",   "final": "i" },
+ { "id": "lit",     "text": "lit",     "emoji": "🛏️", "syll": ["lit"],                                  "initial": "l",  "rhyme": "i",   "final": "i" },
+ { "id": "savon",   "text": "savon",   "emoji": "🧼", "syll": ["sa","von"],                             "initial": "s",  "rhyme": "on",  "final": null },
+ { "id": "salade",  "text": "salade",  "emoji": "🥗", "syll": ["sa","lade"],                            "initial": "s",  "rhyme": "ade", "final": "d" },
+ { "id": "mouton",  "text": "mouton",  "emoji": "🐑", "syll": ["mou","ton"],                            "initial": "m",  "rhyme": "on",  "final": null },
+ { "id": "requin",  "text": "requin",  "emoji": "🦈", "syll": ["reu","quin"], "syllW": ["re","quin"],   "initial": "r",  "rhyme": "in",  "final": null },
+ { "id": "dauphin", "text": "dauphin", "emoji": "🐬", "syll": ["dau","phin"],                           "initial": "d",  "rhyme": "in",  "final": null },
+ { "id": "vache",   "text": "vache",   "emoji": "🐄", "syll": ["vache"],                                "initial": "v",  "rhyme": "ache", "final": "ch" },
+ { "id": "bebe",    "text": "bébé",    "emoji": "👶", "syll": ["bé","bé"],                              "initial": "b",  "rhyme": "é",   "final": "é" },
+ { "id": "nez",     "text": "nez",     "emoji": "👃", "syll": ["nez"],                                  "initial": "n",  "rhyme": "é",   "final": "é" },
+ { "id": "nuage",   "text": "nuage",   "emoji": "☁️", "syll": ["nu","age"],                             "initial": "n",  "rhyme": "age", "final": "j" },
+ { "id": "tortue",  "text": "tortue",  "emoji": "🐢", "syll": ["tor","tue"],                            "initial": "t",  "rhyme": "u",   "final": "u" },
+ { "id": "tomate",  "text": "tomate",  "emoji": "🍅", "syll": ["to","mate"],                            "initial": "t",  "rhyme": "ate", "final": "t" }
+]}
