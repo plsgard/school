@@ -61,6 +61,13 @@ function pickNew({ srs, cards, today, constraints, rng }) {
         }
     }
     // Interleave so that new items and unlocked skills of known items share the reserved new slots.
+    // P1: while no card of the special-slot skill (trace) is known, co-introduce it with the first fresh item that has
+    // one, so the very first sessions already have their special slot (staging alone would wait for box 2).
+    const sp = constraints.specialSlotSkill;
+    if (sp && !cards.some(c => c.skill === sp && srs.cards[c.id]) && !unlocked.some(c => c.skill === sp)) {
+        const extra = fresh.map(f => groups.get(itemKey(f.id)).find(c => c.skill === sp)).find(Boolean);
+        if (extra) unlocked.push(extra);
+    }
     const a = shuffle(fresh, rng);
     const b = shuffle(unlocked, rng);
     const newCards = [];
@@ -72,6 +79,7 @@ function pickNew({ srs, cards, today, constraints, rng }) {
 }
 
 const EASY_BOX = 3;
+const MAX_PER_SKILL = 2;
 
 // Spec §10.4: pad with review cards of box >= 4, highest box first, shuffled only within an equal box.
 // Lower boxes come after them in the same order, so they are used only when box >= 4 runs out.
@@ -86,7 +94,7 @@ function paddingOrder(cards, srs, today, rng) {
     return [...byBox.keys()].sort((a, b) => b - a).flatMap(box => shuffle(byBox.get(box), rng));
 }
 
-function arrange(candidates, constraints, rng, boxOf) {
+function arrange(candidates, constraints, rng, boxOf, reserve = 0) {
     // candidates: ordered by priority (due low box → due → new → padding).
     // Fills left to right and stops at the first slot it cannot fill: never compacts across a gap,
     // so the trace stays at an allowed index and no two neighbours share a skill.
@@ -100,22 +108,35 @@ function arrange(candidates, constraints, rng, boxOf) {
     let limited = 0;
     let placedSpecial = false;
     let preferredMissed = false;
+    const perSkill = new Map();
     const fits = (c, i) => !used.has(c.id) && c.skill !== slots[i - 1]?.skill &&
         (c.kind !== limitedKind || limited < constraints.maxLimited);
+    // P2 (soft): at most MAX_PER_SKILL cards of one skill per session while another fitting candidate exists.
+    // The reserved new slots stay stronger: a new card is not traded for variety while fewer than `reserve` are placed.
+    const isNew = (c) => boxOf(c) === 0;
+    let newPlaced = 0;
+    const find = (pred, i) => {
+        const any = candidates.find(c => pred(c) && fits(c, i)) ?? null;
+        const varied = candidates.find(c => pred(c) && fits(c, i) && (perSkill.get(c.skill) ?? 0) < MAX_PER_SKILL) ?? null;
+        if (any && isNew(any) && varied && !isNew(varied) && newPlaced < reserve) return any;
+        return varied ?? any;
+    };
     for (let i = 0; i < n; i++) {
         let pick = null;
         // The special skill goes at the preferred slot; the other allowed slot is a fallback only when it comes later.
         if (!placedSpecial && allowed.includes(i) && (i === preferred || preferredMissed)) {
-            pick = candidates.find(c => c.skill === special && fits(c, i)) ?? null;
+            pick = find(c => c.skill === special, i);
             if (!pick && i === preferred) preferredMissed = true;
         }
         // Spec §10.3: one easy card (box >= 3) in slot 0 or 1 when one is available.
         if (!pick && i < 2 && !slots.some(s => boxOf(s) >= EASY_BOX)) {
-            pick = candidates.find(c => c.skill !== special && boxOf(c) >= EASY_BOX && fits(c, i)) ?? null;
+            pick = find(c => c.skill !== special && boxOf(c) >= EASY_BOX, i);
         }
-        pick ??= candidates.find(c => c.skill !== special && fits(c, i)) ?? null;
+        pick ??= find(c => c.skill !== special, i);
         if (!pick) break;
         slots.push(pick); used.add(pick.id);
+        perSkill.set(pick.skill, (perSkill.get(pick.skill) ?? 0) + 1);
+        if (isNew(pick)) newPlaced++;
         if (pick.skill === special) placedSpecial = true;
         if (pick.kind === limitedKind) limited++;
     }
@@ -132,7 +153,7 @@ export function compose({ srs, cards, today, rng = Math.random, constraints = GS
     // since due is sorted lowest box first) slip to a later day. They stay ahead of padding as a fallback.
     const reserve = Math.min(constraints.newSlots ?? 0, newCards.length);
     const keep = Math.max(constraints.items - reserve, 0);
-    const slots = arrange([...due.slice(0, keep), ...newCards, ...due.slice(keep), ...padding], constraints, rng, boxOf);
+    const slots = arrange([...due.slice(0, keep), ...newCards, ...due.slice(keep), ...padding], constraints, rng, boxOf, reserve);
     const usedIntroduced = introduced.filter(key => slots.some(s => itemKey(s.id) === key));
     return { slots, introduced: usedIntroduced };
 }

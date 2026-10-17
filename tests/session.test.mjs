@@ -155,7 +155,39 @@ describe('compose', () => {
     test('compose_BrandNewItem_EntersWithItsFirstSkillOnly', () => {
         const { slots } = compose({ srs: { cards: {}, introduced: {} }, cards: pool(), today: T, rng: seq(0.1, 0.5, 0.9) });
         const firstSkill = { letters: 'letter-3scripts', words: 'syll-count', numbers: 'count' };
-        for (const s of slots) assert.equal(s.skill, firstSkill[s.kind], s.id);
+        // P1: the special-slot skill (trace) is the one exemption, co-introduced while no trace card is known yet
+        for (const s of slots) if (s.skill !== GS_CONSTRAINTS.specialSlotSkill) assert.equal(s.skill, firstSkill[s.kind], s.id);
+    });
+    test('compose_NoTraceCardKnownYet_CoIntroducesOneTraceSibling', () => {
+        for (let k = 0; k < 50; k++) {
+            const { slots } = compose({ srs: { cards: {}, introduced: {} }, cards: pool(), today: T, rng: lcg(k) });
+            const idx = slots.map((s, i) => s.skill === 'trace' ? i : -1).filter(i => i >= 0);
+            assert.equal(idx.length, 1, slots.map(s => s.id).join());
+            assert.ok(GS_CONSTRAINTS.specialSlots.includes(idx[0]));
+            const traced = itemOf(slots[idx[0]].id);
+            assert.ok(slots.some(s => itemOf(s.id) === traced && s.skill === 'letter-3scripts'), `trace of an item not introduced today: ${traced}`);
+        }
+    });
+    test('compose_ATraceCardIsKnown_DoesNotCoIntroduceAnother', () => {
+        const srs = { cards: { 'letters/a#trace': { box: 3, due: '2026-12-01' } }, introduced: {} };
+        for (let k = 0; k < 50; k++) {
+            const { slots } = compose({ srs, cards: pool(), today: T, rng: lcg(k) });
+            assert.ok(!slots.some(s => s.skill === 'trace' && !srs.cards[s.id]), slots.map(s => s.id).join());
+        }
+    });
+    test('compose_RealDecksFirst10Days_NoSkillMoreThanTwicePerSession', () => {
+        for (const p of [1, 0.6, 0.4]) for (const seed of [3, 7, 11]) {
+            const rng = lcg(seed);
+            let srs = { cards: {}, introduced: {} };
+            for (let d = 0; d <= 10; d++) {
+                const today = addDays('2026-11-01', d);
+                const { slots } = compose({ srs, cards: realCards, today, rng });
+                const count = {};
+                for (const s of slots) count[s.skill] = (count[s.skill] ?? 0) + 1;
+                for (const [skill, n] of Object.entries(count)) assert.ok(n <= 2, `p ${p} seed ${seed} day ${d}: ${skill} x${n} (${slots.map(s => s.id).join()})`);
+                for (const s of slots) srs = recordResult(srs, s.id, rng() < p, today);
+            }
+        }
     });
     test('compose_FirstCardInBox2_UnlocksSiblingsWithoutChargingTheItemBudget', () => {
         const yesterday = '2026-10-16';
@@ -227,7 +259,8 @@ describe('compose', () => {
             const { slots } = compose({ srs, cards: realCards, today, rng });
             assert.equal(slots.length, 6, `day ${d}`);
             const idx = slots.map((s, i) => s.skill === 'trace' ? i : -1).filter(i => i >= 0);
-            assert.ok(idx.length <= 1 && (!idx.length || GS_CONSTRAINTS.specialSlots.includes(idx[0])), `day ${d} trace ${idx}`);
+            assert.equal(idx.length, 1, `day ${d} trace ${idx}`); // real decks always have trace-capable letters (P1)
+            assert.ok(GS_CONSTRAINTS.specialSlots.includes(idx[0]), `day ${d} trace ${idx}`);
             for (let i = 1; i < slots.length; i++) assert.notEqual(slots[i].skill, slots[i - 1].skill, `day ${d}`);
             assert.ok(slots.filter(s => s.kind === 'numbers').length <= 2, `day ${d}`);
             const newItems = {};

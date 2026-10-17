@@ -31,6 +31,18 @@ describe('expandCards', () => {
             assert.equal(written.join(''), w.text, w.id);
         }
     });
+    test('expandCards_Words_FirstSkillVariesByItemAndLettersStartWith3Scripts', () => {
+        const cards = expandCards(decks, { firstName: '' });
+        const first = (kind) => { const m = new Map(); for (const c of cards) if (c.kind === kind && !m.has(c.item.id)) m.set(c.item.id, c.skill); return [...m.values()]; };
+        const words = first('words');
+        for (const sk of ['syll-count', 'sound-pick']) assert.ok(words.filter(x => x === sk).length >= 3, `${sk}: ${words}`);
+        assert.ok(first('letters').every(sk => sk === 'letter-3scripts'));
+        for (const w of decks[2].items) {
+            const skills = cards.filter(c => c.item.id === w.id && c.kind === 'words').map(c => c.skill);
+            assert.equal(new Set(skills).size, skills.length, w.id);
+            assert.ok(skills.includes('syll-count') && skills.includes('sound-pick'), w.id);
+        }
+    });
     test('expandCards_Words_EmojiNeverClashesWithAControl', () => {
         for (const w of decks[2].items) assert.ok(!['🏠', '🌙', '⭐', '🔊'].includes(w.emoji), `${w.id} ${w.emoji}`);
     });

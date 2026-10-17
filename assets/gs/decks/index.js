@@ -19,12 +19,20 @@ function skillsFor(kind, item, deck) {
             item.trace ? 'trace' : null,
             item.sound && item.continuant ? 'blend' : null,
         ].filter(Boolean);
-        case 'words': return [
-            'syll-count',
-            hasPartner(deck, item, x => x.syll[0]) ? 'syll-match' : null,
-            'sound-pick',
-            hasPartner(deck, item, x => x.rhyme) ? 'rhyme' : null,
-        ].filter(Boolean);
+        case 'words': {
+            const skills = [
+                'syll-count',
+                hasPartner(deck, item, x => x.syll[0]) ? 'syll-match' : null,
+                'sound-pick',
+                hasPartner(deck, item, x => x.rhyme) ? 'rhyme' : null,
+            ].filter(Boolean);
+            // P2: a new word enters with its first skill only (session.js), so the first skill rotates by deck index
+            // (syll-count, sound-pick, then syll-match / rhyme when the word has them): early sessions stay varied.
+            const firsts = ['syll-count', 'sound-pick', 'syll-match', 'rhyme'].filter(sk => skills.includes(sk));
+            const index = Math.max(0, (deck?.items ?? []).indexOf(item));
+            const first = firsts[index % firsts.length];
+            return [first, ...skills.filter(sk => sk !== first)];
+        }
         case 'numbers': return [
             // an empty collection (0) is confusing for both counting and comparing
             item.n >= 1 ? 'count' : null,
