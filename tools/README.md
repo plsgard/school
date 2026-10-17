@@ -31,7 +31,7 @@ recorded `input` is not `sayInput(current text)`, or a manual clip whose `text` 
 `STALE manual clip <key>` message: re-record it and update its `text`, or delete its `sources.json` entry to fall
 back to a TTS clip. Clip keys are ASCII (e.g. `ui.pattern-choice.etoile` says "étoile").
 
-**Size.** 574 clips, ~23 min of speech: ~11 MB at 64 kbps, ~5.6 MB at 32 kbps (the default). Leading/trailing
+**Size.** 719 clips, ~30 min of speech: ~15 MB at 64 kbps, ~7.3 MB at 32 kbps (the default). Leading/trailing
 silence is trimmed.
 
 ### Which cues exist (`tools/cues.mjs`)

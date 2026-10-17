@@ -1391,232 +1391,1392 @@
   "bitrate": "32k",
   "trim": true
  },
- "ui.compare": {
-  "input": "Où y en a-t-il le plus ?",
+ "ui.compare-ok.coccinelle.10.8": {
+  "input": "Oui ! Dix coccinelles, c'est plus que huit.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
   "bitrate": "32k",
   "trim": true
  },
- "ui.compare-ok.10.8": {
-  "input": "Oui, dix, c'est plus que huit !",
+ "ui.compare-ok.coccinelle.10.9": {
+  "input": "Oui ! Dix coccinelles, c'est plus que neuf.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
   "bitrate": "32k",
   "trim": true
  },
- "ui.compare-ok.10.9": {
-  "input": "Oui, dix, c'est plus que neuf !",
+ "ui.compare-ok.coccinelle.2.1": {
+  "input": "Oui ! Deux coccinelles, c'est plus qu'une.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
   "bitrate": "32k",
   "trim": true
  },
- "ui.compare-ok.2.1": {
-  "input": "Oui, deux, c'est plus qu'un !",
+ "ui.compare-ok.coccinelle.3.1": {
+  "input": "Oui ! Trois coccinelles, c'est plus qu'une.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
   "bitrate": "32k",
   "trim": true
  },
- "ui.compare-ok.3.1": {
-  "input": "Oui, trois, c'est plus qu'un !",
+ "ui.compare-ok.coccinelle.3.2": {
+  "input": "Oui ! Trois coccinelles, c'est plus que deux.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
   "bitrate": "32k",
   "trim": true
  },
- "ui.compare-ok.3.2": {
-  "input": "Oui, trois, c'est plus que deux !",
+ "ui.compare-ok.coccinelle.4.2": {
+  "input": "Oui ! Quatre coccinelles, c'est plus que deux.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
   "bitrate": "32k",
   "trim": true
  },
- "ui.compare-ok.4.2": {
-  "input": "Oui, quatre, c'est plus que deux !",
+ "ui.compare-ok.coccinelle.4.3": {
+  "input": "Oui ! Quatre coccinelles, c'est plus que trois.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
   "bitrate": "32k",
   "trim": true
  },
- "ui.compare-ok.4.3": {
-  "input": "Oui, quatre, c'est plus que trois !",
+ "ui.compare-ok.coccinelle.5.3": {
+  "input": "Oui ! Cinq coccinelles, c'est plus que trois.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
   "bitrate": "32k",
   "trim": true
  },
- "ui.compare-ok.5.3": {
-  "input": "Oui, cinq, c'est plus que trois !",
+ "ui.compare-ok.coccinelle.5.4": {
+  "input": "Oui ! Cinq coccinelles, c'est plus que quatre.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
   "bitrate": "32k",
   "trim": true
  },
- "ui.compare-ok.5.4": {
-  "input": "Oui, cinq, c'est plus que quatre !",
+ "ui.compare-ok.coccinelle.6.4": {
+  "input": "Oui ! Six coccinelles, c'est plus que quatre.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
   "bitrate": "32k",
   "trim": true
  },
- "ui.compare-ok.6.4": {
-  "input": "Oui, six, c'est plus que quatre !",
+ "ui.compare-ok.coccinelle.6.5": {
+  "input": "Oui ! Six coccinelles, c'est plus que cinq.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
   "bitrate": "32k",
   "trim": true
  },
- "ui.compare-ok.6.5": {
-  "input": "Oui, six, c'est plus que cinq !",
+ "ui.compare-ok.coccinelle.7.5": {
+  "input": "Oui ! Sept coccinelles, c'est plus que cinq.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
   "bitrate": "32k",
   "trim": true
  },
- "ui.compare-ok.7.5": {
-  "input": "Oui, sept, c'est plus que cinq !",
+ "ui.compare-ok.coccinelle.7.6": {
+  "input": "Oui ! Sept coccinelles, c'est plus que six.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
   "bitrate": "32k",
   "trim": true
  },
- "ui.compare-ok.7.6": {
-  "input": "Oui, sept, c'est plus que six !",
+ "ui.compare-ok.coccinelle.8.6": {
+  "input": "Oui ! Huit coccinelles, c'est plus que six.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
   "bitrate": "32k",
   "trim": true
  },
- "ui.compare-ok.8.6": {
-  "input": "Oui, huit, c'est plus que six !",
+ "ui.compare-ok.coccinelle.8.7": {
+  "input": "Oui ! Huit coccinelles, c'est plus que sept.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
   "bitrate": "32k",
   "trim": true
  },
- "ui.compare-ok.8.7": {
-  "input": "Oui, huit, c'est plus que sept !",
+ "ui.compare-ok.coccinelle.9.7": {
+  "input": "Oui ! Neuf coccinelles, c'est plus que sept.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
   "bitrate": "32k",
   "trim": true
  },
- "ui.compare-ok.9.7": {
-  "input": "Oui, neuf, c'est plus que sept !",
+ "ui.compare-ok.coccinelle.9.8": {
+  "input": "Oui ! Neuf coccinelles, c'est plus que huit.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
   "bitrate": "32k",
   "trim": true
  },
- "ui.compare-ok.9.8": {
-  "input": "Oui, neuf, c'est plus que huit !",
+ "ui.compare-ok.etoile.10.8": {
+  "input": "Oui ! Dix étoiles, c'est plus que huit.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
   "bitrate": "32k",
   "trim": true
  },
- "ui.count": {
-  "input": "Combien y en a-t-il ?",
+ "ui.compare-ok.etoile.10.9": {
+  "input": "Oui ! Dix étoiles, c'est plus que neuf.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
   "bitrate": "32k",
   "trim": true
  },
- "ui.count-ok.1": {
-  "input": "Oui, il y en a un !",
+ "ui.compare-ok.etoile.2.1": {
+  "input": "Oui ! Deux étoiles, c'est plus qu'une.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
   "bitrate": "32k",
   "trim": true
  },
- "ui.count-ok.10": {
-  "input": "Oui, il y en a dix !",
+ "ui.compare-ok.etoile.3.1": {
+  "input": "Oui ! Trois étoiles, c'est plus qu'une.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
   "bitrate": "32k",
   "trim": true
  },
- "ui.count-ok.2": {
-  "input": "Oui, il y en a deux !",
+ "ui.compare-ok.etoile.3.2": {
+  "input": "Oui ! Trois étoiles, c'est plus que deux.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
   "bitrate": "32k",
   "trim": true
  },
- "ui.count-ok.3": {
-  "input": "Oui, il y en a trois !",
+ "ui.compare-ok.etoile.4.2": {
+  "input": "Oui ! Quatre étoiles, c'est plus que deux.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
   "bitrate": "32k",
   "trim": true
  },
- "ui.count-ok.4": {
-  "input": "Oui, il y en a quatre !",
+ "ui.compare-ok.etoile.4.3": {
+  "input": "Oui ! Quatre étoiles, c'est plus que trois.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
   "bitrate": "32k",
   "trim": true
  },
- "ui.count-ok.5": {
-  "input": "Oui, il y en a cinq !",
+ "ui.compare-ok.etoile.5.3": {
+  "input": "Oui ! Cinq étoiles, c'est plus que trois.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
   "bitrate": "32k",
   "trim": true
  },
- "ui.count-ok.6": {
-  "input": "Oui, il y en a six !",
+ "ui.compare-ok.etoile.5.4": {
+  "input": "Oui ! Cinq étoiles, c'est plus que quatre.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
   "bitrate": "32k",
   "trim": true
  },
- "ui.count-ok.7": {
-  "input": "Oui, il y en a sept !",
+ "ui.compare-ok.etoile.6.4": {
+  "input": "Oui ! Six étoiles, c'est plus que quatre.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
   "bitrate": "32k",
   "trim": true
  },
- "ui.count-ok.8": {
-  "input": "Oui, il y en a huit !",
+ "ui.compare-ok.etoile.6.5": {
+  "input": "Oui ! Six étoiles, c'est plus que cinq.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
   "bitrate": "32k",
   "trim": true
  },
- "ui.count-ok.9": {
-  "input": "Oui, il y en a neuf !",
+ "ui.compare-ok.etoile.7.5": {
+  "input": "Oui ! Sept étoiles, c'est plus que cinq.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.etoile.7.6": {
+  "input": "Oui ! Sept étoiles, c'est plus que six.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.etoile.8.6": {
+  "input": "Oui ! Huit étoiles, c'est plus que six.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.etoile.8.7": {
+  "input": "Oui ! Huit étoiles, c'est plus que sept.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.etoile.9.7": {
+  "input": "Oui ! Neuf étoiles, c'est plus que sept.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.etoile.9.8": {
+  "input": "Oui ! Neuf étoiles, c'est plus que huit.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fleur.10.8": {
+  "input": "Oui ! Dix fleurs, c'est plus que huit.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fleur.10.9": {
+  "input": "Oui ! Dix fleurs, c'est plus que neuf.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fleur.2.1": {
+  "input": "Oui ! Deux fleurs, c'est plus qu'une.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fleur.3.1": {
+  "input": "Oui ! Trois fleurs, c'est plus qu'une.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fleur.3.2": {
+  "input": "Oui ! Trois fleurs, c'est plus que deux.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fleur.4.2": {
+  "input": "Oui ! Quatre fleurs, c'est plus que deux.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fleur.4.3": {
+  "input": "Oui ! Quatre fleurs, c'est plus que trois.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fleur.5.3": {
+  "input": "Oui ! Cinq fleurs, c'est plus que trois.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fleur.5.4": {
+  "input": "Oui ! Cinq fleurs, c'est plus que quatre.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fleur.6.4": {
+  "input": "Oui ! Six fleurs, c'est plus que quatre.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fleur.6.5": {
+  "input": "Oui ! Six fleurs, c'est plus que cinq.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fleur.7.5": {
+  "input": "Oui ! Sept fleurs, c'est plus que cinq.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fleur.7.6": {
+  "input": "Oui ! Sept fleurs, c'est plus que six.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fleur.8.6": {
+  "input": "Oui ! Huit fleurs, c'est plus que six.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fleur.8.7": {
+  "input": "Oui ! Huit fleurs, c'est plus que sept.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fleur.9.7": {
+  "input": "Oui ! Neuf fleurs, c'est plus que sept.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fleur.9.8": {
+  "input": "Oui ! Neuf fleurs, c'est plus que huit.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fraise.10.8": {
+  "input": "Oui ! Dix fraises, c'est plus que huit.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fraise.10.9": {
+  "input": "Oui ! Dix fraises, c'est plus que neuf.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fraise.2.1": {
+  "input": "Oui ! Deux fraises, c'est plus qu'une.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fraise.3.1": {
+  "input": "Oui ! Trois fraises, c'est plus qu'une.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fraise.3.2": {
+  "input": "Oui ! Trois fraises, c'est plus que deux.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fraise.4.2": {
+  "input": "Oui ! Quatre fraises, c'est plus que deux.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fraise.4.3": {
+  "input": "Oui ! Quatre fraises, c'est plus que trois.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fraise.5.3": {
+  "input": "Oui ! Cinq fraises, c'est plus que trois.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fraise.5.4": {
+  "input": "Oui ! Cinq fraises, c'est plus que quatre.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fraise.6.4": {
+  "input": "Oui ! Six fraises, c'est plus que quatre.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fraise.6.5": {
+  "input": "Oui ! Six fraises, c'est plus que cinq.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fraise.7.5": {
+  "input": "Oui ! Sept fraises, c'est plus que cinq.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fraise.7.6": {
+  "input": "Oui ! Sept fraises, c'est plus que six.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fraise.8.6": {
+  "input": "Oui ! Huit fraises, c'est plus que six.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fraise.8.7": {
+  "input": "Oui ! Huit fraises, c'est plus que sept.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fraise.9.7": {
+  "input": "Oui ! Neuf fraises, c'est plus que sept.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.fraise.9.8": {
+  "input": "Oui ! Neuf fraises, c'est plus que huit.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.poisson.10.8": {
+  "input": "Oui ! Dix poissons, c'est plus que huit.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.poisson.10.9": {
+  "input": "Oui ! Dix poissons, c'est plus que neuf.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.poisson.2.1": {
+  "input": "Oui ! Deux poissons, c'est plus qu'un.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.poisson.3.1": {
+  "input": "Oui ! Trois poissons, c'est plus qu'un.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.poisson.3.2": {
+  "input": "Oui ! Trois poissons, c'est plus que deux.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.poisson.4.2": {
+  "input": "Oui ! Quatre poissons, c'est plus que deux.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.poisson.4.3": {
+  "input": "Oui ! Quatre poissons, c'est plus que trois.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.poisson.5.3": {
+  "input": "Oui ! Cinq poissons, c'est plus que trois.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.poisson.5.4": {
+  "input": "Oui ! Cinq poissons, c'est plus que quatre.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.poisson.6.4": {
+  "input": "Oui ! Six poissons, c'est plus que quatre.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.poisson.6.5": {
+  "input": "Oui ! Six poissons, c'est plus que cinq.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.poisson.7.5": {
+  "input": "Oui ! Sept poissons, c'est plus que cinq.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.poisson.7.6": {
+  "input": "Oui ! Sept poissons, c'est plus que six.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.poisson.8.6": {
+  "input": "Oui ! Huit poissons, c'est plus que six.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.poisson.8.7": {
+  "input": "Oui ! Huit poissons, c'est plus que sept.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.poisson.9.7": {
+  "input": "Oui ! Neuf poissons, c'est plus que sept.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.poisson.9.8": {
+  "input": "Oui ! Neuf poissons, c'est plus que huit.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.pomme.10.8": {
+  "input": "Oui ! Dix pommes, c'est plus que huit.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.pomme.10.9": {
+  "input": "Oui ! Dix pommes, c'est plus que neuf.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.pomme.2.1": {
+  "input": "Oui ! Deux pommes, c'est plus qu'une.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.pomme.3.1": {
+  "input": "Oui ! Trois pommes, c'est plus qu'une.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.pomme.3.2": {
+  "input": "Oui ! Trois pommes, c'est plus que deux.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.pomme.4.2": {
+  "input": "Oui ! Quatre pommes, c'est plus que deux.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.pomme.4.3": {
+  "input": "Oui ! Quatre pommes, c'est plus que trois.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.pomme.5.3": {
+  "input": "Oui ! Cinq pommes, c'est plus que trois.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.pomme.5.4": {
+  "input": "Oui ! Cinq pommes, c'est plus que quatre.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.pomme.6.4": {
+  "input": "Oui ! Six pommes, c'est plus que quatre.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.pomme.6.5": {
+  "input": "Oui ! Six pommes, c'est plus que cinq.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.pomme.7.5": {
+  "input": "Oui ! Sept pommes, c'est plus que cinq.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.pomme.7.6": {
+  "input": "Oui ! Sept pommes, c'est plus que six.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.pomme.8.6": {
+  "input": "Oui ! Huit pommes, c'est plus que six.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.pomme.8.7": {
+  "input": "Oui ! Huit pommes, c'est plus que sept.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.pomme.9.7": {
+  "input": "Oui ! Neuf pommes, c'est plus que sept.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare-ok.pomme.9.8": {
+  "input": "Oui ! Neuf pommes, c'est plus que huit.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare.coccinelle": {
+  "input": "Où y a-t-il le plus de coccinelles ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare.etoile": {
+  "input": "Où y a-t-il le plus d'étoiles ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare.fleur": {
+  "input": "Où y a-t-il le plus de fleurs ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare.fraise": {
+  "input": "Où y a-t-il le plus de fraises ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare.poisson": {
+  "input": "Où y a-t-il le plus de poissons ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.compare.pomme": {
+  "input": "Où y a-t-il le plus de pommes ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.coccinelle.1": {
+  "input": "Oui, il y a une coccinelle !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.coccinelle.10": {
+  "input": "Oui, il y a dix coccinelles !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.coccinelle.2": {
+  "input": "Oui, il y a deux coccinelles !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.coccinelle.3": {
+  "input": "Oui, il y a trois coccinelles !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.coccinelle.4": {
+  "input": "Oui, il y a quatre coccinelles !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.coccinelle.5": {
+  "input": "Oui, il y a cinq coccinelles !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.coccinelle.6": {
+  "input": "Oui, il y a six coccinelles !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.coccinelle.7": {
+  "input": "Oui, il y a sept coccinelles !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.coccinelle.8": {
+  "input": "Oui, il y a huit coccinelles !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.coccinelle.9": {
+  "input": "Oui, il y a neuf coccinelles !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.etoile.1": {
+  "input": "Oui, il y a une étoile !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.etoile.10": {
+  "input": "Oui, il y a dix étoiles !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.etoile.2": {
+  "input": "Oui, il y a deux étoiles !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.etoile.3": {
+  "input": "Oui, il y a trois étoiles !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.etoile.4": {
+  "input": "Oui, il y a quatre étoiles !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.etoile.5": {
+  "input": "Oui, il y a cinq étoiles !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.etoile.6": {
+  "input": "Oui, il y a six étoiles !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.etoile.7": {
+  "input": "Oui, il y a sept étoiles !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.etoile.8": {
+  "input": "Oui, il y a huit étoiles !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.etoile.9": {
+  "input": "Oui, il y a neuf étoiles !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.fleur.1": {
+  "input": "Oui, il y a une fleur !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.fleur.10": {
+  "input": "Oui, il y a dix fleurs !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.fleur.2": {
+  "input": "Oui, il y a deux fleurs !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.fleur.3": {
+  "input": "Oui, il y a trois fleurs !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.fleur.4": {
+  "input": "Oui, il y a quatre fleurs !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.fleur.5": {
+  "input": "Oui, il y a cinq fleurs !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.fleur.6": {
+  "input": "Oui, il y a six fleurs !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.fleur.7": {
+  "input": "Oui, il y a sept fleurs !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.fleur.8": {
+  "input": "Oui, il y a huit fleurs !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.fleur.9": {
+  "input": "Oui, il y a neuf fleurs !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.fraise.1": {
+  "input": "Oui, il y a une fraise !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.fraise.10": {
+  "input": "Oui, il y a dix fraises !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.fraise.2": {
+  "input": "Oui, il y a deux fraises !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.fraise.3": {
+  "input": "Oui, il y a trois fraises !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.fraise.4": {
+  "input": "Oui, il y a quatre fraises !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.fraise.5": {
+  "input": "Oui, il y a cinq fraises !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.fraise.6": {
+  "input": "Oui, il y a six fraises !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.fraise.7": {
+  "input": "Oui, il y a sept fraises !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.fraise.8": {
+  "input": "Oui, il y a huit fraises !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.fraise.9": {
+  "input": "Oui, il y a neuf fraises !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.poisson.1": {
+  "input": "Oui, il y a un poisson !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.poisson.10": {
+  "input": "Oui, il y a dix poissons !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.poisson.2": {
+  "input": "Oui, il y a deux poissons !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.poisson.3": {
+  "input": "Oui, il y a trois poissons !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.poisson.4": {
+  "input": "Oui, il y a quatre poissons !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.poisson.5": {
+  "input": "Oui, il y a cinq poissons !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.poisson.6": {
+  "input": "Oui, il y a six poissons !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.poisson.7": {
+  "input": "Oui, il y a sept poissons !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.poisson.8": {
+  "input": "Oui, il y a huit poissons !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.poisson.9": {
+  "input": "Oui, il y a neuf poissons !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.pomme.1": {
+  "input": "Oui, il y a une pomme !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.pomme.10": {
+  "input": "Oui, il y a dix pommes !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.pomme.2": {
+  "input": "Oui, il y a deux pommes !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.pomme.3": {
+  "input": "Oui, il y a trois pommes !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.pomme.4": {
+  "input": "Oui, il y a quatre pommes !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.pomme.5": {
+  "input": "Oui, il y a cinq pommes !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.pomme.6": {
+  "input": "Oui, il y a six pommes !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.pomme.7": {
+  "input": "Oui, il y a sept pommes !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.pomme.8": {
+  "input": "Oui, il y a huit pommes !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count-ok.pomme.9": {
+  "input": "Oui, il y a neuf pommes !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count.coccinelle": {
+  "input": "Combien y a-t-il de coccinelles ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count.etoile": {
+  "input": "Combien y a-t-il d'étoiles ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count.fleur": {
+  "input": "Combien y a-t-il de fleurs ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count.fraise": {
+  "input": "Combien y a-t-il de fraises ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count.poisson": {
+  "input": "Combien y a-t-il de poissons ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.count.pomme": {
+  "input": "Combien y a-t-il de pommes ?",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -2792,7 +3952,7 @@
   "trim": true
  },
  "ui.missing": {
-  "input": "Il en manque.",
+  "input": "Il manque des ronds.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -2800,7 +3960,7 @@
   "trim": true
  },
  "ui.more.1": {
-  "input": "Encore une !",
+  "input": "Encore une lettre !",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -2808,7 +3968,7 @@
   "trim": true
  },
  "ui.more.2": {
-  "input": "Encore deux !",
+  "input": "Encore deux lettres !",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -2816,7 +3976,7 @@
   "trim": true
  },
  "ui.more.3": {
-  "input": "Encore trois !",
+  "input": "Encore trois lettres !",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -2840,7 +4000,7 @@
   "trim": true
  },
  "ui.not-that-one": {
-  "input": "Pas celle-là.",
+  "input": "Pas cette lettre-là.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -4256,7 +5416,7 @@
   "trim": true
  },
  "ui.too-many": {
-  "input": "Il y en a trop.",
+  "input": "Il y a trop de ronds.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,

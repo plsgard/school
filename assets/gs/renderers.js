@@ -17,18 +17,18 @@ const LONG_PRESS_MS = 450;     // long-press on a choice speaks its `say`
 // Fixed UI cues: each key has exactly one text (Task 13 records one clip per key).
 export const UI_CUES = {
     tryAgain: { key: 'ui.try-again', text: 'Essaie encore.' },
-    notThatOne: { key: 'ui.not-that-one', text: 'Pas celle-là.' },
-    missing: { key: 'ui.missing', text: 'Il en manque.' },
-    tooMany: { key: 'ui.too-many', text: 'Il y en a trop.' },
+    notThatOne: { key: 'ui.not-that-one', text: 'Pas cette lettre-là.' },
+    missing: { key: 'ui.missing', text: 'Il manque des ronds.' },
+    tooMany: { key: 'ui.too-many', text: 'Il y a trop de ronds.' },
     dotsConfirm: { key: 'ui.dots-confirm', text: 'Appuie sur le bouton vert quand c\'est fini.' },
     blendConfirm: { key: 'ui.blend-confirm', text: 'Écoute, puis appuie sur le bouton vert.' },
     look: { key: 'ui.look', text: 'Regarde.' },
     restart: { key: 'ui.restart', text: 'Recommencer.' },
     nextHint: { key: 'ui.next-hint', text: 'Appuie sur la flèche pour continuer.' },
     more: {
-        1: { key: 'ui.more.1', text: 'Encore une !' },
-        2: { key: 'ui.more.2', text: 'Encore deux !' },
-        3: { key: 'ui.more.3', text: 'Encore trois !' },
+        1: { key: 'ui.more.1', text: 'Encore une lettre !' },
+        2: { key: 'ui.more.2', text: 'Encore deux lettres !' },
+        3: { key: 'ui.more.3', text: 'Encore trois lettres !' },
     },
     traceHint: {
         start: { key: 'ui.trace-hint.start', text: 'Pars du point vert.' },

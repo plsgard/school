@@ -8,7 +8,16 @@
 
 const VOWELS = ['a', 'e', 'i', 'o', 'u'];
 const DOTS = { 1: '●', 2: '● ●', 3: '● ● ●' };
-const EMOJI_SETS = ['🍎', '🐞', '⭐', '🐟', '🎈', '🌼'];
+// Objects to count/compare, always named in the cues (the child must know WHAT to count), with their French
+// gender and plural. id = ASCII clip key. No 🎈: it is the word "ballon" of the word deck.
+const OBJECTS = [
+    { emoji: '🍎', id: 'pomme', sing: 'pomme', plur: 'pommes', fem: true },
+    { emoji: '🐞', id: 'coccinelle', sing: 'coccinelle', plur: 'coccinelles', fem: true },
+    { emoji: '⭐', id: 'etoile', sing: 'étoile', plur: 'étoiles', fem: true },
+    { emoji: '🐟', id: 'poisson', sing: 'poisson', plur: 'poissons', fem: false },
+    { emoji: '🍓', id: 'fraise', sing: 'fraise', plur: 'fraises', fem: true },
+    { emoji: '🌼', id: 'fleur', sing: 'fleur', plur: 'fleurs', fem: true },
+];
 const NUM_WORDS = ['zéro', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf', 'dix'];
 // Close phonemes (spec §2.2): voiced/unvoiced pairs and nasals, used as distractor traps.
 const CLOSE_PHONEMES = { f: 'v', v: 'f', s: 'z', z: 's', ch: 'j', j: 'ch', m: 'n', n: 'm', p: 'b', b: 'p', t: 'd', d: 't', k: 'g', g: 'k' };
@@ -34,10 +43,17 @@ const syllW = (w) => w.syll.map((s, i) => w.syllW?.[i] ?? s);
 // Capitalises the first letter of every sentence (start, and after . ! ?). "…" is not a sentence end.
 const sentences = (s) => s.replace(/(^|[.!?]\s+)(\p{Ll})/gu, (_, sep, ch) => sep + ch.toUpperCase());
 // "que" elides before a vowel-initial word (qu'un); "huit" has an h aspiré (que huit).
-const que = (word) => (/^[aeiouyàâéèêîïôû]/i.test(word) ? `qu'${word}` : `que ${word}`);
+const VOWEL_START = /^[aeiouyàâéèêîïôû]/i;
+const que = (word) => (VOWEL_START.test(word) ? `qu'${word}` : `que ${word}`);
+// "de" elides the same way: d'étoiles, de pommes.
+const de = (word) => (VOWEL_START.test(word) ? `d'${word}` : `de ${word}`);
 const itemsOf = (cards, kind) => { const seen = new Map(); for (const c of cards) if (c.kind === kind) seen.set(c.item.id, c.item); return [...seen.values()]; };
 const numSay = (cards, k) => itemsOf(cards, 'numbers').find(x => x.n === k)?.say ?? NUM_WORDS[k];
 const numCue = (cards, k) => cue(`num.${k}`, numSay(cards, k));
+// The number word agreeing with the object: un poisson, une étoile.
+const numFor = (cards, o, k) => (k === 1 ? (o.fem ? 'une' : 'un') : numSay(cards, k));
+// "une étoile", "trois étoiles", "un poisson".
+const howMany = (cards, o, k) => `${numFor(cards, o, k)} ${k === 1 ? o.sing : o.plur}`;
 
 // R15/R17: vowels and continuants are stretched (shown and said "fff"); occlusives are shown short ("b")
 // but spoken with a schwa ("beu"), otherwise TTS would say the letter name ("bé").
@@ -218,7 +234,7 @@ const GEN = {
         };
     },
     'count'(card, { cards, rng }) {
-        const n = card.item.n, emoji = pick(EMOJI_SETS, rng);
+        const n = card.item.n, o = pick(OBJECTS, rng);
         const lo = Math.max(0, Math.min(n - 2, 5));
         let digits = Array.from({ length: 6 }, (_, i) => lo + i);
         const mirror = MIRROR_DIGITS[n];
@@ -227,10 +243,10 @@ const GEN = {
             digits = digits.map(d => (d === far ? mirror : d)).sort((a, b) => a - b);
         }
         return {
-            layout: 'tap', prompt: cue('ui.count', 'Combien y en a-t-il ?'),
-            stage: { collection: Array(n).fill(emoji), scattered: rng() < 0.5 },
+            layout: 'tap', prompt: cue(`ui.count.${o.id}`, `Combien y a-t-il ${de(o.plur)} ?`),
+            stage: { collection: Array(n).fill(o.emoji), scattered: rng() < 0.5 },
             choices: digits.map(d => ({ id: String(d), label: String(d), say: numCue(cards, d), correct: d === n, style: 'digit' })),
-            success: cue(`ui.count-ok.${n}`, `Oui, il y en a ${numSay(cards, n)} !`),
+            success: cue(`ui.count-ok.${o.id}.${n}`, `Oui, il y a ${howMany(cards, o, n)} !`),
         };
     },
     'decompose'(card, { cards, rng }) {
@@ -248,14 +264,14 @@ const GEN = {
         const others = itemsOf(cards, 'numbers').filter(x => x.n !== n && x.n >= 1); // never an empty collection
         const close = others.filter(x => Math.abs(x.n - n) <= 2);
         const o = pick(close.length ? close : others, rng);
-        const emoji = pick(EMOJI_SETS, rng);
+        const obj = pick(OBJECTS, rng);
         const hi = Math.max(n, o.n), lo = Math.min(n, o.n);
-        const mk = (x) => ({ id: String(x.n), label: String(x.n), collection: Array(x.n).fill(emoji), say: numCue(cards, x.n), correct: x.n === hi });
+        const mk = (x) => ({ id: String(x.n), label: String(x.n), collection: Array(x.n).fill(obj.emoji), say: numCue(cards, x.n), correct: x.n === hi });
         return {
-            layout: 'tap', prompt: cue('ui.compare', 'Où y en a-t-il le plus ?'),
+            layout: 'tap', prompt: cue(`ui.compare.${obj.id}`, `Où y a-t-il le plus ${de(obj.plur)} ?`),
             stage: { showCollections: true },
             choices: shuffle([mk(card.item), mk(o)], rng),
-            success: cue(`ui.compare-ok.${hi}.${lo}`, `Oui, ${numSay(cards, hi)}, c'est plus ${que(numSay(cards, lo))} !`),
+            success: cue(`ui.compare-ok.${obj.id}.${hi}.${lo}`, `Oui ! ${howMany(cards, obj, hi)}, c'est plus ${que(numFor(cards, obj, lo))}.`),
         };
     },
     'number-line'(card, { cards, rng }) {

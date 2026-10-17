@@ -166,8 +166,14 @@ describe('generate', () => {
         assert.deepEqual(ex.choices.find(c => c.label === 'É').say, { key: 'letter.é.name', text: 'é' });
         assert.equal(ex.success.key, 'ui.name-spell-ok.louzoé');
     });
-    test('generate_Compare_PromptText', () => {
-        assert.equal(generate(byId('numbers/8#compare'), { cards, rng }).prompt.text, 'Où y en a-t-il le plus\u00a0?');
+    test('generate_Compare_PromptNamesTheObjectWithElision', () => {
+        const star = generate(byId('numbers/8#compare'), { cards, rng }); // 0.42 → ⭐
+        assert.equal(star.prompt.key, 'ui.compare.etoile');
+        assert.equal(star.prompt.text, 'Où y a-t-il le plus d\'étoiles\u00a0?');
+        const apple = generate(byId('numbers/8#compare'), { cards, rng: () => 0.05 }); // 🍎
+        assert.equal(apple.prompt.key, 'ui.compare.pomme');
+        assert.equal(apple.prompt.text, 'Où y a-t-il le plus de pommes\u00a0?');
+        assert.ok(apple.choices.every(c => c.collection.every(e => e === '🍎')));
     });
     test('generate_Trace_PromptAndSuccessTexts', () => {
         const ex = generate(byId('letters/l#trace'), { cards, rng });
@@ -180,8 +186,38 @@ describe('generate', () => {
         assert.equal(ex.success.text, 'Bravo\u00a0! La, pin\u00a0: deux syllabes.');
         assert.equal(generate(byId('mots-p1/chat#syll-count'), { cards, rng }).success.text, 'Bravo\u00a0! Chat\u00a0: une syllabe.');
     });
-    test('generate_Count_SuccessTextUsesNumberWord', () => {
-        assert.equal(generate(byId('numbers/7#count'), { cards, rng }).success.text, 'Oui, il y en a sept\u00a0!');
+    test('generate_Count_PromptNamesTheObject', () => {
+        const star = generate(byId('numbers/7#count'), { cards, rng }); // 0.42 → ⭐
+        assert.equal(star.prompt.key, 'ui.count.etoile');
+        assert.equal(star.prompt.text, 'Combien y a-t-il d\'étoiles\u00a0?');
+        assert.ok(star.stage.collection.every(e => e === '⭐'));
+        const apple = generate(byId('numbers/7#count'), { cards, rng: () => 0.05 }); // 🍎
+        assert.equal(apple.prompt.text, 'Combien y a-t-il de pommes\u00a0?');
+    });
+    test('generate_Count_SuccessPluralUsesNumberWordAndPluralNoun', () => {
+        const ex = generate(byId('numbers/7#count'), { cards, rng });
+        assert.equal(ex.success.key, 'ui.count-ok.etoile.7');
+        assert.equal(ex.success.text, 'Oui, il y a sept étoiles\u00a0!');
+    });
+    test('generate_Count_OneFeminine_SaysUneAndSingular', () => {
+        const ex = generate(byId('numbers/1#count'), { cards, rng });
+        assert.equal(ex.success.key, 'ui.count-ok.etoile.1');
+        assert.equal(ex.success.text, 'Oui, il y a une étoile\u00a0!');
+    });
+    test('generate_Count_OneMasculine_SaysUnAndSingular', () => {
+        const ex = generate(byId('numbers/1#count'), { cards, rng: () => 0.6 }); // 🐟
+        assert.equal(ex.success.key, 'ui.count-ok.poisson.1');
+        assert.equal(ex.success.text, 'Oui, il y a un poisson\u00a0!');
+    });
+    test('generate_CountAndCompare_NeverUseBalloonOrVaguePronoun', () => {
+        for (const r of RNGS) {
+            for (const card of cards.filter(c => c.skill === 'count' || c.skill === 'compare')) {
+                const ex = generate(card, { cards, rng: () => r });
+                const shown = ex.stage.collection ?? ex.choices.flatMap(c => c.collection);
+                assert.ok(!shown.includes('🎈'), card.id);
+                for (const c of [ex.prompt, ex.success]) assert.doesNotMatch(c.text, /\ben\b/, `${card.id}: ${c.text}`);
+            }
+        }
     });
     test('generate_NumberLine_SuccessTexts', () => {
         assert.equal(generate(byId('numbers/5#number-line'), { cards, rng }).success.text, 'Oui, c\'est cinq\u00a0! Il vient juste après quatre.');
@@ -253,15 +289,21 @@ describe('generate', () => {
             for (const c of p.choices) assert.match(c.say.key, /^ui\.pattern-choice\./);
         }
     });
-    test('generate_Compare_ElidesQueBeforeUn', () => {
-        const ex = generate(byId('numbers/2#compare'), { cards, rng: () => 0.05 });
-        assert.equal(ex.success.key, 'ui.compare-ok.2.1');
-        assert.equal(ex.success.text, 'Oui, deux, c\'est plus qu\'un\u00a0!');
+    test('generate_Compare_FeminineOne_ElidesQueBeforeUne', () => {
+        const ex = generate(byId('numbers/2#compare'), { cards, rng: () => 0.05 }); // 🍎, 2 vs 1
+        assert.equal(ex.success.key, 'ui.compare-ok.pomme.2.1');
+        assert.equal(ex.success.text, 'Oui\u00a0! Deux pommes, c\'est plus qu\'une.');
+    });
+    test('generate_Compare_MasculineOne_ElidesQueBeforeUn', () => {
+        const seq = [0.05, 0.6, 0.5]; let i = 0; // o = 1, object = 🐟, then the shuffle
+        const ex = generate(byId('numbers/2#compare'), { cards, rng: () => seq[Math.min(i++, seq.length - 1)] });
+        assert.equal(ex.success.key, 'ui.compare-ok.poisson.2.1');
+        assert.equal(ex.success.text, 'Oui\u00a0! Deux poissons, c\'est plus qu\'un.');
     });
     test('generate_Compare_KeepsQueBeforeHuit', () => {
         const ex = generate(byId('numbers/9#compare'), { cards, rng });
-        assert.equal(ex.success.key, 'ui.compare-ok.9.8');
-        assert.equal(ex.success.text, 'Oui, neuf, c\'est plus que huit\u00a0!');
+        assert.equal(ex.success.key, 'ui.compare-ok.etoile.9.8');
+        assert.equal(ex.success.text, 'Oui\u00a0! Neuf étoiles, c\'est plus que huit.');
     });
     test('generate_Compare_NeverShowsAnEmptyCollection', () => {
         for (const r of RNGS) {

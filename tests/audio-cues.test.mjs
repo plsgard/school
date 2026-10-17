@@ -38,6 +38,22 @@ describe('collectCues', () => {
         assert.deepEqual([...missing], []);
     });
 
+    test('collectCues_CountAndCompare_OneKeyPerObjectNoGenericKey', () => {
+        for (const o of ['pomme', 'coccinelle', 'etoile', 'poisson', 'fraise', 'fleur']) {
+            for (const k of [`ui.count.${o}`, `ui.count-ok.${o}.1`, `ui.count-ok.${o}.10`, `ui.compare.${o}`]) assert.ok(cues.has(k), k);
+        }
+        for (const k of ['ui.count', 'ui.compare']) assert.ok(!cues.has(k), k);
+        assert.equal(cues.get('ui.count-ok.fraise.1'), 'Oui, il y a une fraise !');
+        assert.equal(cues.get('ui.count-ok.poisson.10'), 'Oui, il y a dix poissons !');
+    });
+
+    test('UiCues_DotsAndLetterFeedback_NameWhatTheyAreAbout', () => {
+        assert.equal(UI_CUES.missing.text, 'Il manque des ronds.');
+        assert.equal(UI_CUES.tooMany.text, 'Il y a trop de ronds.');
+        assert.equal(UI_CUES.notThatOne.text, 'Pas cette lettre-là.');
+        for (const c of Object.values(UI_CUES.more)) assert.match(c.text, /lettres? !$/, c.key);
+    });
+
     test('collectCues_FixedUiCues_RecordedWithTheTextTheModulesSpeak', () => {
         for (const c of [...leaves(UI_CUES), ...leaves(PAGE_CUES)]) assert.equal(cues.get(c.key), c.text, c.key);
     });
