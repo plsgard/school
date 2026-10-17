@@ -39,6 +39,7 @@ function skillsFor(kind, item, deck) {
             item.n >= 1 ? 'compare' : null,
             item.n >= 2 ? 'decompose' : null,
             item.n >= 1 ? 'number-line' : null,
+            item.trace ? 'trace' : null, // digits 0–9; 0 has only this card (and is introduced last)
         ].filter(Boolean);
         case 'name': return ['name-spell']; // v1: tracing the whole first name is deferred (needs composite waypoints)
         default: return [];

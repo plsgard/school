@@ -16,7 +16,19 @@ export const TRACE_HINTS = {
 
 // Shoelace signed area of a closed polyline (y down: > 0 = clockwise on screen). Only its sign is used.
 const signedArea = (poly) => poly.reduce((a, p, i) => { const q = poly[(i + 1) % poly.length]; return a + p[0] * q[1] - q[0] * p[1]; }, 0) / 2;
-const MIN_CLOSED_AREA = 20; // below this the model's turning sense is undefined (balanced 8): no direction check
+const MIN_CLOSED_AREA = 20; // below this the model's turning sense is undefined: no direction check
+// First `f` of a polyline by arc length (at least 3 points), and the rest. An 8's lobes turn opposite ways and
+// cancel in a whole-trace area, so its direction is judged on its first lobe only (model.dirSpan, default 1).
+function splitAt(poly, f) {
+    if (f >= 1) return [poly, []];
+    const seg = poly.slice(1).map((p, i) => Math.hypot(p[0] - poly[i][0], p[1] - poly[i][1]));
+    const total = seg.reduce((a, b) => a + b, 0);
+    let k = 1, run = 0;
+    while (k < poly.length && run + seg[k - 1] <= f * total) run += seg[k++ - 1];
+    k = Math.max(3, k);
+    return [poly.slice(0, k), poly.slice(k)];
+}
+const centroid = (poly) => poly.reduce((c, p) => [c[0] + p[0] / poly.length, c[1] + p[1] / poly.length], [0, 0]);
 
 // model: { pts, pts2? }. With pts2 (x, 4, 5) both strokes must be covered. A closed model (0, 8: start and end
 // within R_START) cannot be told apart by its start, so its direction is checked instead (spec §8.5): the ink
@@ -34,8 +46,16 @@ export function score(strokes, model) {
     const outside = pts.filter(p => !wp.some(w => dist(p, w) < R_OUT)).length / pts.length;
     const startOk = dist(pts[0], main[0]) < R_START;
     const closed = dist(main[0], main[main.length - 1]) < R_START;
-    const modelArea = closed ? signedArea(main) : 0;
-    const dirOk = Math.abs(modelArea) < MIN_CLOSED_AREA || Math.sign(signedArea(pts)) === Math.sign(modelArea);
+    const span = model.dirSpan ?? 1;
+    const [modelHead, modelRest] = splitAt(main, span);
+    const [inkHead] = splitAt(pts, span);
+    const modelArea = closed ? signedArea(modelHead) : 0;
+    const turnOk = Math.abs(modelArea) < MIN_CLOSED_AREA || Math.sign(signedArea(inkHead)) === Math.sign(modelArea);
+    // A partial span also has to be in the right place: an 8 drawn backwards from the green dot turns the same
+    // ways (bottom lobe counter-clockwise first), so only the position of its first lobe tells it apart.
+    const placeOk = !closed || !modelRest.length
+        || dist(centroid(inkHead), centroid(modelHead)) < dist(centroid(inkHead), centroid(modelRest));
+    const dirOk = turnOk && placeOk;
     const ok = coverage >= 0.85 && outside < 0.25 && startOk && dirOk;
     const blue = second.length > 0 && coverMain >= 0.85 && coverage < 0.85 && outside < 0.25; // only the blue stroke is missing
     const hintKey = ok ? '' : !startOk ? 'start' : blue ? 'blue' : coverage < 0.85 ? 'follow' : !dirOk ? 'arrows' : 'inside';

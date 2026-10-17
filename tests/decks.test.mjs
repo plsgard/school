@@ -16,9 +16,16 @@ describe('expandCards', () => {
         const p = expandCards(decks, { firstName: '' }).filter(c => c.id.startsWith('letters/p#')).map(c => c.skill);
         assert.deepEqual(p, ['letter-3scripts', 'trace']);
     });
-    test('expandCards_NumberZero_HasNoCards', () => {
-        const z = expandCards(decks, { firstName: '' }).filter(c => c.id.startsWith('numbers/0#'));
-        assert.deepEqual(z, []);
+    test('expandCards_Digits0To9_HaveATraceCardAnd10DoesNot', () => {
+        const cards = expandCards(decks, { firstName: '' });
+        for (let n = 0; n <= 9; n++) assert.ok(cards.some(c => c.id === `numbers/${n}#trace` && c.kind === 'numbers'), String(n));
+        assert.ok(!cards.some(c => c.id === 'numbers/10#trace'));
+    });
+    test('expandCards_NumberZero_HasOnlyATraceCard', () => {
+        assert.deepEqual(expandCards(decks, { firstName: '' }).filter(c => c.id.startsWith('numbers/0#')).map(c => c.skill), ['trace']);
+    });
+    test('numbers_Deck_ZeroIsIntroducedLast', () => {
+        assert.equal(decks[1].items.at(-1).id, '0');
     });
     test('expandCards_FirstNameGiven_AddsNameSpellCard', () => {
         const cards = expandCards(decks, { firstName: 'Lou' });

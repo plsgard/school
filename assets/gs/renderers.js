@@ -418,6 +418,9 @@ export function renderExercise(root, ex, { speak, parentMode = false, waitForTap
                     if (finished) return;
                     if (r.ok) { done(); return; }
                     if (!r.hint) return; // a too-short stroke (a tap) is not a miss
+                    // Waiting at the blue dot (green stroke done) is not a miss either: no "Suivant" from waiting.
+                    // onStroke1 has already said the blue cue at the lift; it is not said a second time.
+                    if (r.hintKey === 'blue') { tell(UI_CUES.traceHint.blue.text); return; }
                     misses++;
                     const hint = UI_CUES.traceHint[r.hintKey];
                     tell(hint?.text ?? r.hint);

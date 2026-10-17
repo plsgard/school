@@ -217,7 +217,7 @@ const GEN = {
             return {
                 layout: 'trace',
                 prompt: cue(`ui.trace-digit.${n}`, `Trace le chiffre ${word}. ${go}`, `Trace le chiffre ${n}. ${go}`),
-                trace: { pts: it.trace, ...pts2, label: String(n), say: numCue(cards, n), kind: 'digit' },
+                trace: { pts: it.trace, ...pts2, ...(it.dirSpan ? { dirSpan: it.dirSpan } : {}), bar: it.bar, label: String(n), say: numCue(cards, n), kind: 'digit' },
                 success: cue(`ui.trace-digit-ok.${n}`, `Bravo, tu as bien tracé le chiffre ${word} !`, `Bravo, tu as bien tracé le chiffre ${n} !`),
             };
         }

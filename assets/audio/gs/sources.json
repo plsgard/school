@@ -5431,6 +5431,166 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.trace-digit-ok.0": {
+  "input": "Bravo, tu as bien tracé le chiffre zéro !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-digit-ok.1": {
+  "input": "Bravo, tu as bien tracé le chiffre un !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-digit-ok.2": {
+  "input": "Bravo, tu as bien tracé le chiffre deux !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-digit-ok.3": {
+  "input": "Bravo, tu as bien tracé le chiffre trois !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-digit-ok.4": {
+  "input": "Bravo, tu as bien tracé le chiffre quatre !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-digit-ok.5": {
+  "input": "Bravo, tu as bien tracé le chiffre cinq !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-digit-ok.6": {
+  "input": "Bravo, tu as bien tracé le chiffre six !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-digit-ok.7": {
+  "input": "Bravo, tu as bien tracé le chiffre sept !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-digit-ok.8": {
+  "input": "Bravo, tu as bien tracé le chiffre huit !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-digit-ok.9": {
+  "input": "Bravo, tu as bien tracé le chiffre neuf !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-digit.0": {
+  "input": "Trace le chiffre zéro. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-digit.1": {
+  "input": "Trace le chiffre un. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-digit.2": {
+  "input": "Trace le chiffre deux. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-digit.3": {
+  "input": "Trace le chiffre trois. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-digit.4": {
+  "input": "Trace le chiffre quatre. Pars du point vert, puis du point bleu.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-digit.5": {
+  "input": "Trace le chiffre cinq. Pars du point vert, puis du point bleu.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-digit.6": {
+  "input": "Trace le chiffre six. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-digit.7": {
+  "input": "Trace le chiffre sept. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-digit.8": {
+  "input": "Trace le chiffre huit. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-digit.9": {
+  "input": "Trace le chiffre neuf. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.trace-hint.arrows": {
   "input": "Suis les flèches.",
   "engine": "say",
