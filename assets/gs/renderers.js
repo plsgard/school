@@ -53,6 +53,7 @@ function button(cls, text, label) {
     return b;
 }
 
+const PIPS = { 1: [4], 2: [2, 6], 3: [2, 4, 6], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] }; // 3 x 3 grid, row-major
 function renderStage(stage, stageEl) {
     stageEl.replaceChildren();
     if (!stage) return;
@@ -76,6 +77,27 @@ function renderStage(stage, stageEl) {
             c.append(s);
         }
         stageEl.append(c);
+    }
+    if (stage.dice) {
+        const row = el('div', 'gs-dice');
+        row.setAttribute('role', 'img');
+        row.setAttribute('aria-label', stage.dice.length === 2 ? 'Deux dés' : 'Dé'); // never the count: it is the answer
+        for (const f of stage.dice) {
+            const die = el('div', 'gs-die');
+            for (let i = 0; i < 9; i++) die.append(el('span', PIPS[f].includes(i) ? 'pip' : ''));
+            row.append(die);
+        }
+        stageEl.append(row);
+    }
+    if (stage.groups) {
+        const row = el('div', 'gs-groups');
+        stage.groups.forEach((g, i) => {
+            if (i) row.append(el('span', 'plus', '+'));
+            const c = el('div', 'gs-collection');
+            for (const e of g) c.append(el('span', '', e));
+            row.append(c);
+        });
+        stageEl.append(row);
     }
     if (stage.sequence) {
         const q = el('div', 'gs-seq');

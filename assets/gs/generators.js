@@ -101,6 +101,18 @@ function letterCue(ch, letters) {
     return l ? cue(`letter.${l.id}.name`, l.name) : cue(`letter.${ch}.name`, ch);
 }
 
+// Six digit tiles around n (count, dice); a digit confused by shape (6/9, 1/7) is always among them.
+function digitChoices(cards, n) {
+    const lo = Math.max(0, Math.min(n - 2, 5));
+    let digits = Array.from({ length: 6 }, (_, i) => lo + i);
+    const mirror = MIRROR_DIGITS[n];
+    if (mirror !== undefined && !digits.includes(mirror)) {
+        const far = digits.filter(d => d !== n).reduce((a, b) => (Math.abs(b - n) > Math.abs(a - n) ? b : a));
+        digits = digits.map(d => (d === far ? mirror : d)).sort((a, b) => a - b);
+    }
+    return digits.map(d => ({ id: String(d), label: String(d), say: numCue(cards, d), correct: d === n, style: 'digit' }));
+}
+
 const GEN = {
     'syll-count'(card, { cards }) {
         const w = card.item, n = Math.min(w.syll.length, 3);
@@ -295,17 +307,10 @@ const GEN = {
     },
     'count'(card, { cards, rng }) {
         const n = card.item.n, o = pick(OBJECTS, rng);
-        const lo = Math.max(0, Math.min(n - 2, 5));
-        let digits = Array.from({ length: 6 }, (_, i) => lo + i);
-        const mirror = MIRROR_DIGITS[n];
-        if (mirror !== undefined && !digits.includes(mirror)) {
-            const far = digits.filter(d => d !== n).reduce((a, b) => (Math.abs(b - n) > Math.abs(a - n) ? b : a));
-            digits = digits.map(d => (d === far ? mirror : d)).sort((a, b) => a - b);
-        }
         return {
             layout: 'tap', prompt: cue(`ui.count.${o.id}`, `Combien y a-t-il ${de(o.plur)} ?`),
             stage: { collection: Array(n).fill(o.emoji), scattered: rng() < 0.5 },
-            choices: digits.map(d => ({ id: String(d), label: String(d), say: numCue(cards, d), correct: d === n, style: 'digit' })),
+            choices: digitChoices(cards, n),
             success: cue(`ui.count-ok.${o.id}.${n}`, `Oui, il y a ${howMany(cards, o, n)} !`),
         };
     },
@@ -345,6 +350,44 @@ const GEN = {
             success: cue(`ui.number-line-ok.${n}`, n >= 2
                 ? `Oui, c'est ${numSay(cards, n)} ! Il vient juste après ${numSay(cards, n - 1)}.`
                 : `Oui, c'est ${numSay(cards, n)} ! Il vient juste avant ${numSay(cards, n + 1)}.`),
+        };
+    },
+    'dice'(card, { cards, rng }) {
+        const n = card.item.n;
+        let faces = [n];
+        if (n > 6) { const lo = Math.max(1, n - 6), hi = Math.min(6, n - 1); const a = lo + Math.floor(rng() * (hi - lo + 1)); faces = [a, n - a]; }
+        return {
+            layout: 'tap',
+            prompt: faces.length === 2 ? cue('ui.dice.two', 'Combien de points sur les deux dés ?') : cue('ui.dice.one', 'Combien de points sur le dé ?'),
+            stage: { dice: faces },
+            choices: digitChoices(cards, n),
+            success: cue(`ui.dice-ok.${n}`, `Oui, il y a ${n === 1 ? 'un point' : `${numSay(cards, n)} points`} !`),
+        };
+    },
+    'before-after'(card, { cards, rng }) {
+        const n = card.item.n;
+        const dir = pick([n >= 1 ? 'after' : null, n <= 9 ? 'before' : null].filter(Boolean), rng);
+        const k = dir === 'after' ? n - 1 : n + 1;
+        const other = dir === 'after' ? (k >= 1 ? k - 1 : k + 2) : (k <= 9 ? k + 1 : k - 2);
+        const word = dir === 'after' ? 'après' : 'avant';
+        return {
+            layout: 'tap',
+            prompt: cue(`ui.${dir}.${k}`, `Quel nombre vient juste ${word} ${numSay(cards, k)} ?`),
+            stage: { sequence: dir === 'after' ? [String(k), '?'] : ['?', String(k)] },
+            choices: shuffle([n, k, other].map(x => ({ id: String(x), label: String(x), say: numCue(cards, x), correct: x === n, style: 'digit' })), rng),
+            success: cue(`ui.${dir}-ok.${k}`, `Oui ! ${word} ${numSay(cards, k)}, il y a ${numSay(cards, n)}.`),
+        };
+    },
+    'add'(card, { cards, rng }) {
+        const n = card.item.n, o = pick(OBJECTS, rng);
+        const a = 1 + Math.floor(rng() * (n - 1)), b = n - a;
+        const say = (k) => howMany(cards, o, k);
+        return {
+            layout: 'tap',
+            prompt: cue(`ui.add.${o.id}.${a}.${b}`, `${say(a)} et ${say(b)}, ça fait combien ${de(o.plur)} ?`),
+            stage: { groups: [Array(a).fill(o.emoji), Array(b).fill(o.emoji)] },
+            choices: [1, 2, 3, 4, 5, 6].map(d => ({ id: String(d), label: String(d), say: numCue(cards, d), correct: d === n, style: 'digit' })),
+            success: cue(`ui.add-ok.${o.id}.${a}.${b}`, `Oui ! ${say(a)} et ${say(b)}, ça fait ${say(n)}.`),
         };
     },
 };

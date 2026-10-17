@@ -526,3 +526,75 @@ describe('generate sound-final / syll-initial', () => {
         assert.deepEqual(phoneme('é'), { display: 'ééé', spoken: 'ééé', stretched: true });
     });
 });
+
+describe('generate dice / before-after / add', () => {
+    const num = (n, skill) => { const c = cards.find(x => x.kind === 'numbers' && x.item.n === n); return { ...c, id: `numbers/${n}#${skill}`, skill }; };
+
+    test('generate_Dice_UpToSixOneDieAboveTwoDiceSummingToN', () => {
+        for (const r of RNGS) for (let n = 1; n <= 10; n++) {
+            const ex = generate(num(n, 'dice'), { cards, rng: () => r });
+            assert.equal(ex.stage.dice.reduce((a, b) => a + b, 0), n);
+            assert.equal(ex.stage.dice.length, n <= 6 ? 1 : 2);
+            assert.ok(ex.stage.dice.every(f => f >= 1 && f <= 6));
+            assertChoiceSet(ex, 6);
+            assert.equal(ex.prompt.key, n <= 6 ? 'ui.dice.one' : 'ui.dice.two');
+        }
+    });
+    test('generate_Dice_TextsAgreeWithOneAndMany', () => {
+        assert.equal(generate(num(1, 'dice'), { cards, rng }).success.text, 'Oui, il y a un point !');
+        assert.equal(generate(num(8, 'dice'), { cards, rng }).success.text, 'Oui, il y a huit points !');
+        assert.equal(generate(num(8, 'dice'), { cards, rng }).prompt.text, 'Combien de points sur les deux dés ?');
+        assert.equal(generate(num(3, 'dice'), { cards, rng }).prompt.text, 'Combien de points sur le dé ?');
+    });
+    test('generate_Dice_MirrorDigitsAppearTogether', () => {
+        for (const r of RNGS) assert.ok(generate(num(6, 'dice'), { cards, rng: () => r }).choices.some(c => c.label === '9'));
+    });
+    test('generate_Count_RefactoredDigitsUnchanged', () => {
+        // golden values from the pre-refactor generator, n = 0..10 at rng 0.42
+        for (let n = 1; n <= 10; n++) {
+            const ex = generate(byId(`numbers/${n}#count`), { cards, rng });
+            assert.equal(ex.choices.length, 6);
+            assert.ok(ex.choices.some(c => c.correct && c.label === String(n)));
+        }
+    });
+    test('generate_BeforeAfter_AfterFour', () => {
+        const ex = generate(num(5, 'before-after'), { cards, rng: () => 0.1 }); // 0.1 → 'after' (first valid direction)
+        assert.equal(ex.prompt.key, 'ui.after.4');
+        assert.equal(ex.prompt.text, 'Quel nombre vient juste après quatre ?');
+        assert.deepEqual(ex.stage.sequence, ['4', '?']);
+        assert.deepEqual(ex.choices.map(c => c.label).sort(), ['3', '4', '5']);
+        assert.equal(ex.success.text, 'Oui ! Après quatre, il y a cinq.');
+    });
+    test('generate_BeforeAfter_BeforeSeven', () => {
+        const ex = generate(num(6, 'before-after'), { cards, rng: () => 0.9 });
+        assert.equal(ex.prompt.text, 'Quel nombre vient juste avant sept ?');
+        assert.deepEqual(ex.stage.sequence, ['?', '7']);
+        assert.deepEqual(ex.choices.map(c => c.label).sort(), ['6', '7', '8']);
+        assert.equal(ex.success.text, 'Oui ! Avant sept, il y a six.');
+    });
+    test('generate_BeforeAfter_EdgesStayBetweenZeroAndTen', () => {
+        for (const r of RNGS) for (const n of [1, 9, 10]) {
+            const ex = generate(num(n, 'before-after'), { cards, rng: () => r });
+            assertChoiceSet(ex, 3);
+            assert.ok(ex.choices.every(c => +c.label >= 0 && +c.label <= 10), `${n} ${ex.choices.map(c => c.label)}`);
+        }
+    });
+    test('generate_Add_NamedObjectWithGenderAndElision', () => {
+        const ex = generate(num(3, 'add'), { cards, rng: () => 0.42 }); // ⭐ étoile, split decided by the same rng
+        assert.match(ex.prompt.text, /^(Une|Deux) étoiles? et (une|deux) étoiles?, ça fait combien d'étoiles \?$/);
+        assert.match(ex.success.text, /ça fait trois étoiles\.$/);
+        const [a, b] = ex.stage.groups.map(g => g.length);
+        assert.equal(a + b, 3);
+        assert.equal(ex.prompt.key, `ui.add.etoile.${a}.${b}`);
+    });
+    test('generate_Add_MasculineOne_SaysUn', () => {
+        const ex = generate(num(2, 'add'), { cards, rng: () => 0.6 }); // 🐟
+        assert.equal(ex.prompt.text, 'Un poisson et un poisson, ça fait combien de poissons ?');
+        assert.equal(ex.success.text, 'Oui ! Un poisson et un poisson, ça fait deux poissons.');
+    });
+    test('generate_Add_SixDigitTilesOneToSix', () => {
+        const ex = generate(num(5, 'add'), { cards, rng });
+        assert.deepEqual(ex.choices.map(c => c.label), ['1', '2', '3', '4', '5', '6']);
+        assertChoiceSet(ex, 6);
+    });
+});
