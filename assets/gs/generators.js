@@ -13,10 +13,12 @@ const STRETCH_VOWELS = [...VOWELS, 'é'];
 const phKey = (id) => (id === 'é' ? 'eacute' : id);
 // sound-final: endings with no final sound (nasal vowels) that a child hears as close to the asked final sound.
 const NEAR_FINAL = { o: ['on'], a: ['an', 'en'], n: ['on', 'in', 'an', 'en', 'oin'], m: ['on', 'in', 'an', 'en'] };
+// rhyme: rhymes a child hears as close (oral vowel vs its nasal): never a "wrong" answer to each other.
+const NEAR_RHYME = { o: ['on'], on: ['o'], a: ['an', 'en'], an: ['a'], en: ['a'], i: ['in'], in: ['i'] };
 const DOTS = { 1: '●', 2: '● ●', 3: '● ● ●' };
 // Objects to count/compare, always named in the cues (the child must know WHAT to count), with their French
 // gender and plural. id = ASCII clip key. No 🎈: it is the word "ballon" of the word deck.
-const OBJECTS = [
+export const OBJECTS = [
     { emoji: '🍎', id: 'pomme', sing: 'pomme', plur: 'pommes', fem: true },
     { emoji: '🐞', id: 'coccinelle', sing: 'coccinelle', plur: 'coccinelles', fem: true },
     { emoji: '⭐', id: 'etoile', sing: 'étoile', plur: 'étoiles', fem: true },
@@ -32,7 +34,7 @@ const CLOSE_LETTERS = { f: 'v', v: 'f', s: 'z', z: 's', m: 'n', n: 'm', l: 'r', 
 const MIRROR_DIGITS = { 6: 9, 9: 6, 1: 7, 7: 1 };
 // Spoken name + ASCII id (the id is the clip key, so clip paths stay plain ASCII).
 // No 🌙: it is the page's "come back tomorrow" icon (M2).
-const PATTERN_NAMES = { '🔴': ['rouge'], '🔵': ['bleu'], '🟢': ['vert'], '🟡': ['jaune'], '⭐': ['étoile', 'etoile'], '❤️': ['cœur', 'coeur'], '🟣': ['violet'], '🟠': ['orange'], '⚫': ['noir'] };
+export const PATTERN_NAMES = { '🔴': ['rouge'], '🔵': ['bleu'], '🟢': ['vert'], '🟡': ['jaune'], '⭐': ['étoile', 'etoile'], '❤️': ['cœur', 'coeur'], '🟣': ['violet'], '🟠': ['orange'], '⚫': ['noir'] };
 const patternCue = (e) => { const [name, id = name] = PATTERN_NAMES[e]; return cue(`ui.pattern-choice.${id}`, name); };
 
 const shuffle = (arr, rng) => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
@@ -132,10 +134,12 @@ const GEN = {
     },
     'syll-match'(card, { cards, rng }) {
         const w = card.item, words = itemsOf(cards, 'words').filter(x => x.id !== w.id);
-        const same = words.filter(x => x.syll[0] === w.syll[0]);
+        // Compared by sound, not spelling: chat (cha) starts like château, so it is never a wrong answer to it.
+        const first = heard(w.syll[0]), sameStart = (x) => heard(x.syll[0]) === first;
+        const same = words.filter(sameStart);
         const target = same.length ? pick(same, rng) : pick(words, rng);
         const used = new Set([target.emoji, target.id, w.emoji, w.id]);
-        const distractors = pickWithTrap(words.filter(x => x.syll[0] !== w.syll[0]), x => x.rhyme === w.rhyme, rng, used);
+        const distractors = pickWithTrap(words.filter(x => !sameStart(x)), x => x.rhyme === w.rhyme, rng, used);
         return {
             layout: 'tap', prompt: cue(`ui.syll-match.${w.id}`, `Écoute bien. Quel mot commence comme ${w.syll.join('-')} ?`,
                 `Écoute bien. Quel mot commence comme ${syllW(w).join('-')} ?`),
@@ -150,7 +154,8 @@ const GEN = {
         const same = words.filter(x => x.rhyme === w.rhyme);
         const target = same.length ? pick(same, rng) : pick(words, rng);
         const used = new Set([target.emoji, target.id, w.emoji, w.id]);
-        const distractors = pickDistinct(words.filter(x => x.rhyme !== w.rhyme), 2, rng, used);
+        const far = (x) => x.rhyme !== w.rhyme && !NEAR_RHYME[w.rhyme]?.includes(x.rhyme);
+        const distractors = pickDistinct(words.filter(far), 2, rng, used);
         return {
             layout: 'tap', prompt: cue(`ui.rhyme.${w.id}`, `Qu'est-ce qui rime avec ${w.text} ?`),
             stage: { emoji: w.emoji, text: w.text },
@@ -181,7 +186,9 @@ const GEN = {
         const used = new Set([target.emoji, target.id]);
         // Trap (Repères CP ex. 17/18): a word that STARTS with the sound asked at the end.
         // A nasal ending (final null) sounds close to o / a / n / m: ballon is no fair "not ooo".
-        const far = (x) => x.final !== w.final && !(x.final === null && NEAR_FINAL[w.final]?.includes(x.rhyme));
+        // Nor a voiced/unvoiced partner (salade …d vs tomate …t): too close to tell apart by ear at 5.
+        const far = (x) => x.final !== w.final && x.final !== CLOSE_PHONEMES[w.final]
+            && !(x.final === null && NEAR_FINAL[w.final]?.includes(x.rhyme));
         const distractors = pickWithTrap(words.filter(far), x => x.initial === w.final, rng, used);
         const ph = phoneme(w.final, itemsOf(cards, 'letters'));
         return {

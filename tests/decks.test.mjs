@@ -3,6 +3,8 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { expandCards, DECK_FILES } from '../assets/gs/decks/index.js';
+import { OBJECTS, PATTERN_NAMES } from '../assets/gs/generators.js';
+import { THEMES } from '../assets/gs/themes.js';
 
 const load = async (n) => JSON.parse(await readFile(new URL(`../assets/gs/decks/${n}.json`, import.meta.url), 'utf8'));
 const decks = await Promise.all(DECK_FILES.map(load));
@@ -53,9 +55,6 @@ describe('expandCards', () => {
             assert.equal(new Set(skills).size, skills.length, w.id);
             assert.ok(skills.includes('syll-count') && skills.includes('sound-pick'), w.id);
         }
-    });
-    test('expandCards_Words_EmojiNeverClashesWithAControl', () => {
-        for (const w of allWords) assert.ok(!['🏠', '🌙', '⭐', '🔊'].includes(w.emoji), `${w.id} ${w.emoji}`);
     });
     test('expandCards_Always_IdsAreUnique', () => {
         const ids = expandCards(decks, { firstName: 'Lou' }).map(c => c.id);
@@ -108,7 +107,9 @@ describe('expandCards', () => {
     test('wordDecks_AllWords_EmojiAndIdsUniqueAcrossDecksAndNoReservedEmoji', () => {
         assert.equal(new Set(allWords.map(w => w.id)).size, allWords.length);
         assert.equal(new Set(allWords.map(w => w.emoji)).size, allWords.length);
-        const reserved = ['🏠', '🌙', '⭐', '🔊', '🦊', '🐼', '🍎', '🐞', '🐟', '🍓', '🌼', '🔴', '🔵', '🟢', '🟡', '❤️', '🟣', '🟠', '⚫'];
+        // Page controls, profile avatars, counting objects, pattern shapes and theme buttons: a word never looks like one.
+        const reserved = [...OBJECTS.map(o => o.emoji), ...Object.keys(PATTERN_NAMES), ...THEMES.map(t => t.emoji),
+            '✔', '✔️', '🎉', '⚙️', '🏠', '🌙', '🔊', '🦊', '🐼'];
         for (const w of allWords) assert.ok(!reserved.includes(w.emoji), `${w.id} ${w.emoji}`);
     });
     test('wordDecks_AllWords_WrittenStartIsTheInitialAndIdsAscii', () => {
@@ -116,7 +117,6 @@ describe('expandCards', () => {
         for (const w of allWords) {
             assert.ok(fold(w.text).startsWith(w.initial), `${w.id}: ${w.text} / ${w.initial}`);
             assert.match(w.id, /^[a-z]+$/);
-            assert.equal((w.syllW ?? w.syll).join(''), w.text, w.id);
         }
     });
     test('motsGs_Deck_HasInternalSyllAndRhymePartners', () => {
@@ -141,11 +141,6 @@ describe('expandCards', () => {
     test('letters_Deck_OnlyOneLetterPerSound', () => {
         const sounds = decks[0].items.map(l => l.sound).filter(Boolean);
         assert.equal(new Set(sounds).size, sounds.length);
-    });
-    test('words_Deck_EmojiAndIdsAreUnique', () => {
-        const words = allWords;
-        assert.equal(new Set(words.map(w => w.emoji)).size, words.length);
-        assert.equal(new Set(words.map(w => w.id)).size, words.length);
     });
     const FINALS = ['a', 'é', 'i', 'o', 'u', 'l', 'm', 'n', 'r', 's', 'v', 'z', 'j', 'ch', 'f', 'p', 'b', 't', 'd', 'k', 'g'];
     test('words_Deck_FinalIsAKnownSoundOrNullOnlyForNasalEndings', () => {

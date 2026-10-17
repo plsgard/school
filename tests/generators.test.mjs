@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { expandCards, DECK_FILES } from '../assets/gs/decks/index.js';
 import { generate, generatePattern, phoneme, heard } from '../assets/gs/generators.js';
+import { seededRng } from '../tools/cues.mjs';
 
 const load = async (n) => JSON.parse(await readFile(new URL(`../assets/gs/decks/${n}.json`, import.meta.url), 'utf8'));
 const decks = await Promise.all(DECK_FILES.map(load));
@@ -11,6 +12,8 @@ const cards = expandCards(decks, { firstName: 'Lou' });
 const find = (id) => cards.find(c => c.id === id);
 const rng = () => 0.42;
 const RNGS = [0.05, 0.3, 0.42, 0.6, 0.97];
+// Seeded sweeps for rng-dependent distractor rules (a fixed-value rng always draws the same pick).
+const SEEDS = Array.from({ length: 60 }, (_, s) => s);
 const byId = (id) => find(id);
 
 function assertChoiceSet(ex, n) {
@@ -96,7 +99,7 @@ describe('generate', () => {
                 const ex = generate(card, { cards, rng: () => r });
                 const ok = ex.choices.find(c => c.correct);
                 const w = cards.find(c => c.kind === 'words' && c.item.id === ok.id).item;
-                if (card.skill === 'syll-match') assert.equal(w.syll[0], card.item.syll[0], `${card.id} @${r}`);
+                if (card.skill === 'syll-match') assert.equal(heard(w.syll[0]), heard(card.item.syll[0]), `${card.id} @${r}`);
                 else assert.equal(w.rhyme, card.item.rhyme, `${card.id} @${r}`);
                 assert.notEqual(ok.id, card.item.id, `${card.id} @${r}`);
             }
@@ -468,12 +471,20 @@ describe('generate sound-final / syll-initial', () => {
         assert.equal(ex.success.text, `Oui ! ${target.text[0].toUpperCase()}${target.text.slice(1)} finit par ooo !`);
     });
     test('generate_SoundFinal_OcclusiveSaidWithSchwaShownInGuillemets', () => {
-        // needs a word with an occlusive final: after Task 9 use mots-gs/tomate; here inject one
-        const tomate = { id: 'tomate', text: 'tomate', emoji: '🍅', syll: ['to', 'mate'], initial: 't', rhyme: 'ate', final: 't' };
-        const c = { id: 'mots-p1/tomate#sound-final', deckId: 'mots-p1', kind: 'words', skill: 'sound-final', item: tomate };
-        const ex = generate(c, { cards: [...cards, { ...c, skill: 'syll-count' }], rng });
-        assert.equal(ex.prompt.text, 'Quel mot finit par le son teu ?');
-        assert.equal(ex.prompt.display, 'Quel mot finit par le son « t » ?');
+        const ex = generate(find('mots-gs/tomate#sound-final'), { cards, rng });
+        assert.equal(ex.prompt.text, 'Quel mot finit par le son teu\u00a0?');
+        assert.equal(ex.prompt.display, 'Quel mot finit par le son «\u00a0t\u00a0»\u00a0?');
+    });
+    test('generate_SoundFinal_NoVoicedUnvoicedPartnerAsDistractor', () => {
+        // salade (…d) vs tomate (…t): too close by ear at 5.
+        const close = { t: 'd', d: 't', ch: 'j', j: 'ch', f: 'v', v: 'f', s: 'z', z: 's', m: 'n', n: 'm', p: 'b', b: 'p', k: 'g', g: 'k' };
+        for (const r of SEEDS) for (const c of cards.filter(c => c.skill === 'sound-final')) {
+            const ex = generate(c, { cards, rng: seededRng(r) });
+            for (const ch of ex.choices.filter(x => !x.correct)) {
+                assert.notEqual(words.find(w => w.item.id === ch.id).item.final, close[c.item.final], `${c.item.id} @${r}: ${ch.id}`);
+            }
+        }
+        assert.ok(cards.some(c => c.id === 'mots-gs/salade#sound-final') && cards.some(c => c.id === 'mots-gs/tomate#sound-final'));
     });
     test('generate_SoundFinal_DistractorsNeverShareTheFinal', () => {
         for (const r of RNGS) for (const c of words.filter(w => w.item.final && w.skill === 'syll-count')) {
@@ -527,13 +538,38 @@ describe('generate sound-final / syll-initial', () => {
     test('generate_SoundFinal_NoNullFinalDistractorThatSoundsNear', () => {
         // ooo vs ballon (-on), aaa vs -an, nnn vs -on/-in: a nasal ending sounds close to the asked sound.
         const NEAR = { o: ['on'], a: ['an', 'en'], n: ['on', 'in', 'an', 'en', 'oin'], m: ['on', 'in', 'an', 'en'] };
-        const mouton = { id: 'xmouton', text: 'mouton', emoji: '🐑', syll: ['mou', 'ton'], initial: 'm', rhyme: 'on', final: null };
-        const pool = [...cards, { id: 'x/xmouton#syll-count', deckId: 'x', kind: 'words', skill: 'syll-count', item: mouton }];
+        const pool = cards;
         for (const r of RNGS) for (const c of words.filter(w => w.item.final && w.skill === 'syll-count')) {
             const ex = generate({ ...c, skill: 'sound-final' }, { cards: pool, rng: () => r });
             for (const ch of ex.choices.filter(x => !x.correct)) {
                 const d = pool.find(w => w.kind === 'words' && w.item.id === ch.id).item;
                 assert.ok(!(d.final === null && NEAR[c.item.final]?.includes(d.rhyme)), `${c.item.id} @${r}: ${d.id}`);
+            }
+        }
+    });
+    test('generate_SyllMatch_NoWrongAnswerStartsWithTheSameSound', () => {
+        // chat (cha) starts like château and chameau: it must never be offered as a wrong answer to them.
+        let checked = 0;
+        for (const r of SEEDS) for (const c of cards.filter(c => c.skill === 'syll-match')) {
+            const ex = generate(c, { cards, rng: seededRng(r) });
+            for (const ch of ex.choices.filter(x => !x.correct)) {
+                const d = words.find(w => w.item.id === ch.id).item;
+                assert.notEqual(heard(d.syll[0]), heard(c.item.syll[0]), `${c.item.id} @${r}: ${d.id}`);
+            }
+            const t = words.find(w => w.item.id === ex.choices.find(x => x.correct).id).item;
+            assert.equal(heard(t.syll[0]), heard(c.item.syll[0]), `${c.item.id} @${r}: target ${t.id}`);
+            checked++;
+        }
+        assert.ok(cards.some(c => c.id === 'mots-gs/chateau#syll-match') && checked > 0);
+    });
+    test('generate_Rhyme_NoNearRhymeAsWrongAnswer', () => {
+        // ooo vs -on, aaa vs -an/-en, iii vs -in: an oral vowel and its nasal sound alike to a 5-year-old.
+        const near = { o: ['on'], on: ['o'], a: ['an', 'en'], an: ['a'], en: ['a'], i: ['in'], in: ['i'] };
+        for (const r of SEEDS) for (const c of cards.filter(c => c.skill === 'rhyme')) {
+            const ex = generate(c, { cards, rng: seededRng(r) });
+            for (const ch of ex.choices.filter(x => !x.correct)) {
+                const d = words.find(w => w.item.id === ch.id).item;
+                assert.ok(d.rhyme !== c.item.rhyme && !(near[c.item.rhyme] ?? []).includes(d.rhyme), `${c.item.id} @${r}: ${d.id}`);
             }
         }
     });

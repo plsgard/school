@@ -783,22 +783,6 @@
   "bitrate": "32k",
   "trim": true
  },
- "syl.nuage.1": {
-  "input": "nu",
-  "engine": "say",
-  "voice": "Thomas",
-  "rate": 150,
-  "bitrate": "32k",
-  "trim": true
- },
- "syl.nuage.2": {
-  "input": "age",
-  "engine": "say",
-  "voice": "Thomas",
-  "rate": 150,
-  "bitrate": "32k",
-  "trim": true
- },
  "syl.papillon.1": {
   "input": "pa",
   "engine": "say",
@@ -1001,6 +985,22 @@
  },
  "syl.su": {
   "input": "su",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.tambour.1": {
+  "input": "tam",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "syl.tambour.2": {
+  "input": "bour",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -7295,14 +7295,6 @@
   "bitrate": "32k",
   "trim": true
  },
- "ui.sound-final-ok.nuage": {
-  "input": "Oui ! Nuage finit par jjjjjjeu !",
-  "engine": "say",
-  "voice": "Thomas",
-  "rate": 150,
-  "bitrate": "32k",
-  "trim": true
- },
  "ui.sound-final-ok.robot": {
   "input": "Oui ! Robot finit par oooooo !",
   "engine": "say",
@@ -7321,6 +7313,14 @@
  },
  "ui.sound-final-ok.souris": {
   "input": "Oui ! Souris finit par iiiiii !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-final-ok.tambour": {
+  "input": "Oui ! Tambour finit par rrrrrreu !",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -7401,14 +7401,6 @@
  },
  "ui.sound-final.i": {
   "input": "Quel mot finit par iiiiii ?",
-  "engine": "say",
-  "voice": "Thomas",
-  "rate": 150,
-  "bitrate": "32k",
-  "trim": true
- },
- "ui.sound-final.j": {
-  "input": "Quel mot finit par jjjjjjeu ?",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -7553,14 +7545,6 @@
  },
  "ui.sound-letter-ok.n.nez": {
   "input": "Oui ! C'est la lettre enne, comme au début de nez !",
-  "engine": "say",
-  "voice": "Thomas",
-  "rate": 150,
-  "bitrate": "32k",
-  "trim": true
- },
- "ui.sound-letter-ok.n.nuage": {
-  "input": "Oui ! C'est la lettre enne, comme au début de nuage !",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -7769,14 +7753,6 @@
  },
  "ui.sound-letter.n.nez": {
   "input": "Nnnnnnez. Quelle lettre chante au début de nez ?",
-  "engine": "say",
-  "voice": "Thomas",
-  "rate": 150,
-  "bitrate": "32k",
-  "trim": true
- },
- "ui.sound-letter.n.nuage": {
-  "input": "Nnnnnnuage. Quelle lettre chante au début de nuage ?",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -8047,14 +8023,6 @@
   "bitrate": "32k",
   "trim": true
  },
- "ui.sound-pick-ok.nuage": {
-  "input": "Oui ! Nuage commence par nnnnnneu !",
-  "engine": "say",
-  "voice": "Thomas",
-  "rate": 150,
-  "bitrate": "32k",
-  "trim": true
- },
  "ui.sound-pick-ok.papillon": {
   "input": "Oui ! Papillon commence par le son peu !",
   "engine": "say",
@@ -8113,6 +8081,14 @@
  },
  "ui.sound-pick-ok.souris": {
   "input": "Oui ! Souris commence par sssssseu !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.sound-pick-ok.tambour": {
+  "input": "Oui ! Tambour commence par le son teu !",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -8431,14 +8407,6 @@
   "bitrate": "32k",
   "trim": true
  },
- "ui.syll-count-ok.nuage": {
-  "input": "Bravo ! Nu, age : deux syllabes.",
-  "engine": "say",
-  "voice": "Thomas",
-  "rate": 150,
-  "bitrate": "32k",
-  "trim": true
- },
  "ui.syll-count-ok.papillon": {
   "input": "Bravo ! Pa, pi, yon : trois syllabes.",
   "engine": "say",
@@ -8497,6 +8465,14 @@
  },
  "ui.syll-count-ok.souris": {
   "input": "Bravo ! Sou, ris : deux syllabes.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-count-ok.tambour": {
+  "input": "Bravo ! Tam, bour : deux syllabes.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -8703,14 +8679,6 @@
   "bitrate": "32k",
   "trim": true
  },
- "ui.syll-count.nuage": {
-  "input": "Frappe dans tes mains en disant nuage. Combien de syllabes ?",
-  "engine": "say",
-  "voice": "Thomas",
-  "rate": 150,
-  "bitrate": "32k",
-  "trim": true
- },
  "ui.syll-count.papillon": {
   "input": "Frappe dans tes mains en disant papillon. Combien de syllabes ?",
   "engine": "say",
@@ -8769,6 +8737,14 @@
  },
  "ui.syll-count.souris": {
   "input": "Frappe dans tes mains en disant souris. Combien de syllabes ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-count.tambour": {
+  "input": "Frappe dans tes mains en disant tambour. Combien de syllabes ?",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -8951,14 +8927,6 @@
   "bitrate": "32k",
   "trim": true
  },
- "ui.syll-initial-ok.nuage": {
-  "input": "Oui ! Nuage commence par nu !",
-  "engine": "say",
-  "voice": "Thomas",
-  "rate": 150,
-  "bitrate": "32k",
-  "trim": true
- },
  "ui.syll-initial-ok.papillon": {
   "input": "Oui ! Papillon commence par pa !",
   "engine": "say",
@@ -9017,6 +8985,14 @@
  },
  "ui.syll-initial-ok.souris": {
   "input": "Oui ! Souris commence par sou !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial-ok.tambour": {
+  "input": "Oui ! Tambour commence par tam !",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -9191,14 +9167,6 @@
   "bitrate": "32k",
   "trim": true
  },
- "ui.syll-initial.nuage": {
-  "input": "Écoute les syllabes. Par quelle syllabe commence nuage ?",
-  "engine": "say",
-  "voice": "Thomas",
-  "rate": 150,
-  "bitrate": "32k",
-  "trim": true
- },
  "ui.syll-initial.papillon": {
   "input": "Écoute les syllabes. Par quelle syllabe commence papillon ?",
   "engine": "say",
@@ -9257,6 +9225,14 @@
  },
  "ui.syll-initial.souris": {
   "input": "Écoute les syllabes. Par quelle syllabe commence souris ?",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-initial.tambour": {
+  "input": "Écoute les syllabes. Par quelle syllabe commence tambour ?",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -9351,6 +9327,14 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.syll-match-ok.chameau.chat": {
+  "input": "Oui ! Chameau et chat commencent pareil : cha !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.syll-match-ok.chameau.chateau": {
   "input": "Oui ! Chameau et château commencent pareil : cha !",
   "engine": "say",
@@ -9369,6 +9353,14 @@
  },
  "ui.syll-match-ok.chateau.chapeau": {
   "input": "Oui ! Château et chapeau commencent pareil : cha !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.syll-match-ok.chateau.chat": {
+  "input": "Oui ! Château et chat commencent pareil : cha !",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -10295,14 +10287,6 @@
   "bitrate": "32k",
   "trim": true
  },
- "word.nuage": {
-  "input": "nuage",
-  "engine": "say",
-  "voice": "Thomas",
-  "rate": 150,
-  "bitrate": "32k",
-  "trim": true
- },
  "word.papillon": {
   "input": "papillon",
   "engine": "say",
@@ -10361,6 +10345,14 @@
  },
  "word.souris": {
   "input": "souris",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "word.tambour": {
+  "input": "tambour",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,

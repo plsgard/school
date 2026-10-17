@@ -13,7 +13,7 @@
  { "id": "vache",   "text": "vache",   "emoji": "🐄", "syll": ["vache"],                                "initial": "v",  "rhyme": "ache", "final": "ch" },
  { "id": "bebe",    "text": "bébé",    "emoji": "👶", "syll": ["bé","bé"],                              "initial": "b",  "rhyme": "é",   "final": "é" },
  { "id": "nez",     "text": "nez",     "emoji": "👃", "syll": ["nez"],                                  "initial": "n",  "rhyme": "é",   "final": "é" },
- { "id": "nuage",   "text": "nuage",   "emoji": "☁️", "syll": ["nu","age"],                             "initial": "n",  "rhyme": "age", "final": "j" },
+ { "id": "tambour", "text": "tambour", "emoji": "🥁", "syll": ["tam","bour"],                           "initial": "t",  "rhyme": "our", "final": "r" },
  { "id": "tortue",  "text": "tortue",  "emoji": "🐢", "syll": ["tor","tue"],                            "initial": "t",  "rhyme": "u",   "final": "u" },
  { "id": "tomate",  "text": "tomate",  "emoji": "🍅", "syll": ["to","mate"],                            "initial": "t",  "rhyme": "ate", "final": "t" }
 ]}
