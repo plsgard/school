@@ -140,7 +140,7 @@ All keys live under the `school.v1.*` namespace and are read/written only throug
 | `school.v1.history.<profileId>.<quizId>` | `[{ score, totalQuestions, timerDuration, timeLeft, submittedAutomatically, date }]` | Math quizzes. Capped at 5 entries, newest first. Profile = `historyProfileId(profiles, activeId)`: the active profile only when its track is `'en'` (or no profiles exist yet), otherwise `'default'` — a math page opened after picking 🦊 keeps writing the older child's history. |
 | `school.v1.settings.<profileId>` | `{ sessionItems, parentMode, firstName, audio, voice, extraSessionOn? }` | Defaults `{ sessionItems: 6, parentMode: null, firstName: '', audio: 'clips', voice: '' }`, merged on read. `parentMode: null` = never set by a parent (automatic, see Child UX rules); `true`/`false` = explicit. `audio`: `'clips' \| 'device' \| 'silent'`. `voice`: preferred device voice name. `extraSessionOn`: local day (`YYYY-MM-DD`) on which a parent allowed one more session. `firstName` feeds the greeting and the name-spell card. |
 | `school.v1.srs.<profileId>.<trackId>` | `{ cards: { [cardId]: { box, due, seen, lapses } }, introduced: { [day]: [itemKey] } }` | Leitner state. `cardId = <deckId>/<itemId>#<skill>` (e.g. `letters/a#trace`, `mots-p1/lapin#syll-match`, `numbers/7#count`, `name/lea#name-spell`); `itemKey = <deckId>/<itemId>`. `due` and the `introduced` keys are local days. |
-| `school.v1.sessions.<profileId>.<trackId>` | `[{ date, items: [{ cardId, type, correctFirstTry, attempts, ms }], durationMs }]` | Last 14 completed sessions, newest first. `date` is an ISO timestamp; the pattern filler game has no `cardId`. Drives the daily cap and the parent corner's week summary. |
+| `school.v1.sessions.<profileId>.<trackId>` | `[{ date, items: [{ cardId, type, correctFirstTry, attempts, ms }], durationMs }]` | Last 14 completed sessions, newest first. `date` is an ISO timestamp; the pattern filler game stores `cardId: null`. Drives the daily cap and the parent corner's week summary. |
 | `school.v1.level.<profileId>.<quizId>` | number | Future — math difficulty progression. |
 | `school.v1.achievements.<profileId>` | `[{ id, unlockedAt }]` | Future — badges. |
 | `school.v1.theme` | string | Future — themes. |
@@ -238,6 +238,7 @@ flowchart LR
   NC --> STO & DK
   SPK -. fetch .-> CLIPS
   TC --> GEN & RND & CUE & SAY
+  GA --> DK
   GA -. writes .-> CLIPS
 ```
 
@@ -255,7 +256,8 @@ sequenceDiagram
   participant Prog as core/progress.js
 
   Kid->>App: tap ▶ Jouer
-  App->>Speech: unlock (clips.unlock() + empty utterance, inside the tap)
+  App->>Speech: clips.unlock() (inside the tap)
+  App->>App: empty speechSynthesis utterance (inside the tap)
   App->>Store: loadSrs(profileId, 'gs')
   App->>Comp: compose({ srs, cards, today, constraints: GS_CONSTRAINTS with items = sessionItems })
   Comp->>Comp: dueCards + pickNew + padding, arrange
@@ -315,22 +317,22 @@ stateDiagram-v2
   - soft: one easy card (box ≥ 3) in slot 0 or 1 when one exists.
 - **Padding:** review cards not yet due, highest box first (shuffled within a box) — box ≥ 4 first, lower boxes only when those run out; never new cards.
 - **Pattern top-up:** `app.js` appends `generatePattern()` exercises until the session has `sessionItems` items; they are not cards and are not recorded in the SRS.
-- Word cards: `syll-match` / `rhyme` exist only when another word of the same deck shares the first oral syllable / the rhyme; the first skill of a word rotates by deck index (`syll-count`, `sound-pick`, then `syll-match` / `rhyme`) so early sessions stay varied. Letters start with `letter-3scripts`; `sound-letter` needs a `sound`, `trace` a `trace` model, `blend` a continuant. Numbers: `count`, `compare`, `number-line` for n ≥ 1, `decompose` for n ≥ 2. The first name gives one `name-spell` card.
+- Word cards: `syll-match` / `rhyme` exist only when another word of the same deck shares the first oral syllable / the rhyme; the first skill of a word rotates by deck index (`syll-count`, `sound-pick`, then `syll-match` / `rhyme`) so early sessions stay varied. Letters start with `letter-3scripts`; `sound-letter` needs a `sound`, `trace` a `trace` model, `blend` a continuant with a `sound`. Numbers: `count`, `compare`, `number-line` for n ≥ 1, `decompose` for n ≥ 2. The first name gives one `name-spell` card.
 
 ### Audio
 
 Every spoken text is a **cue** `{ key, text, display? }`. **One key → one text** (`tools/cues.mjs` throws on a second text for a known key; tests enforce it), because a clip is recorded once per key. `display` is what the page shows when it differs from what is said (letters said by name, shown written; occlusives said "beu", shown « b »).
 
-- **Sources and fallback** (`createSpeech`, order `clips → device → silent`): the parent's choice (`settings.audio`) is the starting point and later sources are fallbacks. `clips` plays when the cue's key is in the manifest, else the device voice when a French voice exists, else silent. `device` falls back to silent. `silent` never speaks. Cues with no clip (first-name letters, the first-name success line) always fall through to the device voice.
+- **Sources and fallback** (`createSpeech`, order `clips → device → silent`): the parent's choice (`settings.audio`) is the starting point and later sources are fallbacks. `clips` plays when the cue's key is in the manifest, else the device voice when a French voice exists, else silent. `device` falls back to silent. `silent` never speaks. Cues with no clip (accented letters of the first name, the first-name success line) fall through to the device voice.
 - **Clip path:** `assets/audio/gs/<key with '.' replaced by '/'>.mp3` (`ui.blend.fa` → `assets/audio/gs/ui/blend/fa.mp3`); keys are ASCII. `manifest.json` (sorted key list) is fetched at page load; no manifest → device voice.
-- **Preload:** at session start, every clip the session can play (prompts, successes, reveals, choice and trace cues) is fetched once to warm the HTTP cache.
+- **Preload:** at session start, the session's exercise clips (prompts, successes, reveals, choice and trace cues) are fetched once to warm the HTTP cache.
 - **Timeout:** `speak()` always resolves — on end, error, or a deadline of `max(1500 ms, 110 ms × text length)`, plus 2.5 s for clips until their metadata arrives; once the clip duration is known the deadline is re-armed to the remaining duration + 1 s. On timeout the source is stopped first, so a late clip never plays over the next cue. A new `speak()` stops the current one: never two at once.
-- **Device voice:** Web Speech, `fr*` voices only (never the default English voice), ranked by a preference list (premium/enhanced first, novelty voices last) or the parent's choice; rate 0.85. Its text goes through `sayInput` (`assets/gs/say.js`) — the same transform `gen-audio.mjs` uses — so "fff" is a stretched sound, not three letter names.
+- **Device voice:** Web Speech, `fr*` voices only (never the default English voice), ranked by a preference list (premium/enhanced slightly favoured, other regions after fr-FR, novelty voices last) or the parent's choice; rate 0.85. Its text goes through `sayInput` (`assets/gs/say.js`) — the same transform `gen-audio.mjs` uses — so "fff" is a stretched sound, not three letter names.
 - **iOS unlock:** inside the ▶ Jouer tap, `clips.unlock()` plays a silent WAV on the single shared `Audio` element and an empty utterance primes `speechSynthesis`; the first real cue ("C'est parti !") is spoken in the same flow. The 🌙 tap unlocks the same way.
 
 ### Child UX rules
 
-- **The child cannot read.** Each prompt is spoken automatically 350 ms after the screen appears (🔊 pulses) and 🔊 replays it; any touch in the exercise cancels a pending autoplay. Long-press on a choice speaks it.
+- **The child cannot read.** Each prompt is spoken automatically 350 ms after the screen appears (🔊 pulses) and 🔊 replays it; any touch in the exercise cancels a pending autoplay. Long-press on a choice speaks it (tap, multitap and slots games); in blend (select) a tap speaks the syllable.
 - **Nothing advances while audio plays.** The renderer awaits the success (or reveal) cue, then 400 ms, then the next exercise.
 - **Two-miss rule:** the second miss reveals the answer — "Regarde." then the answer is said; never praised, recorded as wrong. In tap games a wrong choice shakes, then hides for 3 s.
 - **Trace:** a stroke too short to be scored (< 8 points, a stray tap) is not a miss and is dropped. Success = coverage ≥ 0.85, < 25 % of ink outside the corridor, first point near the green start dot; otherwise one hint ("Pars du point vert.", "Suis le chemin gris.", "Presque ! Reste dans le chemin."). The ink clears 1.2 s after a failed attempt; a lift under 0.9 s continues the same attempt. After two hinted misses the letter is said and a "Suivant ▶" button appears (no praise, canvas stays live). Pointer filter: once a Pencil is seen, finger/palm touches are ignored until 30 s without Pencil input; palm ink drawn before the Pencil landed is dropped.

@@ -45,7 +45,7 @@ Everything adult-facing hides behind a **long-press** (the button fills up while
 
 | Where | Hold | Opens |
 |---|---|---|
-| `gs.html` home | ⚙️ | "Coin des parents": first name, games per session (5–8), "Mode accompagné" (parent mode), audio source ("Clips enregistrés" / "Voix de l'appareil" / "Aucune voix (un adulte lit)") and device voice, today's session (one per day; "Autoriser une autre partie aujourd'hui" allows one more), Leitner boxes, decks, the week's results and words to watch |
+| `gs.html` home | ⚙️ | "Coin des parents": first name, games per session (5–8), "Mode accompagné" (parent mode), audio source ("Clips enregistrés" / "Voix de l'appareil" / "Aucune voix (un adulte lit)") and device voice, today's session (one per day; "Autoriser une autre partie aujourd'hui" allows one more), Leitner boxes, decks, the week's results and cards to watch (≥ 2 errors) |
 | `gs.html` home | 🦊 | back to the profile picker |
 | `index.html` | ✏️ | rename each child (one name per child: the card name and the game's first name stay in sync) |
 
@@ -57,14 +57,14 @@ During a session, 🏠 quits on a 0.8 s hold or two taps within 2 s; a single st
 
 ### Add a word deck (one per période)
 
-1. Create `assets/gs/decks/mots-p2.json` (copy `mots-p1.json`; the item below is one of its entries):
+1. Create `assets/gs/decks/mots-p2.json` (copy `mots-p1.json` and replace every item):
    ```json
    { "id": "mots-p2", "kind": "words", "label": "Mots · période 2", "items": [
-    { "id": "fusee", "text": "fusée", "emoji": "🚀", "syll": ["fu","zée"], "syllW": ["fu","sée"], "initial": "f", "rhyme": "é" }
+    { "id": "tortue", "text": "tortue", "emoji": "🐢", "syll": ["tor","tue"], "initial": "t", "rhyme": "u" }
    ]}
    ```
-   - `id`: ASCII, no accents (it is part of clip paths and card ids); `text`: the written word.
-   - `emoji`: must be **unambiguous for a 5-year-old** (no emoji that could be another word — no 🚿 for "lavabo"); unique in the deck, and never 🏠 🌙 ⭐ 🔊 (page controls). No good emoji → no word.
+   - `id`: ASCII, no accents, unique across all word decks (clip keys don't include the deck id); `text`: the written word.
+   - `emoji`: must be **unambiguous for a 5-year-old** (no emoji that could be another word — no 🚿 for "lavabo"); unique in the deck; distractors are drawn from every word deck; never 🏠 🌙 ⭐ 🔊 (page controls). No good emoji → no word.
    - `syll`: the **oral** syllables, as they are said (`fu, zée`, `pa, pi, yon`); they are spoken, so spell them for the voice. `syllW`: the **written** syllables, only when the written cut differs (`fu-sée`, `pa-pil-lon`); shown on screen.
    - `initial`: the first sound (`l`, `ch`, `b`…), which must also be how the word is **written** at the start: `sound-letter` stretches it in front of the rest of the spelling (`fffusée`), so a "cerise" with initial `s` would break. It drives `sound-pick` (the right answer is another word with the same initial when there is one) and, when the letter is a continuant of `letters.json`, the letter's `sound-letter` example words — new stretched clips to check by ear (below).
    - `rhyme`: the final sound (`in`, `o`, `on`…). A word gets a `rhyme` card only if another word of the deck shares its rhyme, and a `syll-match` card only if another shares its first oral syllable.
@@ -72,13 +72,13 @@ During a session, 🏠 quits on a 0.8 s hold or two taps within 2 s; a single st
 2. Register it in `DECK_FILES` in `assets/gs/decks/index.js` (deck order = teaching order).
 3. Record its clips: `node tools/gen-audio.mjs` (macOS `say` + `ffmpeg`; only new or changed cues are recorded — see [`tools/README.md`](tools/README.md)).
 4. `node --test`. `tests/audio-cues.test.mjs` fails if a cue the generators can emit has no clip in `manifest.json`, or if a clip is stale (recorded from an older text). `tests/decks.test.mjs` checks the shipped `mots-p1` deck only: extend it to the new deck.
-5. Commit the deck, `manifest.json`, `sources.json` and the new mp3 files together.
+5. Commit the deck, `assets/gs/decks/index.js`, the extended `tests/decks.test.mjs`, `manifest.json`, `sources.json` and the new mp3 files together.
 
 ### Clips to check by ear
 
-Stretched sounds ("fff", "chchch", "le son beu", "Colle les sons…") were recorded from adapted TTS input (`assets/gs/say.js`) and nobody has listened to them yet. These **145 clips** must be checked by ear; the voiced continuants (`j`, `z`, `v`, `l`, `m`, `n`, `r`) are the most at risk.
+Stretched sounds ("fff", "chchch", "le son beu", "Colle les sons…") and nobody has listened to them yet. These **145 clips** (137 recorded from adapted TTS input (`assets/gs/say.js`) plus 8 plain-TTS "le son beu/keu/peu" clips: `ui.sound-pick.{b,k,p}`, `ui.sound-pick-ok.{ballon,banane,bateau,kiwi,papillon}`) must be checked by ear; the voiced continuants (`j`, `z`, `v`, `l`, `m`, `n`, `r`) are the most at risk.
 
-**Re-record one as manual:** save the mp3 at `assets/audio/gs/<key with '.' replaced by '/'>.mp3` (mono, 32 kbps is enough; e.g. `ui.blend.fa` → `assets/audio/gs/ui/blend/fa.mp3`), then set its entry in `assets/audio/gs/sources.json` to `{ "manual": true, "text": "<the cue text it says>" }`. `gen-audio.mjs` never overwrites a manual clip (only `--only <key> --force` does) and reports it as `STALE` when the cue text changes.
+**Re-record one as manual:** save the mp3 at `assets/audio/gs/<key with '.' replaced by '/'>.mp3` (mono, 32 kbps is enough; e.g. `ui.blend.fa` → `assets/audio/gs/ui/blend/fa.mp3`), then set its entry in `assets/audio/gs/sources.json` to `{ "manual": true, "text": "<the cue text it says>" }`. The `text` must be byte-identical to the cue text, U+00A0 included: copy it exactly (the `STALE` message prints it). `gen-audio.mjs` never overwrites a manual clip (only `--only <key> --force` does) and reports it as `STALE` when the cue text changes.
 
 <details>
 <summary>The 145 keys</summary>

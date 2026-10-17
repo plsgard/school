@@ -53,4 +53,4 @@ A quiz page is a thin shell: standardised markup + a `<script type="module">` th
 - Math quizzes: settings validation uses `alert()` with kid-friendly copy. Wrong answers are flagged with `❌` (non-color cue) plus the `.wrong-answer` class; the success line uses `✅`. Don't list every question in the result — only the misses.
 - GS track: no score shown to the child (stars only); a revealed answer is never praised; nothing advances while audio plays; adult controls stay behind a long-press. Data text goes through `textContent`, never `innerHTML`.
 - Result/timer regions carry `role="status"` / `role="timer"` for screen readers; keep them when editing markup.
-- Tests follow `<Method>_<Condition>_<Expectation>` names, one `tests/<module>.test.mjs` per tested module.
+- Tests follow `<Method>_<Condition>_<Expectation>` names, mostly one test file per module. Running `node --test` from the main checkout also picks up `.claude/worktrees/*/tests`.

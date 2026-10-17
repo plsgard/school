@@ -42,7 +42,7 @@ silence is trimmed.
   row bring no new key (same for `generatePattern()`); this reaches every rng-dependent key (syll-match / rhyme /
   sound-pick pairs, the 45 decompose splits, the 17 compare pairs, the 45 blend syllables, the 9 pattern colours…);
 - fixed cues: `UI_CUES` (`assets/gs/renderers.js`) and `PAGE_CUES` (`assets/gs/cues.js`, used by `app.js` and `parent.js`);
-- the name-spell prompt; first-name cues (`ui.name-spell-ok.<name>`, letters of the name) stay device TTS.
+- the name-spell prompt; cues with no clip (accented letters of the first name, the first-name success line `ui.name-spell-ok.<name>`) fall through to the device voice.
 
 A key with two different texts throws. `tests/audio-cues.test.mjs` sweeps 300 other seeds and fails if any emitted
 key is missing from the cues or from `manifest.json`.
@@ -64,7 +64,7 @@ zero-crossing voiced/unvoiced profile of each clip, since nobody listened):
 
 ### Clips to re-record (human listening check)
 
-The spec wants stretched sounds as real recordings. These 145 clips were made from adapted TTS input and must be
+The spec wants stretched sounds as real recordings. These 145 clips (137 recorded from adapted TTS input plus 8 plain-TTS "le son beu/keu/peu" clips: `ui.sound-pick.{b,k,p}`, `ui.sound-pick-ok.{ballon,banane,bateau,kiwi,papillon}`) must be
 listened to; re-record the bad ones: save the mp3 at the same path (mono, 32 kbps is enough) and set its
 `sources.json` entry to `{ "manual": true, "text": "<the cue text it says>" }`, so a re-run never overwrites it
 (only `--only <key> --force` does):
