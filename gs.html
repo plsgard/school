@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Mon école à la maison</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Playwrite FR Trad: French school cursive with loops, as in the trace models (letter tiles). Andika: literacy print face (distinct I / l, round a). -->
+    <link href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Playwrite+FR+Trad:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/quiz.css">
+    <link rel="stylesheet" href="assets/gs/gs.css">
+</head>
+<body class="gs">
+    <main id="app" class="gs-app">
+        <section id="home" class="gs-screen">
+            <header class="gs-top">
+                <a class="gs-icon" href="index.html" aria-label="Changer de profil" id="avatar">🦊</a>
+                <span class="gs-pill">Aujourd'hui</span>
+                <a class="gs-icon" href="#parent" id="parentBtn" aria-label="Coin des parents">⚙️</a>
+            </header>
+            <h1 id="hello">Salut !</h1>
+            <div class="gs-hero" aria-hidden="true">🌟</div>
+            <div class="gs-today" id="today"></div>
+            <button type="button" class="gs-cta" id="play" aria-label="Jouer">▶ Jouer</button>
+        </section>
+        <section id="exercise" class="gs-screen visually-hidden">
+            <header class="gs-top">
+                <span class="gs-pill" id="counter"></span>
+                <button type="button" class="gs-icon" id="quit" aria-label="Arrêter">✖</button>
+            </header>
+            <div class="gs-progress" id="progress" aria-hidden="true"></div>
+            <div class="gs-consigne">
+                <button type="button" class="gs-speak" id="replay" aria-label="Répéter la consigne">🔊</button>
+                <span id="consigne"></span>
+            </div>
+            <div class="gs-stage" id="stage"></div>
+            <div class="gs-choices" id="choices"></div>
+            <div class="gs-feedback" id="feedback" role="status" aria-live="polite"></div>
+        </section>
+        <section id="done" class="gs-screen visually-hidden">
+            <h1 id="doneTitle">Bravo !</h1>
+            <div class="gs-hero" aria-hidden="true">🦊🎉</div>
+            <div class="gs-stars" id="stars"></div>
+            <p class="gs-muted" id="tomorrow"></p>
+            <a class="gs-cta" href="gs.html" aria-label="Retour à l'accueil">🏠 Retour</a>
+        </section>
+        <section id="parent" class="gs-screen visually-hidden"></section>
+    </main>
+    <div id="celebration" class="celebration visually-hidden"><div>Bravo !</div></div>
+    <div id="confetti" class="confetti"></div>
+    <script type="module" src="assets/gs/app.js"></script>
+</body>
+</html>

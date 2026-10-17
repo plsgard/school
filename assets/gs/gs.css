@@ -1,0 +1,86 @@
+/* Grande Section track. Bootstrap 5.3 handles the reset; this file owns tiles, trace box and the big CTAs.
+   Tap targets are >= 56 px everywhere; layout fits 390 px phones and iPad portrait. */
+.gs { background: #e9f2fb; color: #223252; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; overflow-x: hidden; }
+.gs-app { max-width: 620px; margin: 0 auto; min-height: 100dvh; display: flex; flex-direction: column; padding: 12px max(16px, env(safe-area-inset-left)) 20px max(16px, env(safe-area-inset-right)); box-sizing: border-box; }
+.gs-screen { display: flex; flex-direction: column; gap: 12px; flex: 1; min-width: 0; }
+.gs-screen.visually-hidden { display: none !important; }
+.gs-top { display: flex; justify-content: space-between; align-items: center; }
+.gs-icon { border: 0; background: #f4f8fd; width: 56px; height: 56px; border-radius: 50%; font-size: 24px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; color: inherit; touch-action: manipulation; }
+.gs-pill { color: #6b7a99; font-weight: 600; }
+.gs h1 { font-size: 30px; font-weight: 700; margin: 0; }
+.gs-hero { font-size: 84px; text-align: center; line-height: 1; }
+.gs-today { background: #f4f8fd; border-radius: 22px; padding: 14px 16px; display: grid; gap: 8px; }
+.gs-today div { display: flex; justify-content: space-between; gap: 8px; }
+.gs-cta { border: 0; background: #4cb944; color: #fff; font-size: 24px; font-weight: 700; border-radius: 999px; padding: 16px 28px; min-height: 56px; box-shadow: 0 6px 0 #2f8f2a; text-align: center; text-decoration: none; margin-top: auto; touch-action: manipulation; }
+.gs-cta:hover { color: #fff; }
+.gs-cta:active { transform: translateY(3px); box-shadow: 0 3px 0 #2f8f2a; }
+.gs-cta:disabled { opacity: .6; }
+.gs-cta.next { margin: 4px auto 0; display: block; min-width: 200px; }
+.gs-progress { display: flex; gap: 6px; } .gs-progress i { flex: 1; height: 8px; border-radius: 4px; background: #d7e2f0; } .gs-progress i.done { background: #4cb944; } .gs-progress i.now { background: #ffb703; }
+.gs-consigne { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 600; min-height: 56px; }
+.gs-speak { border: 0; background: #ffb703; color: #4a3400; width: 56px; height: 56px; border-radius: 50%; font-size: 26px; flex: none; box-shadow: 0 4px 0 #d79600; touch-action: manipulation; }
+.gs-speak.pulse { animation: gs-pulse 1.4s ease; }
+@keyframes gs-pulse { 30% { transform: scale(1.18); } 60% { transform: scale(1); } 80% { transform: scale(1.12); } }
+.gs-stage { text-align: center; font-size: 72px; line-height: 1.1; min-height: 60px; }
+.gs-stage:empty { display: none; }
+.gs-stage .gs-sound { font-family: Andika, system-ui, sans-serif; font-size: 64px; font-weight: 700; letter-spacing: 2px; }
+.gs-stage .tile { display: inline-flex; width: 64px; height: 64px; align-items: center; justify-content: center; background: #f4f8fd; border: 3px solid #d7e2f0; border-radius: 16px; font-size: 40px; margin: 0 6px; font-family: Andika, system-ui, sans-serif; }
+.gs-stage .plus { font-size: 40px; vertical-align: middle; }
+.gs-collection { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; font-size: 40px; padding: 12px; background: #f4f8fd; border-radius: 22px; border: 2px dashed #d7e2f0; }
+.gs-collection.scattered span { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); display: inline-block; }
+.gs-seq { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; font-size: 30px; }
+.gs-seq span { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: #f4f8fd; border-radius: 14px; border: 2px solid #d7e2f0; font-weight: 700; }
+.gs-seq span.blank { border: 3px dashed #ffb703; background: transparent; }
+.gs-choices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.gs-choices.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.gs-choices.six { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+.gs-choices.stack { display: flex; flex-direction: column; gap: 14px; }
+.gs-choice { font-family: Andika, system-ui, sans-serif; border: 3px solid #d7e2f0; background: #f4f8fd; border-radius: 22px; min-height: 56px; min-width: 56px; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 52px; font-weight: 700; color: inherit; touch-action: manipulation; padding: 4px; line-height: 1.25; overflow: hidden;
+    -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+.gs-choice:disabled { opacity: 1; color: inherit; }
+.gs-choice.digit { font-size: 32px; aspect-ratio: auto; height: 64px; border-radius: 16px; }
+/* Three letter scripts, as taught in French GS: capitals (bâton), script (round print), cursive (attachée). */
+.gs-choice.cap { font-family: Andika, system-ui, sans-serif; } /* Andika capital I has bars: never mistaken for l */
+.gs-choice.script { font-family: Andika, "Century Gothic", system-ui, sans-serif; font-weight: 400; }
+.gs-choice.cursive { font-family: "Playwrite FR Trad", cursive; font-weight: 400; font-size: 48px; line-height: 1; padding: 0 0 .5em; }
+/* Playwrite ink runs from 1.43em above the baseline (l, b, f) to 0.93em below (f, g, y): the .5em bottom padding
+   centres that 2.36em ink box in the tile, and the sizes keep 2.36em inside the smallest tile. */
+.gs-choice.ok { border-color: #4cb944; background: #e6f6e3; }
+.gs-choice.ko { border-color: #ef6f6c; background: #fde8e7; animation: gs-shake .35s; }
+.gs-choice.hint { border-color: #ffb703; animation: gs-pulse 1.4s ease infinite; }
+@keyframes gs-shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+.gs-choice .coll { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; font-size: 26px; line-height: 1.1; }
+.gs-dots { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.gs-dot { width: 56px; height: 56px; border-radius: 50%; border: 3px solid #d7e2f0; background: #f4f8fd; touch-action: manipulation; padding: 0; }
+.gs-dot.on { background: #ffb703; border-color: #d79600; }
+.gs-dot.fixed { cursor: default; }
+.gs-ok-btn { margin: 4px auto 0; display: block; min-width: 120px; }
+.gs-slots { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+.gs-slots span { width: 56px; height: 56px; border: 3px dashed #d7e2f0; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 700; }
+.gs-slots span.filled { border-style: solid; border-color: #4cb944; background: #e6f6e3; }
+.gs-trace { position: relative; background: #fff; border: 3px solid #d7e2f0; border-radius: 22px; overflow: hidden; touch-action: none; aspect-ratio: 1; width: 100%; max-width: 460px; margin: 0 auto; }
+.gs-trace canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; }
+.gs-trace-bar { display: flex; justify-content: center; }
+.gs-feedback { text-align: center; font-weight: 600; font-size: 20px; min-height: 28px; color: #6b7a99; }
+.gs-muted { color: #6b7a99; text-align: center; }
+.gs-stars { font-size: 34px; text-align: center; letter-spacing: 2px; }
+body.gs.silent .gs-speak { display: none; }
+body.gs.silent .gs-consigne { background: #f4f8fd; border-radius: 14px; padding: 10px 12px; }
+body.gs.silent .gs-consigne span::before { content: "👩‍🏫 À lire :"; display: block; color: #6b7a99; font-size: 14px; }
+/* Phones: six digits drop to two rows of three so every tile stays well above 56 px. */
+@media (max-width: 430px) {
+    .gs-app { padding-left: max(12px, env(safe-area-inset-left)); padding-right: max(12px, env(safe-area-inset-right)); }
+    .gs-choices.six { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .gs-seq { gap: 4px; font-size: 24px; }
+    .gs-seq span { width: 32px; height: 40px; border-radius: 10px; }
+    .gs-choice.cursive { font-size: min(42px, 10.5vw); }
+}
+/* iPad portrait: a bit more room for everything. */
+@media (min-width: 700px) {
+    .gs-consigne { font-size: 26px; }
+    .gs-choice { font-size: 64px; }
+    .gs-choice.cursive { font-size: 68px; }
+    .gs-choice.digit { font-size: 38px; height: 80px; }
+    .gs-seq span { width: 52px; height: 52px; }
+}
+@media (prefers-reduced-motion: reduce) { .gs-choice.ko, .gs-choice.hint, .gs-speak.pulse { animation: none; } }
