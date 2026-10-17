@@ -1,14 +1,33 @@
 // assets/gs/generators.js
 // Pure: card → exercise. Distractors follow the Repères CP trap lists (visual/phonetic confusables).
+// Every cue key maps to exactly one text (Task 13 records one clip per key); spoken texts are
+// lowercase except sentence starts (TTS spells uppercase runs).
 
 const VOWELS = ['a', 'e', 'i', 'o', 'u'];
 const DOTS = { 1: '●', 2: '● ●', 3: '● ● ●' };
 const EMOJI_SETS = ['🍎', '🐞', '⭐', '🐟', '🎈', '🌼'];
+const NUM_WORDS = ['zéro', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf', 'dix'];
+// Close phonemes (spec §2.2): voiced/unvoiced pairs and nasals, used as distractor traps.
+const CLOSE_PHONEMES = { f: 'v', v: 'f', s: 'z', z: 's', ch: 'j', j: 'ch', m: 'n', n: 'm', p: 'b', b: 'p', t: 'd', d: 't', k: 'g', g: 'k' };
+const CLOSE_LETTERS = { f: 'v', v: 'f', s: 'z', z: 's', m: 'n', n: 'm', l: 'r', r: 'l' };
+// Digits a child confuses by shape: always shown together when one of them is the answer.
+const MIRROR_DIGITS = { 6: 9, 9: 6, 1: 7, 7: 1 };
+const PATTERN_NAMES = { '🔴': 'rouge', '🔵': 'bleu', '🟢': 'vert', '🟡': 'jaune', '⭐': 'étoile', '🌙': 'lune', '🟣': 'violet', '🟠': 'orange', '⚫': 'noir' };
 
 const shuffle = (arr, rng) => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const pick = (arr, rng) => arr[Math.floor(rng() * arr.length)];
 const cue = (key, text) => ({ key, text });
+const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 const itemsOf = (cards, kind) => { const seen = new Map(); for (const c of cards) if (c.kind === kind) seen.set(c.item.id, c.item); return [...seen.values()]; };
+const numSay = (cards, k) => itemsOf(cards, 'numbers').find(x => x.n === k)?.say ?? NUM_WORDS[k];
+const numCue = (cards, k) => cue(`num.${k}`, numSay(cards, k));
+
+// R15: only continuants (and vowels) are stretched; occlusives are said short.
+export function phoneme(id, letters = []) {
+    const stretched = VOWELS.includes(id) || id === 'ch' || Boolean(letters.find(x => x.id === id)?.continuant);
+    return { text: stretched ? id.repeat(3) : id, stretched };
+}
+const soundPhrase = (ph) => (ph.stretched ? ph.text : `le son ${ph.text}`);
 
 function wordChoice(w, correct) {
     return { id: w.id, label: w.text, emoji: w.emoji, say: cue(`word.${w.id}`, w.text), correct };
@@ -24,14 +43,26 @@ function pickDistinct(pool, n, rng, used = new Set()) {
     return out;
 }
 
+// Two distractors from `pool`: one trap (matching `isTrap`) when available, the other random.
+function pickWithTrap(pool, isTrap, rng, used) {
+    const trap = pickDistinct(pool.filter(isTrap), 1, rng, used);
+    return [...trap, ...pickDistinct(pool, 2 - trap.length, rng, used)];
+}
+
+function letterCue(ch, letters) {
+    const base = ch.normalize('NFD').replace(/\p{M}/gu, '');
+    const l = base === ch ? letters.find(x => x.id === ch) : null;
+    return l ? cue(`letter.${l.id}.name`, l.name) : cue(`letter.${ch}.name`, ch);
+}
+
 const GEN = {
-    'syll-count'(card, { rng }) {
+    'syll-count'(card, { cards }) {
         const w = card.item, n = Math.min(w.syll.length, 3);
         return {
-            layout: 'tap', prompt: cue(`ui.syll-count.${w.id}`, `Frappe dans tes mains : ${w.syll.join('-')}. Combien de syllabes dans ${w.text} ?`),
+            layout: 'tap', prompt: cue(`ui.syll-count.${w.id}`, `Frappe dans tes mains en disant ${w.text}. Combien de syllabes ?`),
             stage: { emoji: w.emoji, text: w.text },
-            choices: [1, 2, 3].map(k => ({ id: String(k), label: DOTS[k], say: cue(`num.${k}`, String(k)), correct: k === n })),
-            success: cue(`ui.syll-count-ok.${w.id}`, `Bravo ! ${w.syll.join(' – ').toUpperCase()}, ${n === 1 ? 'une syllabe' : n + ' syllabes'}.`),
+            choices: [1, 2, 3].map(k => ({ id: String(k), label: DOTS[k], say: numCue(cards, k), correct: k === n })),
+            success: cue(`ui.syll-count-ok.${w.id}`, `Bravo ! ${w.syll.join(', ')} : ${n === 1 ? 'une syllabe' : `${numSay(cards, n)} syllabes`}.`),
         };
     },
     'syll-match'(card, { cards, rng }) {
@@ -39,12 +70,12 @@ const GEN = {
         const same = words.filter(x => x.syll[0] === w.syll[0]);
         const target = same.length ? pick(same, rng) : pick(words, rng);
         const used = new Set([target.emoji, target.id, w.emoji, w.id]);
-        const distractors = pickDistinct(words.filter(x => x.syll[0] !== w.syll[0]), 2, rng, used);
+        const distractors = pickWithTrap(words.filter(x => x.syll[0] !== w.syll[0]), x => x.rhyme === w.rhyme, rng, used);
         return {
             layout: 'tap', prompt: cue(`ui.syll-match.${w.id}`, `Écoute bien. Quel mot commence comme ${w.syll.join('-')} ?`),
             stage: { emoji: w.emoji, text: w.text },
             choices: shuffle([wordChoice(target, true), ...distractors.map(d => wordChoice(d, false))], rng),
-            success: cue(`ui.syll-match-ok.${w.id}.${target.id}`, `Oui ! ${w.syll[0].toUpperCase()}-${w.syll.slice(1).join('')}, ${target.syll[0].toUpperCase()}-${target.syll.slice(1).join('')} !`),
+            success: cue(`ui.syll-match-ok.${w.id}.${target.id}`, `Oui ! ${capitalize(w.text)} et ${target.text} commencent pareil : ${w.syll[0]} !`),
         };
     },
     'rhyme'(card, { cards, rng }) {
@@ -57,7 +88,7 @@ const GEN = {
             layout: 'tap', prompt: cue(`ui.rhyme.${w.id}`, `Qu'est-ce qui rime avec ${w.text} ?`),
             stage: { emoji: w.emoji, text: w.text },
             choices: shuffle([wordChoice(target, true), ...distractors.map(d => wordChoice(d, false))], rng),
-            success: cue(`ui.rhyme-ok.${w.id}.${target.id}`, `Oui ! ${w.text}, ${target.text}, ça rime !`),
+            success: cue(`ui.rhyme-ok.${w.id}.${target.id}`, `Oui ! ${capitalize(w.text)}, ${target.text}, ça rime !`),
         };
     },
     'sound-pick'(card, { cards, rng }) {
@@ -65,27 +96,37 @@ const GEN = {
         const same = words.filter(x => x.id !== w.id && x.initial === w.initial);
         const target = same.length ? pick(same, rng) : w;
         const used = new Set([target.emoji, target.id]);
-        const distractors = pickDistinct(words.filter(x => x.initial !== w.initial), 2, rng, used);
-        const stretched = w.initial.length === 1 ? w.initial.repeat(3) : w.initial;
+        const close = CLOSE_PHONEMES[w.initial];
+        const distractors = pickWithTrap(words.filter(x => x.initial !== w.initial), x => x.initial === close, rng, used);
+        const ph = phoneme(w.initial, itemsOf(cards, 'letters'));
         return {
-            layout: 'tap', prompt: cue(`ui.sound-pick.${w.initial}`, `Quel mot commence par ${stretched} ?`),
-            stage: { text: stretched },
+            layout: 'tap', prompt: cue(`ui.sound-pick.${w.initial}`, `Quel mot commence par ${soundPhrase(ph)} ?`),
+            stage: { text: ph.text },
             choices: shuffle([wordChoice(target, true), ...distractors.map(d => wordChoice(d, false))], rng),
-            success: cue(`ui.sound-pick-ok.${target.id}`, `Oui ! ${stretched}, ${target.text} !`),
+            success: cue(`ui.sound-pick-ok.${target.id}`, `Oui ! ${capitalize(target.text)} commence par ${soundPhrase(ph)} !`),
         };
     },
     'sound-letter'(card, { cards, rng }) {
         const l = card.item, letters = itemsOf(cards, 'letters');
+        const ph = phoneme(l.id, letters);
         const words = itemsOf(cards, 'words').filter(w => w.initial === l.id);
         const w = words.length ? pick(words, rng) : null;
-        const conf = letters.find(x => x.id === l.confusables[0]) ?? pick(letters.filter(x => x.id !== l.id), rng);
-        const other = pick(letters.filter(x => x.id !== l.id && x.id !== conf.id && x.sound), rng);
+        // Never offer a letter that makes the same sound: it would be a second correct answer.
+        const candidates = letters.filter(x => x.id !== l.id && x.sound !== l.sound);
+        const conf = l.confusables.map(id => candidates.find(x => x.id === id)).find(Boolean) ?? pick(candidates, rng);
+        const rest = candidates.filter(x => x.id !== conf.id);
+        const other = rest.find(x => x.id === CLOSE_LETTERS[l.id]) ?? pick(rest.filter(x => x.continuant && x.sound), rng);
         const letterChoice = (x, correct) => ({ id: x.id, label: x.script, say: cue(`letter.${x.id}.name`, x.name), correct });
         return {
-            layout: 'tap', prompt: cue(w ? `ui.sound-letter.${l.id}.${w.id}` : `ui.sound-letter.${l.id}`, w ? `${l.sound.repeat(3)}${w.text.slice(1)}. Quelle lettre chante au début de ${w.text} ?` : `Quelle lettre fait le son ${l.sound.repeat(3)} ?`),
-            stage: w ? { emoji: w.emoji, text: w.text } : { text: l.sound.repeat(3) },
+            layout: 'tap',
+            prompt: w
+                ? cue(`ui.sound-letter.${l.id}.${w.id}`, `${ph.text}${w.text.slice(w.initial.length)}. Quelle lettre chante au début de ${w.text} ?`)
+                : cue(`ui.sound-letter.${l.id}`, `Quelle lettre fait le son ${ph.text} ?`),
+            stage: w ? { emoji: w.emoji, text: w.text } : { text: ph.text },
             choices: shuffle([letterChoice(l, true), letterChoice(conf, false), letterChoice(other, false)], rng),
-            success: cue(w ? `ui.sound-letter-ok.${l.id}.${w.id}` : `ui.sound-letter-ok.${l.id}`, `Oui, ${l.name} comme ${w ? w.text : l.sound.repeat(3)} !`),
+            success: w
+                ? cue(`ui.sound-letter-ok.${l.id}.${w.id}`, `Oui ! C'est la lettre ${l.name}, comme au début de ${w.text} !`)
+                : cue(`ui.sound-letter-ok.${l.id}`, `Oui ! La lettre ${l.name} fait ${ph.text} !`),
         };
     },
     'letter-3scripts'(card, { cards, rng }) {
@@ -101,61 +142,72 @@ const GEN = {
         return {
             layout: 'multitap', prompt: cue(`ui.letter-3scripts.${l.id}`, `Trouve toutes les lettres ${l.name}. Il y en a trois.`),
             choices: shuffle(choices, rng),
-            success: cue(`ui.letter-3scripts-ok.${l.id}`, `Bravo, les trois ${l.name} !`),
+            success: cue(`ui.letter-3scripts-ok.${l.id}`, `Bravo, tu as trouvé les trois lettres ${l.name} !`),
         };
     },
-    'blend'(card, { rng }) {
+    'blend'(card, { cards, rng }) {
         const l = card.item;
-        const v = pick(VOWELS, rng);
+        const c = phoneme(l.id, itemsOf(cards, 'letters')).text;
+        const v = pick(VOWELS, rng), vv = phoneme(v).text;
         const others = shuffle(VOWELS.filter(x => x !== v), rng).slice(0, 1);
-        const confC = pick(['s', 'v', 'f', 'r', 'l', 'm', 'n', 'j', 'z'].filter(c => c !== l.id), rng);
+        const confC = pick(['s', 'v', 'f', 'r', 'l', 'm', 'n', 'j', 'z'].filter(x => x !== l.id), rng);
         const choices = shuffle([
             { id: `${l.id}${v}`, label: `${l.id}${v}`, say: cue(`syl.${l.id}${v}`, `${l.id}${v}`), correct: true },
             { id: `${l.id}${others[0]}`, label: `${l.id}${others[0]}`, say: cue(`syl.${l.id}${others[0]}`, `${l.id}${others[0]}`), correct: false },
             { id: `${confC}${v}`, label: `${confC}${v}`, say: cue(`syl.${confC}${v}`, `${confC}${v}`), correct: false },
         ], rng);
         return {
-            layout: 'tap', prompt: cue(`ui.blend.${l.id}${v}`, `Colle les sons : ${l.sound.repeat(3)}… ${v.repeat(3)}… Qu'est-ce que ça fait ?`),
+            layout: 'tap', prompt: cue(`ui.blend.${l.id}${v}`, `Colle les sons : ${c}… ${vv}… Qu'est-ce que ça fait ?`),
             stage: { html: `<span class="tile">${l.id}</span><span class="plus">+</span><span class="tile">${v}</span>` },
             choices,
-            success: cue(`ui.blend-ok.${l.id}${v}`, `Oui ! ${l.sound.repeat(3)} et ${v.repeat(3)}, ça fait ${l.id}${v} !`),
+            success: cue(`ui.blend-ok.${l.id}${v}`, `Oui ! ${c} et ${vv}, ça fait ${l.id}${v} !`),
         };
     },
     'trace'(card) {
         const it = card.item;
         return {
             layout: 'trace',
-            prompt: cue(`ui.trace.${it.id}`, `Trace le ${it.name}. Pars du point vert.`),
+            prompt: cue(`ui.trace.${it.id}`, `Trace la lettre ${it.name}. Pars du point vert.`),
             trace: { pts: it.trace, dot: it.dot, bar: it.bar, label: it.cursive, say: cue(`letter.${it.id}.name`, it.name) },
-            success: cue(`ui.trace-ok.${it.id}`, `Super ${it.name} !`),
+            success: cue(`ui.trace-ok.${it.id}`, `Bravo, tu as bien tracé la lettre ${it.name} !`),
         };
     },
-    'name-spell'(card, { rng }) {
-        const name = card.item.text.toUpperCase();
-        const letters = [...name];
+    'name-spell'(card, { cards, rng }) {
+        const letters = itemsOf(cards, 'letters');
+        const chars = (card.item.text.match(/\p{L}/gu) ?? []).map(ch => ch.toLowerCase());
+        const says = chars.map(ch => letterCue(ch, letters));
+        // An all-caps first name would be spelled out by TTS: say it in title case.
+        const spoken = /\p{Lu}\p{Lu}/u.test(card.item.text) ? card.item.text.toLowerCase().replace(/(^|[\s-])(\p{L})/gu, (_, sep, ch) => sep + ch.toUpperCase()) : card.item.text;
         return {
             layout: 'slots', prompt: cue('ui.name-spell', 'Remets les lettres de ton prénom dans l\'ordre.'),
-            answer: name,
-            choices: shuffle(letters.map((ch, i) => ({ id: `${ch}${i}`, label: ch, say: cue(`letter.${ch.toLowerCase()}.name`, ch), correct: true })), rng),
-            success: cue('ui.name-spell-ok', `${letters.join(', ')} : ${card.item.text} !`),
+            answer: chars.join('').toUpperCase(),
+            choices: shuffle(chars.map((ch, i) => ({ id: `${ch.toUpperCase()}${i}`, label: ch.toUpperCase(), say: says[i], correct: true })), rng),
+            success: cue(`ui.name-spell-ok.${card.item.id}`, `${says.map(s => s.text).join(', ')} : ${spoken} !`),
         };
     },
-    'count'(card, { rng }) {
+    'count'(card, { cards, rng }) {
         const n = card.item.n, emoji = pick(EMOJI_SETS, rng);
-        const lo = Math.max(0, Math.min(n - 2, 5)), digits = Array.from({ length: 6 }, (_, i) => lo + i);
+        const lo = Math.max(0, Math.min(n - 2, 5));
+        let digits = Array.from({ length: 6 }, (_, i) => lo + i);
+        const mirror = MIRROR_DIGITS[n];
+        if (mirror !== undefined && !digits.includes(mirror)) {
+            const far = digits.filter(d => d !== n).reduce((a, b) => (Math.abs(b - n) > Math.abs(a - n) ? b : a));
+            digits = digits.map(d => (d === far ? mirror : d)).sort((a, b) => a - b);
+        }
         return {
-            layout: 'tap', prompt: cue('ui.count', `Combien y en a-t-il ?`),
+            layout: 'tap', prompt: cue('ui.count', 'Combien y en a-t-il ?'),
             stage: { collection: Array(n).fill(emoji), scattered: rng() < 0.5 },
-            choices: digits.map(d => ({ id: String(d), label: String(d), say: cue(`num.${d}`, String(d)), correct: d === n, style: 'digit' })),
-            success: cue(`ui.count-ok.${n}`, `${card.item.say} ! ${n}.`),
+            choices: digits.map(d => ({ id: String(d), label: String(d), say: numCue(cards, d), correct: d === n, style: 'digit' })),
+            success: cue(`ui.count-ok.${n}`, `Oui, il y en a ${numSay(cards, n)} !`),
         };
     },
-    'decompose'(card, { rng }) {
+    'decompose'(card, { cards, rng }) {
         const n = card.item.n, lit = 1 + Math.floor(rng() * (n - 1));
+        const say = (k) => numSay(cards, k);
         return {
-            layout: 'dots', prompt: cue(`ui.decompose.${n}.${lit}`, `${card.item.say}, c'est ${lit} et encore combien ? Allume les ronds.`),
+            layout: 'dots', prompt: cue(`ui.decompose.${n}.${lit}`, `${capitalize(say(n))}, c'est ${say(lit)} et encore combien ? Allume les ronds.`),
             target: n, lit, total: Math.max(n + 1, 6),
-            success: cue(`ui.decompose-ok.${n}.${lit}`, `Oui ! ${card.item.say}, c'est ${lit} et ${n - lit}.`),
+            success: cue(`ui.decompose-ok.${n}.${lit}`, `Oui ! ${capitalize(say(n))}, c'est ${say(lit)} et ${say(n - lit)}.`),
         };
     },
     'compare'(card, { cards, rng }) {
@@ -164,23 +216,26 @@ const GEN = {
         const close = others.filter(x => Math.abs(x.n - n) <= 2);
         const o = pick(close.length ? close : others, rng);
         const emoji = pick(EMOJI_SETS, rng);
-        const mk = (x) => ({ id: String(x.n), label: String(x.n), collection: Array(x.n).fill(emoji), say: cue(`num.${x.n}`, x.say), correct: x.n === Math.max(n, o.n) });
+        const hi = Math.max(n, o.n), lo = Math.min(n, o.n);
+        const mk = (x) => ({ id: String(x.n), label: String(x.n), collection: Array(x.n).fill(emoji), say: numCue(cards, x.n), correct: x.n === hi });
         return {
-            layout: 'tap', prompt: cue('ui.compare', 'Où y a-t-il le plus ?'),
+            layout: 'tap', prompt: cue('ui.compare', 'Où y en a-t-il le plus ?'),
             stage: { showCollections: true },
             choices: shuffle([mk(card.item), mk(o)], rng),
-            success: cue(`ui.compare-ok.${Math.max(n, o.n)}.${Math.min(n, o.n)}`, `Oui, ${Math.max(n, o.n)}, c'est plus que ${Math.min(n, o.n)} !`),
+            success: cue(`ui.compare-ok.${hi}.${lo}`, `Oui, ${numSay(cards, hi)}, c'est plus que ${numSay(cards, lo)} !`),
         };
     },
-    'number-line'(card, { rng }) {
+    'number-line'(card, { cards, rng }) {
         const n = card.item.n;
         const line = Array.from({ length: 10 }, (_, i) => i + 1).map(k => (k === n ? '?' : String(k)));
         const wrong = shuffle([n - 1, n + 1, n + 2, n - 2].filter(k => k >= 1 && k <= 10 && k !== n), rng).slice(0, 2);
         return {
             layout: 'tap', prompt: cue('ui.number-line', 'Quel nombre manque sur la ligne ?'),
             stage: { sequence: line },
-            choices: shuffle([n, ...wrong].map(k => ({ id: String(k), label: String(k), say: cue(`num.${k}`, String(k)), correct: k === n, style: 'digit' })), rng),
-            success: cue(`ui.number-line-ok.${n}`, `Oui, ${card.item.say} vient après ${n - 1} !`),
+            choices: shuffle([n, ...wrong].map(k => ({ id: String(k), label: String(k), say: numCue(cards, k), correct: k === n, style: 'digit' })), rng),
+            success: cue(`ui.number-line-ok.${n}`, n >= 2
+                ? `Oui, c'est ${numSay(cards, n)} ! Il vient juste après ${numSay(cards, n - 1)}.`
+                : `Oui, c'est ${numSay(cards, n)} ! Il vient juste avant ${numSay(cards, n + 1)}.`),
         };
     },
 };
@@ -196,11 +251,11 @@ export function generatePattern(rng = Math.random) {
     const motif = pick([[0, 1, 1], [0, 1], [0, 0, 1]], rng);
     const seq = Array.from({ length: 7 }, (_, i) => pair[motif[i % motif.length]]);
     const answer = seq.pop();
-    const third = pick(['🟣', '🟠', '🤍'].filter(e => !pair.includes(e)), rng);
+    const third = pick(['🟣', '🟠', '⚫'].filter(e => !pair.includes(e)), rng);
     return {
         type: 'pattern', cardId: null, layout: 'tap', prompt: cue('ui.pattern', 'Regarde bien. Qu\'est-ce qui vient après ?'),
         stage: { sequence: [...seq, '?'] },
-        choices: shuffle([pair[0], pair[1], third].map(e => ({ id: e, label: e, emoji: e, say: cue('ui.this-one', 'celui-là'), correct: e === answer })), rng),
+        choices: shuffle([pair[0], pair[1], third].map(e => ({ id: e, label: e, emoji: e, say: cue(`ui.pattern-choice.${PATTERN_NAMES[e]}`, PATTERN_NAMES[e]), correct: e === answer })), rng),
         success: cue('ui.pattern-ok', 'Bravo, tu as trouvé le motif !'),
     };
 }

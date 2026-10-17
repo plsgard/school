@@ -26,7 +26,8 @@ function skillsFor(kind, item, deck) {
             hasPartner(deck, item, x => x.rhyme) ? 'rhyme' : null,
         ].filter(Boolean);
         case 'numbers': return [
-            'count', 'compare',
+            item.n >= 1 ? 'count' : null, // an empty collection to count is confusing
+            'compare',
             item.n >= 2 ? 'decompose' : null,
             item.n >= 1 ? 'number-line' : null,
         ].filter(Boolean);
@@ -45,8 +46,9 @@ export function expandCards(decks, { firstName = '' } = {}) {
         }
     }
     const name = firstName.trim();
-    if (name) {
-        const item = { id: name.toLowerCase(), text: name };
+    const id = (name.match(/\p{L}/gu) ?? []).join('').toLowerCase(); // hyphens, spaces, symbols are not tiles
+    if (id) {
+        const item = { id, text: name };
         const deck = { id: 'name', kind: 'name', label: 'Prénom', items: [item] };
         for (const skill of skillsFor('name', item, deck)) {
             cards.push({ id: `name/${item.id}#${skill}`, deckId: 'name', kind: 'name', skill, item, deck });
