@@ -76,8 +76,12 @@ export function migrateLegacyHistory() {
 // ---- Profiles, settings, spaced repetition, sessions (learning tracks) ----
 
 const SESSIONS_LIMIT = 14;
+// Practice rounds have their own key: `sessions` (14 entries) drives the daily cap, and unlimited rounds stored there
+// would evict today's daily session and give ▶ Jouer back.
+const PRACTICE_LIMIT = 30;
 // parentMode: null = never set by a parent (auto: on when the device has no French voice, spec §9).
-const DEFAULT_SETTINGS = { sessionItems: 6, parentMode: null, firstName: '', audio: 'clips', voice: '' };
+// practiceItems: games per themed practice round (6–10, clamped by gs/rules.js practiceItems()).
+const DEFAULT_SETTINGS = { sessionItems: 6, practiceItems: 6, parentMode: null, firstName: '', audio: 'clips', voice: '' };
 
 export function loadProfiles() {
     return readJSON(`${NS}.profiles`, []);
@@ -118,6 +122,19 @@ export function appendSession(profileId, trackId, session) {
     const all = readJSON(key, []);
     all.unshift(session);
     if (all.length > SESSIONS_LIMIT) all.length = SESSIONS_LIMIT;
+    writeJSON(key, all);
+    return all;
+}
+
+export function loadPractice(profileId, trackId) {
+    return readJSON(`${NS}.practice.${profileId}.${trackId}`, []);
+}
+
+export function appendPractice(profileId, trackId, round) {
+    const key = `${NS}.practice.${profileId}.${trackId}`;
+    const all = readJSON(key, []);
+    all.unshift(round);
+    if (all.length > PRACTICE_LIMIT) all.length = PRACTICE_LIMIT;
     writeJSON(key, all);
     return all;
 }

@@ -24,7 +24,7 @@ describe('profiles', () => {
 
 describe('settings', () => {
     test('loadSettings_WhenEmpty_ReturnsDefaults', () => {
-        assert.deepEqual(s.loadSettings('lou'), { sessionItems: 6, parentMode: null, firstName: '', audio: 'clips', voice: '' });
+        assert.deepEqual(s.loadSettings('lou'), { sessionItems: 6, practiceItems: 6, parentMode: null, firstName: '', audio: 'clips', voice: '' });
     });
     test('saveSettings_MergesOverDefaults', () => {
         s.saveSettings('lou', { firstName: 'Lou' });
@@ -51,6 +51,28 @@ describe('sessions', () => {
         const all = s.loadSessions('lou', 'gs');
         assert.equal(all.length, 14);
         assert.equal(all[0].date, 'd15');
+    });
+});
+
+describe('practice', () => {
+    test('loadPractice_WhenEmpty_ReturnsEmptyArray', () => {
+        assert.deepEqual(s.loadPractice('lou', 'gs'), []);
+    });
+    test('appendPractice_KeepsNewestFirstAndCapsAt30', () => {
+        for (let i = 0; i < 32; i++) s.appendPractice('lou', 'gs', { date: `d${i}`, theme: 'sons', items: [] });
+        const all = s.loadPractice('lou', 'gs');
+        assert.equal(all.length, 30);
+        assert.equal(all[0].date, 'd31');
+    });
+    test('appendPractice_Always_LeavesDailySessionsUntouched', () => {
+        s.appendSession('lou', 'gs', { date: 'today', items: [] });
+        for (let i = 0; i < 20; i++) s.appendPractice('lou', 'gs', { date: `p${i}`, theme: 'nombres', items: [] });
+        assert.deepEqual(s.loadSessions('lou', 'gs').map(x => x.date), ['today']);
+    });
+    test('appendPractice_UsesExplicitProfileNotActiveOne', () => {
+        s.setActiveProfileId('tom');
+        s.appendPractice('lou', 'gs', { date: 'd', theme: 'sons', items: [] });
+        assert.deepEqual(s.loadPractice('tom', 'gs'), []);
     });
 });
 
