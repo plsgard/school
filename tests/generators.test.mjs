@@ -3,7 +3,7 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { expandCards } from '../assets/gs/decks/index.js';
-import { generate, generatePattern, phoneme } from '../assets/gs/generators.js';
+import { generate, generatePattern, phoneme, heard } from '../assets/gs/generators.js';
 
 const load = async (n) => JSON.parse(await readFile(new URL(`../assets/gs/decks/${n}.json`, import.meta.url), 'utf8'));
 const decks = [await load('letters'), await load('numbers'), await load('mots-p1')];
@@ -498,7 +498,7 @@ describe('generate sound-final / syll-initial', () => {
         assert.equal(ok.label, 'la');
         assert.equal(ok.say.key, 'syl.lapin.1');
         assert.ok(ex.choices.some(c => c.say.key === 'syl.lapin.2'), 'own last syllable as a trap');
-        assert.equal(ex.prompt.text, 'Par quelle syllabe commence lapin ?');
+        assert.equal(ex.prompt.text, 'Écoute les syllabes. Par quelle syllabe commence lapin ?');
         assert.equal(ex.success.text, 'Oui ! Lapin commence par la !');
         assert.equal(ex.success.display, 'Oui ! Lapin commence par « la » !');
         assert.ok(ex.choices.every(c => c.style === 'syll'));
@@ -506,7 +506,9 @@ describe('generate sound-final / syll-initial', () => {
     test('generate_SyllInitial_WrittenLabelOralVoice', () => {
         const ex = generate(as('mots-p1/fusee#syll-count', 'syll-initial'), { cards, rng });
         const own2 = ex.choices.find(c => c.say.key === 'syl.fusee.2');
-        if (own2) { assert.equal(own2.label, 'sée'); assert.equal(own2.say.text, 'zée'); }
+        assert.ok(own2, 'own last syllable offered');
+        assert.equal(own2.label, 'sée');
+        assert.equal(own2.say.text, 'zée');
     });
     test('generate_SyllInitial_OralSyllablesAreDistinct', () => {
         for (const r of RNGS) for (const c of words.filter(w => w.item.syll.length >= 2 && w.skill === 'syll-count')) {
@@ -521,6 +523,29 @@ describe('generate sound-final / syll-initial', () => {
             const said = generate({ ...c, skill: 'syll-initial' }, { cards, rng: () => r }).choices.map(x => x.say.text);
             for (const [a, b] of same) assert.ok(!(said.includes(a) && said.includes(b)), `${c.item.id}: ${said}`);
         }
+    });
+    test('generate_SoundFinal_NoNullFinalDistractorThatSoundsNear', () => {
+        // ooo vs ballon (-on), aaa vs -an, nnn vs -on/-in: a nasal ending sounds close to the asked sound.
+        const NEAR = { o: ['on'], a: ['an', 'en'], n: ['on', 'in', 'an', 'en', 'oin'], m: ['on', 'in', 'an', 'en'] };
+        const mouton = { id: 'xmouton', text: 'mouton', emoji: '🐑', syll: ['mou', 'ton'], initial: 'm', rhyme: 'on', final: null };
+        const pool = [...cards, { id: 'x/xmouton#syll-count', deckId: 'x', kind: 'words', skill: 'syll-count', item: mouton }];
+        for (const r of RNGS) for (const c of words.filter(w => w.item.final && w.skill === 'syll-count')) {
+            const ex = generate({ ...c, skill: 'sound-final' }, { cards: pool, rng: () => r });
+            for (const ch of ex.choices.filter(x => !x.correct)) {
+                const d = pool.find(w => w.kind === 'words' && w.item.id === ch.id).item;
+                assert.ok(!(d.final === null && NEAR[c.item.final]?.includes(d.rhyme)), `${c.item.id} @${r}: ${d.id}`);
+            }
+        }
+    });
+    test('heard_SameSoundPairs_Equal', () => {
+        const same = [['cha', 'chat'], ['teau', 'to'], ['peau', 'po'], ['ri', 'ris'], ['zée', 'zé'], ['gâ', 'ga'], ['tô', 'to'],
+            ['nez', 'né'], ['ler', 'lé'], ['mai', 'mè'], ['sei', 'sè'], ['ce', 'se'], ['ci', 'si'], ['ge', 'je'], ['gi', 'ji'],
+            ['ca', 'ka'], ['phin', 'fin'], ['quin', 'kin'], ['bot', 'bo'], ['châ', 'cha']];
+        for (const [a, b] of same) assert.equal(heard(a), heard(b), `${a} / ${b}`);
+    });
+    test('heard_DifferentSoundPairs_Differ', () => {
+        const differ = [['lade', 'la'], ['la', 'lo'], ['ga', 'ja'], ['ce', 'ke'], ['mé', 'mè'], ['four', 'fou'], ['cha', 'ka'], ['gue', 'je'], ['mate', 'ma']];
+        for (const [a, b] of differ) assert.notEqual(heard(a), heard(b), `${a} / ${b}`);
     });
     test('phoneme_EAcute_StretchedVowel', () => {
         assert.deepEqual(phoneme('é'), { display: 'ééé', spoken: 'ééé', stretched: true });
@@ -550,10 +575,14 @@ describe('generate dice / before-after / add', () => {
         for (const r of RNGS) assert.ok(generate(num(6, 'dice'), { cards, rng: () => r }).choices.some(c => c.label === '9'));
     });
     test('generate_Count_RefactoredDigitsUnchanged', () => {
-        // golden values from the pre-refactor generator, n = 0..10 at rng 0.42
+        // golden labels from the pre-refactor generator at rng 0.42 (mirror traps: 1 → 7, 7 → 1, 6 → 9, 9 → 6)
+        const golden = {
+            1: '0 1 2 3 4 7', 2: '0 1 2 3 4 5', 3: '1 2 3 4 5 6', 4: '2 3 4 5 6 7', 5: '3 4 5 6 7 8',
+            6: '4 5 6 7 8 9', 7: '1 5 6 7 8 9', 8: '5 6 7 8 9 10', 9: '5 6 7 8 9 10', 10: '5 6 7 8 9 10',
+        };
         for (let n = 1; n <= 10; n++) {
             const ex = generate(byId(`numbers/${n}#count`), { cards, rng });
-            assert.equal(ex.choices.length, 6);
+            assert.equal(ex.choices.map(c => c.label).join(' '), golden[n], `n=${n}`);
             assert.ok(ex.choices.some(c => c.correct && c.label === String(n)));
         }
     });

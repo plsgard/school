@@ -11,6 +11,8 @@ const VOWELS = ['a', 'e', 'i', 'o', 'u'];
 const STRETCH_VOWELS = [...VOWELS, 'é'];
 // Clip keys are ASCII: the phoneme id inside a key.
 const phKey = (id) => (id === 'é' ? 'eacute' : id);
+// sound-final: endings with no final sound (nasal vowels) that a child hears as close to the asked final sound.
+const NEAR_FINAL = { o: ['on'], a: ['an', 'en'], n: ['on', 'in', 'an', 'en', 'oin'], m: ['on', 'in', 'an', 'en'] };
 const DOTS = { 1: '●', 2: '● ●', 3: '● ● ●' };
 // Objects to count/compare, always named in the cues (the child must know WHAT to count), with their French
 // gender and plural. id = ASCII clip key. No 🎈: it is the word "ballon" of the word deck.
@@ -71,8 +73,12 @@ const soundPhrase = (ph) => (ph.stretched ? ph.spoken : `le son ${ph.spoken}`);
 const soundPhraseW = (ph) => (ph.stretched ? ph.display : `le son «\u00a0${ph.display}\u00a0»`); // shown: the letter, not « beu »
 
 // What an oral syllable sounds like, so two tiles never sound the same to a child who only hears them:
-// chat = cha, teau = to, ris = ri, zée = zé (mute final consonant, eau/au, final e), but lade ≠ la.
-const heard = (s) => s.toLowerCase().replace(/e?au/g, 'o').replace(/ée/g, 'é').replace(/ph/g, 'f').replace(/qu/g, 'k')
+// chat = cha, teau = to, ris = ri, zée = zé, nez = né, mai = mè, gâ = ga, ce = se, ge = je; but lade ≠ la, mé ≠ mè.
+export const heard = (s) => s.toLowerCase()
+    .replace(/e?au/g, 'o').replace(/ée/g, 'é').replace(/(?:ez|er)$/, 'é').replace(/ai|ei|ê/g, 'è')
+    .replace(/[âàôîïûù]/g, (ch) => ch.normalize('NFD')[0])
+    .replace(/ph/g, 'f').replace(/qu/g, 'k').replace(/gu(?=[eiéè])/g, 'g§')
+    .replace(/c(?=[eiéèy])/g, 's').replace(/c(?!h)/g, 'k').replace(/g(?=[eiéèy])/g, 'j').replace(/g§/g, 'g')
     .replace(/(?<=[aeiouéè])[tsdxzp]+$/u, '').replace(/(?<=[^aeiouéè])e$/u, '');
 
 function wordChoice(w, correct) {
@@ -174,7 +180,9 @@ const GEN = {
         const target = same.length ? pick(same, rng) : w;
         const used = new Set([target.emoji, target.id]);
         // Trap (Repères CP ex. 17/18): a word that STARTS with the sound asked at the end.
-        const distractors = pickWithTrap(words.filter(x => x.final !== w.final), x => x.initial === w.final, rng, used);
+        // A nasal ending (final null) sounds close to o / a / n / m: ballon is no fair "not ooo".
+        const far = (x) => x.final !== w.final && !(x.final === null && NEAR_FINAL[w.final]?.includes(x.rhyme));
+        const distractors = pickWithTrap(words.filter(far), x => x.initial === w.final, rng, used);
         const ph = phoneme(w.final, itemsOf(cards, 'letters'));
         return {
             layout: 'tap',
@@ -200,7 +208,8 @@ const GEN = {
         for (const x of [...others.filter(x => x.initial === w.initial), ...others]) add(x, 0);
         return {
             layout: 'select',
-            prompt: cue(`ui.syll-initial.${w.id}`, `Par quelle syllabe commence ${w.text} ?`),
+            // Listen first: the tiles are written, a non-reader taps each one to hear it.
+            prompt: cue(`ui.syll-initial.${w.id}`, `Écoute les syllabes. Par quelle syllabe commence ${w.text} ?`),
             stage: { emoji: w.emoji, text: w.text },
             choices: shuffle(out, rng),
             success: cue(`ui.syll-initial-ok.${w.id}`, `Oui ! ${w.text} commence par ${w.syll[0]} !`,
