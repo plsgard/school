@@ -12,9 +12,9 @@ describe('expandCards', () => {
         const a = expandCards(decks, { firstName: '' }).filter(c => c.id.startsWith('letters/l#')).map(c => c.skill).sort();
         assert.deepEqual(a, ['blend', 'letter-3scripts', 'sound-letter', 'trace']);
     });
-    test('expandCards_OcclusiveWithoutTrace_HasOnlyThreeScripts', () => {
+    test('expandCards_OcclusiveLetter_HasThreeScriptsAndTrace', () => {
         const p = expandCards(decks, { firstName: '' }).filter(c => c.id.startsWith('letters/p#')).map(c => c.skill);
-        assert.deepEqual(p, ['letter-3scripts']);
+        assert.deepEqual(p, ['letter-3scripts', 'trace']);
     });
     test('expandCards_NumberZero_HasNoCards', () => {
         const z = expandCards(decks, { firstName: '' }).filter(c => c.id.startsWith('numbers/0#'));

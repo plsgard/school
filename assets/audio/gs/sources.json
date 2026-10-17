@@ -5463,6 +5463,30 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.trace-ok.b": {
+  "input": "Bravo, tu as bien tracé la lettre bé !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-ok.c": {
+  "input": "Bravo, tu as bien tracé la lettre cé !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-ok.d": {
+  "input": "Bravo, tu as bien tracé la lettre dé !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.trace-ok.e": {
   "input": "Bravo, tu as bien tracé la lettre e !",
   "engine": "say",
@@ -5471,8 +5495,48 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.trace-ok.f": {
+  "input": "Bravo, tu as bien tracé la lettre effe !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-ok.g": {
+  "input": "Bravo, tu as bien tracé la lettre gé !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-ok.h": {
+  "input": "Bravo, tu as bien tracé la lettre ache !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.trace-ok.i": {
   "input": "Bravo, tu as bien tracé la lettre i !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-ok.j": {
+  "input": "Bravo, tu as bien tracé la lettre ji !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-ok.k": {
+  "input": "Bravo, tu as bien tracé la lettre ka !",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -5511,6 +5575,30 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.trace-ok.p": {
+  "input": "Bravo, tu as bien tracé la lettre pé !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-ok.q": {
+  "input": "Bravo, tu as bien tracé la lettre ku !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-ok.r": {
+  "input": "Bravo, tu as bien tracé la lettre erre !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.trace-ok.s": {
   "input": "Bravo, tu as bien tracé la lettre esse !",
   "engine": "say",
@@ -5535,8 +5623,72 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.trace-ok.v": {
+  "input": "Bravo, tu as bien tracé la lettre vé !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-ok.w": {
+  "input": "Bravo, tu as bien tracé la lettre double vé !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-ok.x": {
+  "input": "Bravo, tu as bien tracé la lettre ixe !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-ok.y": {
+  "input": "Bravo, tu as bien tracé la lettre i grec !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-ok.z": {
+  "input": "Bravo, tu as bien tracé la lettre zède !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.trace.a": {
   "input": "Trace la lettre a. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace.b": {
+  "input": "Trace la lettre bé. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace.c": {
+  "input": "Trace la lettre cé. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace.d": {
+  "input": "Trace la lettre dé. Pars du point vert.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -5551,8 +5703,48 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.trace.f": {
+  "input": "Trace la lettre effe. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace.g": {
+  "input": "Trace la lettre gé. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace.h": {
+  "input": "Trace la lettre ache. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.trace.i": {
   "input": "Trace la lettre i. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace.j": {
+  "input": "Trace la lettre ji. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace.k": {
+  "input": "Trace la lettre ka. Pars du point vert.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,
@@ -5591,6 +5783,30 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.trace.p": {
+  "input": "Trace la lettre pé. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace.q": {
+  "input": "Trace la lettre ku. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace.r": {
+  "input": "Trace la lettre erre. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.trace.s": {
   "input": "Trace la lettre esse. Pars du point vert.",
   "engine": "say",
@@ -5609,6 +5825,46 @@
  },
  "ui.trace.u": {
   "input": "Trace la lettre u. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace.v": {
+  "input": "Trace la lettre vé. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace.w": {
+  "input": "Trace la lettre double vé. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace.x": {
+  "input": "Trace la lettre ixe. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace.y": {
+  "input": "Trace la lettre i grec. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace.z": {
+  "input": "Trace la lettre zède. Pars du point vert.",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,

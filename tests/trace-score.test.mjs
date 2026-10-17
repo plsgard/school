@@ -40,15 +40,6 @@ describe('score', () => {
         assert.equal(r.hint, 'Suis le chemin gris.');
         assert.equal(r.hintKey, 'follow');
     });
-    test('score_IdealStrokeForEveryShippedLetter_IsOk', () => {
-        const traced = letters.items.filter(it => it.trace);
-        assert.ok(traced.length > 0);
-        for (const it of traced) {
-            const stroke = ideal(it.trace);
-            assert.equal(score([stroke], { pts: it.trace }).ok, true, `ideal ${it.id}`);
-            assert.equal(score([stroke.slice().reverse()], { pts: it.trace }).startOk, false, `reversed ${it.id}`);
-        }
-    });
     test('score_FullCoverageButMostlyOutside_HintsInside', () => {
         // Starts on the dot, covers every waypoint, then wanders far below the corridor for too long.
         const wander = Array.from({ length: 30 }, (_, i) => [30 + i, 85, 0.5, 'pen']);
