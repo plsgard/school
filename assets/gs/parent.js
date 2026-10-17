@@ -6,6 +6,7 @@ import { saveSettings, loadSrs, loadSessions } from '../storage.js';
 import { boxCounts, GS_PROFILE } from '../core/scheduler.js';
 import { cardLabel, extraSessionState } from './rules.js';
 import { setFirstName } from '../profiles.js';
+import { PAGE_CUES } from './cues.js';
 
 const NBSP = ' ';
 const WEEK_MS = 7 * 864e5;
@@ -94,7 +95,7 @@ export function mountParent(root, { profileId, settings, cards, device, speech, 
         return h('div', { class: 'form-check' }, input, h('label', { class: 'form-check-label', for: `audio-${value}` }, label));
     });
     const test = h('button', { type: 'button', class: 'btn btn-warning rounded-pill mt-2 align-self-start', id: 'testVoice' }, '🔊 Tester');
-    test.addEventListener('click', () => speech.speak({ key: 'ui.test', text: `Bonjour${NBSP}! Quel mot commence comme lapin${NBSP}?` }));
+    test.addEventListener('click', () => speech.speak(PAGE_CUES.test));
 
     const audioCard = card('Source audio', ...radios,
         h('label', { class: 'form-label w-100 mt-2', for: 'voice' }, 'Voix de l\'appareil'),

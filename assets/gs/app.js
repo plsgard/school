@@ -8,6 +8,7 @@ import { celebrate } from '../celebration.js';
 import { loadDecks, expandCards } from './decks/index.js';
 import { generate, generatePattern } from './generators.js';
 import { renderExercise, disposeExercise } from './renderers.js';
+import { PAGE_CUES } from './cues.js';
 import { mountParent } from './parent.js';
 import { localDay, dailyCapReached, effectiveParentMode } from './rules.js';
 import { displayName, prefillFirstName } from '../profiles.js';
@@ -19,10 +20,8 @@ const $ = (id) => document.getElementById(id);
 const show = (id) => { for (const s of document.querySelectorAll('.gs-screen')) s.hidden = s.id !== id; };
 const NBSP = '\u00a0'; // French typography: non-breaking space before ! ? :
 
-// Fixed UI cues spoken by the page (one text per key; Task 13 records them).
-const CUE_LETS_GO = { key: 'ui.lets-go', text: 'C\'est parti !' };
-const CUE_TOMORROW = { key: 'ui.come-back-tomorrow', text: 'Tu as déjà joué aujourd\'hui. À demain\u00a0!' };
-const CUE_DONE = { key: 'ui.done', text: 'Bravo ! Tu as fini pour aujourd\'hui.' };
+// Fixed UI cues spoken by the page live in cues.js (pure, so tools/cues.mjs can record them).
+const { letsGo: CUE_LETS_GO, comeBackTomorrow: CUE_TOMORROW, done: CUE_DONE } = PAGE_CUES;
 
 const profileId = getActiveProfileId();
 const stored = loadProfiles().find(p => p.id === profileId);
