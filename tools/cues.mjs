@@ -62,22 +62,5 @@ export function collectCues(cards, { min = 200, stall = 400 } = {}) {
     return cues;
 }
 
-// Text handed to the TTS engine for a cue (the cue text itself stays what the page shows and the device voice says).
-// macOS `say` spells repeated consonants as letter names ("fff" → "effe effe effe") and expands "za"/"zi" as
-// abbreviations (zone artisanale / industrielle). Measured on Thomas (tools/README.md): a consonant run followed by
-// a schwa ("ffffffeu") or by the rest of its word ("ffffffusée") is spoken as one stretched sound, and a doubled
-// vowel run stays one long vowel. These clips still need a human listening check (README: "Clips to re-record").
-const STRETCH = 6;
-const stretch = (unit, n) => unit + unit.toLowerCase().repeat(n - 1); // keeps a sentence-initial capital
-function sayWord(word) {
-    const m = /^((?:ch){3}|(\p{L})\2\2)(\p{L}*)$/iu.exec(word);
-    if (m) {
-        const unit = m[2] ?? m[1].slice(0, 2), rest = m[3];
-        if (/^[aeiou]$/i.test(unit)) return stretch(unit, STRETCH) + rest; // "aaa" → one long vowel
-        return stretch(unit, STRETCH) + (rest || 'eu'); // "fff" → "ffffffeu"; "fffusée" → "ffffffusée"
-    }
-    return /^z[ai]$/i.test(word) ? `${word}h` : word; // "za"/"zi" alone are read as abbreviations
-}
-export function sayInput(text) {
-    return text.replace(/\p{L}+/gu, sayWord);
-}
+// sayInput lives in assets/gs/say.js: the device voice applies the same transform at runtime (I2).
+export { sayInput } from '../assets/gs/say.js';

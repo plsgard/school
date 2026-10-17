@@ -27,7 +27,7 @@ const voice = args.voice ?? (engine === 'say' ? 'Thomas' : 'coral');
 const rate = Number(args.rate ?? 150); // words per minute (say only): slower than the 175 default, for a 5-year-old
 // 32 kbps mono 22 kHz: the full track at 64 kbps weighed ~11 MB (572 clips, ~23 min of speech).
 const bitrate = String(args.bitrate ?? '32k');
-const jobs = Number.isInteger(Number(args.jobs)) && Number(args.jobs) >= 1 ? Number(args.jobs) : 6;
+const jobs = args.jobs !== true && Number.isInteger(Number(args.jobs)) && Number(args.jobs) >= 1 ? Number(args.jobs) : 6; // bare --jobs → 6
 const only = typeof args.only === 'string' ? new Set(args.only.split(',')) : null;
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
@@ -80,14 +80,18 @@ for (const [key, text] of cues) {
 }
 let done = 0;
 try {
-    await Promise.all(Array.from({ length: jobs }, async () => {
-        while (todo.length) {
+    // allSettled: a failing worker must not let the cleanup below delete tmp/ while the others still record into it.
+    let failed = false;
+    const results = await Promise.allSettled(Array.from({ length: jobs }, async () => {
+        while (todo.length && !failed) {
             const [key, r] = todo.shift();
-            await record(key, r);
+            try { await record(key, r); } catch (err) { failed = true; throw err; }
             sources[key] = r;
             console.log(`[${++done}] ${key}`);
         }
     }));
+    const firstError = results.find(x => x.status === 'rejected');
+    if (firstError) throw firstError.reason;
 } finally {
     await rm(tmp, { recursive: true, force: true });
     await writeSources(); // keep the recipes of the clips recorded before a failure

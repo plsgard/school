@@ -49,7 +49,8 @@ key is missing from the cues or from `manifest.json`.
 
 ### Stretched sounds: what `say` is given (`sayInput`)
 
-The cue text stays what the page shows; only the text sent to `say` is adapted. Measured on Thomas (duration and a
+`sayInput` lives in `assets/gs/say.js`: the device voice (`createDeviceSource({ transform: sayInput })`) speaks the
+same adapted text at runtime. The cue text stays what the page shows; only the text sent to the engine is adapted. Measured on Thomas (duration and a
 zero-crossing voiced/unvoiced profile of each clip, since nobody listened):
 
 | Cue text | `say` reads it as | Sent instead |
