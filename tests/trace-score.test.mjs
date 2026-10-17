@@ -49,6 +49,16 @@ describe('score', () => {
             assert.equal(score([stroke.slice().reverse()], { pts: it.trace }).startOk, false, `reversed ${it.id}`);
         }
     });
+    test('score_FullCoverageButMostlyOutside_HintsInside', () => {
+        // Starts on the dot, covers every waypoint, then wanders far below the corridor for too long.
+        const wander = Array.from({ length: 30 }, (_, i) => [30 + i, 85, 0.5, 'pen']);
+        const r = score([[...along()[0], ...wander]], model);
+        assert.equal(r.startOk, true);
+        assert.equal(r.coverage, 1);
+        assert.ok(r.outside >= 0.25);
+        assert.equal(r.hintKey, 'inside');
+        assert.equal(r.hint, 'Presque ! Reste dans le chemin');
+    });
     test('score_TooFewPoints_IsNotOkWithoutHint', () => {
         const r = score([[[20, 50, 0.5, 'pen']]], model);
         assert.equal(r.ok, false);
@@ -65,5 +75,16 @@ describe('createPointerFilter', () => {
         f.accept('pen');
         assert.equal(f.accept('touch'), false);
         assert.equal(f.accept('pen'), true);
+    });
+    test('accept_PenAfterTouch_IsAcceptedAndLocksOutLaterTouch', () => {
+        const f = createPointerFilter();
+        assert.equal(f.accept('touch'), true);
+        assert.equal(f.accept('pen'), true);
+        assert.equal(f.accept('touch'), false);
+    });
+    test('accept_MouseAfterPen_IsAccepted', () => {
+        const f = createPointerFilter();
+        f.accept('pen');
+        assert.equal(f.accept('mouse'), true);
     });
 });
