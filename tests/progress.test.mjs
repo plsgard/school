@@ -4,7 +4,8 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { expandCards, DECK_FILES } from '../assets/gs/decks/index.js';
 import { compose, GS_CONSTRAINTS } from '../assets/core/session.js';
-import { recordResult } from '../assets/core/progress.js';
+import { recordResult, recordPractice } from '../assets/core/progress.js';
+import { record } from '../assets/core/scheduler.js';
 
 const decks = await Promise.all(DECK_FILES.map(async n => JSON.parse(await readFile(new URL(`../assets/gs/decks/${n}.json`, import.meta.url), 'utf8'))));
 const cards = expandCards(decks, { firstName: '' });
@@ -53,5 +54,30 @@ describe('recordResult', () => {
         assert.equal(Object.keys(first.srs.cards).length, 1);
         const { slots } = compose({ srs: first.srs, cards, today: day, constraints: GS_CONSTRAINTS, rng: () => 0.3 });
         assert.equal(slots.length, 6);
+    });
+});
+
+describe('recordPractice', () => {
+    const later = '2026-10-20';
+    const known = (box, due) => ({ cards: { 'letters/a#trace': { box, due, seen: 3, lapses: 0 } }, introduced: {} });
+    test('recordPractice_NotDueAndRight_ReturnsSameState', () => {
+        const srs = known(3, later);
+        assert.equal(recordPractice(srs, 'letters/a#trace', true, day), srs);
+    });
+    test('recordPractice_NotDueAndWrong_DemotesLikeTheDailySession', () => {
+        const srs = known(4, later);
+        const next = recordPractice(srs, 'letters/a#trace', false, day);
+        assert.deepEqual(next, record(srs, 'letters/a#trace', false, day));
+        assert.equal(next.cards['letters/a#trace'].box, 2);
+        assert.equal(next.cards['letters/a#trace'].lapses, 1);
+    });
+    test('recordPractice_DueCard_RecordsLikeRecordResult', () => {
+        const srs = known(2, day);
+        assert.deepEqual(recordPractice(srs, 'letters/a#trace', true, day), recordResult(srs, 'letters/a#trace', true, day));
+    });
+    test('recordPractice_NewCard_IntroducesItsItemToday', () => {
+        const next = recordPractice(fresh(), 'mots-p1/lapin#syll-count', true, day);
+        assert.deepEqual(next.introduced[day], ['mots-p1/lapin']);
+        assert.equal(next.cards['mots-p1/lapin#syll-count'].box, 2);
     });
 });

@@ -157,3 +157,81 @@ export function compose({ srs, cards, today, rng = Math.random, constraints = GS
     const usedIntroduced = introduced.filter(key => slots.some(s => itemKey(s.id) === key));
     return { slots, introduced: usedIntroduced };
 }
+
+// Themed practice rounds (as many as the child wants). Track-agnostic: the theme is the injected `include(card)`.
+// `cards` must be ALL cards: new-card eligibility (staging, unlocks, the per-kind daily budget, introduced[today])
+// is the daily session's, computed on the full set — a themed subset would see a half-known item as fresh.
+export const GS_PRACTICE = {
+    items: 6,
+    maxNew: 1,      // at most one new card per round, inside the shared daily budget
+    maxRepeat: 2,   // a known card appears at most twice in a round, never in adjacent slots
+    weakBox: 2,     // a not-due card is weak when box <= weakBox or lapses >= weakLapses
+    weakLapses: 2,
+    newPerDay: GS_CONSTRAINTS.newPerDay,
+    specialSlotSkill: GS_CONSTRAINTS.specialSlotSkill, // pickNew's trace co-introduction, as in the daily session
+};
+
+// Greedy order: an easy card first (never a new one when anything else exists), then never the same card twice in a
+// row and, when possible, not the same skill. Stops if only copies of the previous card are left.
+function orderRound(list, boxOf, isNew) {
+    const left = list.slice();
+    const out = [];
+    while (left.length) {
+        const prev = out[out.length - 1];
+        let i;
+        if (!prev) {
+            i = left.findIndex(c => boxOf(c) >= EASY_BOX);
+            if (i < 0) i = left.findIndex(c => !isNew(c));
+            if (i < 0) i = 0;
+        } else {
+            i = left.findIndex(c => c.id !== prev.id && c.skill !== prev.skill);
+            if (i < 0) i = left.findIndex(c => c.id !== prev.id);
+        }
+        if (i < 0) break;
+        out.push(left.splice(i, 1)[0]);
+    }
+    return out;
+}
+
+export function composePractice({ srs, cards, today, include = () => true, rng = Math.random, constraints = GS_PRACTICE, recent = [] }) {
+    const n = constraints.items;
+    const themed = cards.filter(include);
+    if (!themed.length || n <= 0) return { slots: [], preview: [] };
+    const st = (c) => srs.cards[c.id];
+    const known = themed.filter(st);
+    const due = known.filter(c => st(c).due <= today)
+        .sort((a, b) => st(a).box - st(b).box || st(a).due.localeCompare(st(b).due));
+    const notDue = known.filter(c => st(c).due > today);
+    const isWeak = (c) => st(c).box <= constraints.weakBox || (st(c).lapses ?? 0) >= constraints.weakLapses;
+    const weak = notDue.filter(isWeak).sort((a, b) => st(a).box - st(b).box
+        || (st(b).lapses ?? 0) - (st(a).lapses ?? 0) || st(a).due.localeCompare(st(b).due));
+    const head = shuffle(weak.slice(0, 2 * n), rng); // the weakest, varied between rounds
+    const rest = shuffle([...weak.slice(2 * n), ...notDue.filter(c => !isWeak(c))], rng);
+    const last = new Set(recent); // the previous round of this theme: played again only when nothing else is left
+    const ordered = [...due, ...head, ...rest];
+    const knownOrder = [...ordered.filter(c => !last.has(c.id)), ...ordered.filter(c => last.has(c.id))];
+
+    const { newCards } = pickNew({ srs, cards, today, constraints, rng });
+    const fresh = newCards.filter(include).slice(0, constraints.maxNew ?? 1);
+    const base = knownOrder.slice(0, Math.max(n - fresh.length, 0));
+    const picked = [...base.slice(0, 1), ...fresh, ...base.slice(1)]; // the new card early, never first
+    for (let r = 1; r < (constraints.maxRepeat ?? 1) && picked.length < n; r++) {
+        for (const c of knownOrder) { if (picked.length >= n) break; picked.push(c); }
+    }
+    // Still short (a theme she has barely met): preview cards, played for exposure and never recorded, so the
+    // schedule and the daily budget are untouched. Items she already knows first, then deck order; one per item.
+    const preview = [];
+    if (picked.length < n) {
+        const knownItems = new Set(Object.keys(srs.cards).map(itemKey));
+        const taken = new Set(fresh.map(c => itemKey(c.id)));
+        const unknown = themed.filter(c => !st(c) && !fresh.includes(c));
+        for (const c of [...unknown.filter(c => knownItems.has(itemKey(c.id))), ...unknown.filter(c => !knownItems.has(itemKey(c.id)))]) {
+            if (picked.length >= n) break;
+            if (taken.has(itemKey(c.id))) continue;
+            taken.add(itemKey(c.id));
+            picked.push(c);
+            preview.push(c.id);
+        }
+    }
+    return { slots: orderRound(picked, (c) => st(c)?.box ?? 0, (c) => !st(c)), preview };
+}

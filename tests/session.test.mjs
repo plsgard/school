@@ -2,7 +2,7 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { compose, GS_CONSTRAINTS } from '../assets/core/session.js';
+import { compose, composePractice, GS_CONSTRAINTS, GS_PRACTICE } from '../assets/core/session.js';
 import { recordResult } from '../assets/core/progress.js';
 import { expandCards, DECK_FILES } from '../assets/gs/decks/index.js';
 
@@ -267,6 +267,128 @@ describe('compose', () => {
             for (const s of slots) if (!Object.keys(srs.cards).some(id => itemOf(id) === itemOf(s.id))) (newItems[s.kind] ??= new Set()).add(itemOf(s.id));
             for (const [kind, set] of Object.entries(newItems)) assert.ok(set.size <= GS_CONSTRAINTS.newPerDay[kind], `day ${d} ${kind} ${[...set]}`);
             for (const s of slots) srs = recordResult(srs, s.id, rng() < 0.9, today);
+        }
+    });
+});
+
+const SONS = new Set(['syll-count', 'syll-match', 'sound-pick']);
+const sons = (c) => SONS.has(c.skill);
+const P = (items = 6) => ({ ...GS_PRACTICE, items });
+
+describe('composePractice', () => {
+    test('composePractice_KnownThemeCards_OnlyThemeSkills', () => {
+        const srs = { cards: {}, introduced: {} };
+        for (const c of pool()) srs.cards[c.id] = { box: 3, due: '2026-12-01', seen: 3, lapses: 0 };
+        for (let k = 0; k < 50; k++) {
+            const { slots } = composePractice({ srs, cards: pool(), today: T, include: sons, rng: lcg(k) });
+            assert.equal(slots.length, 6);
+            assert.ok(slots.every(sons), slots.map(s => s.id).join());
+        }
+    });
+    test('composePractice_DueAndWeakAndStrong_DueThenWeakBeforeStrong', () => {
+        const srs = { cards: {}, introduced: { [T]: ['words/lapin', 'words/chapeau', 'words/fusee'] } };
+        const words = pool().filter(sons);
+        words.forEach((c, i) => { srs.cards[c.id] = { box: 5, due: '2026-12-01', seen: 9, lapses: 0 }; });
+        srs.cards['words/moto#sound-pick'] = { box: 2, due: T, seen: 2, lapses: 0 };          // due
+        srs.cards['words/sapin#syll-count'] = { box: 1, due: '2026-10-18', seen: 2, lapses: 1 }; // weak
+        for (let k = 0; k < 50; k++) {
+            const ids = composePractice({ srs, cards: pool(), today: T, include: sons, rng: lcg(k) }).slots.map(s => s.id);
+            assert.ok(ids.includes('words/moto#sound-pick') && ids.includes('words/sapin#syll-count'), ids.join());
+        }
+    });
+    test('composePractice_BudgetLeft_AddsExactlyOneNewThemeCard', () => {
+        const srs = { cards: {}, introduced: {} };
+        for (const w of ['lapin', 'chapeau']) srs.cards[`words/${w}#syll-count`] = { box: 2, due: '2026-12-01', seen: 1, lapses: 0 };
+        const { slots, preview } = composePractice({ srs, cards: pool(), today: T, include: sons, rng: lcg(1) });
+        const fresh = slots.filter(s => !srs.cards[s.id] && !preview.includes(s.id));
+        assert.equal(fresh.length, 1, slots.map(s => s.id).join());
+    });
+    test('composePractice_WordBudgetSpentToday_AddsNoFreshWord', () => {
+        const srs = { cards: {}, introduced: { [T]: ['words/lapin', 'words/chapeau', 'words/fusee'] } };
+        for (const w of ['lapin', 'chapeau', 'fusee']) srs.cards[`words/${w}#syll-count`] = { box: 1, due: '2026-10-18', seen: 1, lapses: 0 };
+        for (let k = 0; k < 50; k++) {
+            const { slots, preview } = composePractice({ srs, cards: pool(), today: T, include: sons, rng: lcg(k) });
+            const recordedNew = slots.filter(s => !srs.cards[s.id] && !preview.includes(s.id));
+            assert.deepEqual(recordedNew, [], slots.map(s => s.id).join());
+        }
+    });
+    test('composePractice_KnownFirstSkillOutsideTheTheme_DoesNotTreatTheItemAsFresh', () => {
+        // letters/a#letter-3scripts is known (box 1): a's trace is still locked, so a trace-only round must not
+        // offer it as a recorded new card (it would charge the letter budget a second time).
+        const srs = { cards: { 'letters/a#letter-3scripts': { box: 1, due: '2026-10-18', seen: 1, lapses: 0 } }, introduced: {} };
+        const { slots, preview } = composePractice({ srs, cards: pool(), today: T, include: c => c.skill === 'trace', rng: lcg(2) });
+        assert.ok(!slots.some(s => s.id === 'letters/a#trace' && !preview.includes(s.id)));
+    });
+    test('composePractice_UnlockedSibling_CountsAsTheOneNewCard', () => {
+        const srs = { cards: { 'letters/a#letter-3scripts': { box: 2, due: '2026-12-01', seen: 1, lapses: 0 } }, introduced: { [T]: ['letters/e', 'letters/i'] } };
+        const { slots, preview } = composePractice({ srs, cards: pool(), today: T, include: c => c.skill === 'trace', rng: lcg(3) });
+        const recordedNew = slots.filter(s => !srs.cards[s.id] && !preview.includes(s.id)).map(s => s.id);
+        assert.deepEqual(recordedNew, ['letters/a#trace']);
+    });
+    test('composePractice_FewKnownCards_RepeatsThemNeverAdjacentAtMostTwice', () => {
+        const srs = { cards: {}, introduced: { [T]: ['words/lapin', 'words/chapeau', 'words/fusee'] } };
+        // Each item's first skill, box 1: nothing unlocked and the word budget spent, so no new card takes a slot.
+        for (const id of ['words/lapin#syll-count', 'words/moto#syll-count', 'words/fusee#syll-count']) srs.cards[id] = { box: 1, due: '2026-12-01', seen: 1, lapses: 0 };
+        for (let k = 0; k < 100; k++) {
+            const { slots } = composePractice({ srs, cards: pool(), today: T, include: sons, rng: lcg(k) });
+            for (let i = 1; i < slots.length; i++) assert.notEqual(slots[i].id, slots[i - 1].id);
+            const counts = {};
+            for (const s of slots) counts[s.id] = (counts[s.id] ?? 0) + 1;
+            assert.ok(Object.values(counts).every(n => n <= 2), JSON.stringify(counts));
+            for (const id of Object.keys(srs.cards)) assert.equal(counts[id], 2, id); // 3 known x 2 = 6
+        }
+    });
+    test('composePractice_NoKnownCardsAndBudgetSpent_FillsWithPreview', () => {
+        const srs = { cards: {}, introduced: { [T]: ['words/lapin', 'words/chapeau', 'words/fusee'] } };
+        const { slots, preview } = composePractice({ srs, cards: pool(), today: T, include: sons, rng: lcg(4), constraints: P(8) });
+        assert.equal(slots.length, 5); // pool() has 5 words: one preview card per item
+        assert.deepEqual([...preview].sort(), slots.map(s => s.id).sort());
+    });
+    test('composePractice_PreviewCards_KnownItemsFirstOnePerItem', () => {
+        const srs = { cards: { 'words/moto#syll-count': { box: 1, due: '2026-10-18', seen: 1, lapses: 0 } }, introduced: { [T]: ['words/lapin', 'words/chapeau', 'words/fusee'] } };
+        const { preview } = composePractice({ srs, cards: pool(), today: T, include: sons, rng: lcg(5) });
+        assert.ok(preview.some(id => id.startsWith('words/moto#')), preview.join());
+        assert.equal(new Set(preview.map(itemOf)).size, preview.length);
+    });
+    test('composePractice_RecentIds_PlayedOnlyAfterTheOthers', () => {
+        const srs = { cards: {}, introduced: {} };
+        const words = pool().filter(sons);
+        for (const c of words) srs.cards[c.id] = { box: 4, due: '2026-12-01', seen: 4, lapses: 0 };
+        const recent = words.slice(0, 6).map(c => c.id);
+        for (let k = 0; k < 20; k++) {
+            const { slots } = composePractice({ srs, cards: words, today: T, include: sons, rng: lcg(k), recent });
+            assert.ok(slots.every(s => !recent.includes(s.id)), slots.map(s => s.id).join()); // 15 known, 9 not recent
+        }
+    });
+    test('composePractice_EmptyTheme_ReturnsNoSlots', () => {
+        assert.deepEqual(composePractice({ srs: { cards: {}, introduced: {} }, cards: pool(), today: T, include: () => false }), { slots: [], preview: [] });
+    });
+    test('composePractice_Always_DoesNotMutateSrs', () => {
+        const srs = { cards: { 'words/lapin#syll-count': { box: 2, due: T, seen: 1, lapses: 0 } }, introduced: {} };
+        const before = JSON.stringify(srs);
+        composePractice({ srs, cards: pool(), today: T, include: sons, rng: lcg(6) });
+        assert.equal(JSON.stringify(srs), before);
+    });
+    test('composePractice_EasyCardKnown_OpensTheRound', () => {
+        const srs = { cards: { 'words/lapin#syll-count': { box: 4, due: '2026-12-01', seen: 4, lapses: 0 } }, introduced: {} };
+        for (const w of ['chapeau', 'fusee', 'moto']) srs.cards[`words/${w}#sound-pick`] = { box: 1, due: T, seen: 1, lapses: 1 };
+        for (let k = 0; k < 20; k++) assert.equal(composePractice({ srs, cards: pool(), today: T, include: sons, rng: lcg(k) }).slots[0].id, 'words/lapin#syll-count');
+    });
+    test('composePractice_RealDecks200Seeds_NoSameCardAdjacentAndFullRounds', () => {
+        // The 10-day simulation state: some known, some due, budget partly spent.
+        const rng = lcg(13);
+        let srs = { cards: {}, introduced: {} };
+        for (let d = 0; d < 10; d++) {
+            const today = addDays('2026-11-01', d);
+            for (const s of compose({ srs, cards: realCards, today, rng }).slots) srs = recordResult(srs, s.id, rng() < 0.8, today);
+        }
+        const day = addDays('2026-11-01', 10);
+        for (const include of [sons, c => c.skill === 'trace', c => c.kind === 'numbers', c => c.skill === 'letter-3scripts']) {
+            for (let k = 0; k < 200; k++) {
+                const { slots } = composePractice({ srs, cards: realCards, today: day, include, rng: lcg(k), constraints: P(10) });
+                assert.equal(slots.length, 10);
+                for (let i = 1; i < slots.length; i++) assert.notEqual(slots[i].id, slots[i - 1].id);
+            }
         }
     });
 });
