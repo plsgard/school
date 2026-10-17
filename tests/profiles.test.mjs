@@ -43,7 +43,7 @@ describe('selectProfile', () => {
         s.saveResult('addition', { score: 4, totalQuestions: 5 }, 'default'); // the older child's existing history
         const profiles = p.ensureProfiles();
         const panda = profiles.find(x => x.avatar === '🐼');
-        assert.equal(p.selectProfile(profiles, panda.id), null); // no page of its own yet: stay on the math list
+        assert.equal(p.selectProfile(profiles, panda.id), 'en.html'); // the English track; the math list stays one link away
         assert.equal(s.getActiveProfileId(), 'default');
         assert.equal(s.loadHistory('addition')[0].score, 4);
     });

@@ -17,6 +17,7 @@ python3 -m http.server 8000
 
   Each quiz: pick the number of questions and a timer, answer, get scored, see the last 5 attempts. A perfect score triggers confetti. Math history is kept under the older child's profile even when the page is opened after picking 🦊.
 - `gs.html` — the Grande Section track: one short session a day (6 games by default) plus practice rounds by theme, see [Home and practice](#home-and-practice).
+- `en.html` — the 6e English track (🐼): listen-and-pick + say-it with pronunciation check, see [English track](#english-track-6e). Its home links to the math quizzes.
 
 To test on the iPad from the Mac: same Wi-Fi, then open `http://<mac-ip>:8000/gs.html`.
 
@@ -142,6 +143,28 @@ Most at risk: the voiced continuants (`j`, `z`, `v`, `l`, `m`, `n`, `r`), where 
 - `ui.practice-done`
 
 </details>
+
+## English track (6e)
+
+`en.html` + `assets/en/`, on the same shared engine. One session = 12 cards by default; each word is first **heard** (listen → tap the picture / French meaning), then **said** (picture + French → say it in English, checked by speech recognition). New words: 6 a day; Leitner intervals 1 / 2 / 4 / 7 / 21 days. No daily cap.
+
+- **Open it in Safari, not from the Home Screen.** Safari's speech recognition does not exist in Home Screen web apps (WebKit bug 225298), and needs Réglages › Général › Clavier › Dictée on. Without it the page switches to self-judging (say it aloud → hear the model → 👍 / 👎).
+- **Voice:** the device's English voice (en-GB preferred). The iPad's default British voice is basic: download a better one in Réglages › Accessibilité › Contenu énoncé › Voix › Anglais (UK) and pick it in the parent corner.
+- **Parent corner** (hold ⚙️): pronunciation precision (Indulgente / Normale / Exigeante), tries before moving on (never blocks: after the last try the model plays and the card comes back sooner), mic mode, cards per session, voice, "🎤 Tester le micro" (shows what the device heard, with alternatives and confidence), Leitner boxes and words to watch.
+
+### Lesson → deck
+
+1. Put photos of his English pages (cahier, textbook, worksheets) and Pronote exports (screenshots of LearningApps exercises, PDFs, mp3) in `inbox/` at the repo root. `inbox/` is git-excluded: never commit it.
+2. Ask a Claude Code session: *"Make an English deck from inbox/ (unit …)"*. It writes `assets/en/decks/<id>.json` and adds `<id>` to `DECK_FILES` in `assets/en/decks/index.js` (order = teaching order):
+   ```json
+   { "id": "unit2-my-school", "kind": "vocab", "label": "Unit 2 · My school",
+     "items": [{ "id": "pencil-case", "en": ["a pencil case"], "fr": "une trousse", "img": "👝" }] }
+   ```
+   - `id`: ASCII kebab-case, unique in the deck; `en`: accepted answers, the first is the one spoken and shown (British spelling, as in class; US variants as extra answers); `fr`: the meaning shown in listen-pick and say-it; `img`: optional emoji, only when unambiguous, unique in the deck.
+   - Words as written in his lesson, with the article the teacher uses (the article is optional when he speaks).
+3. Review the JSON, run `node --test` (`tests/en-track.test.mjs` validates every deck), commit the deck + `index.js`.
+
+The shipped `my-school-bag` deck is an example built from the teacher's LearningApps "School supplies" exercise: replace it with his real units.
 
 ## Add a new math quiz
 

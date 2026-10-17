@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A static, zero-build web app the owner built for his own kids: timed math quizzes for the older child (6e) and a spaced-repetition **Grande Section learning track** (`gs.html`: sounds, letters, syllables, tracing in capitals and cursive, numbers to 10; one daily session plus unlimited themed practice rounds) for a 5-year-old who cannot read yet. Hosted on **GitHub Pages directly off `main`** — pushing to `main` is the deploy. There is no CI, no build, no package manager, no backend; persistence is `localStorage`. Pure modules have `node:test` tests.
+A static, zero-build web app the owner built for his own kids: timed math quizzes and an **English track** (`en.html`, matched to his class lessons, speech-checked pronunciation) for the older child (6e) and a spaced-repetition **Grande Section learning track** (`gs.html`: sounds, letters, syllables, tracing in capitals and cursive, numbers to 10; one daily session plus unlimited themed practice rounds) for a 5-year-old who cannot read yet. Hosted on **GitHub Pages directly off `main`** — pushing to `main` is the deploy. There is no CI, no build, no package manager, no backend; persistence is `localStorage`. Pure modules have `node:test` tests.
 
 The audience is young learners — keep UI copy simple, validation friendly, and avoid clever abstractions that make the source harder to tweak on the fly. On the GS track every instruction must work for a non-reader (spoken, with pictures), and every French text must be correct French (typography included: non-breaking space before `! ? : ;`).
 
@@ -17,6 +17,7 @@ See [`README.md`](README.md) for run/deploy/test basics, the iPad setup, deck au
 ├── index.html                       # "Qui joue ?" profile picker + "Autres jeux" (math quizzes)
 ├── multiplication.html, addition.html   # math quiz pages
 ├── gs.html                          # Grande Section track
+├── en.html                          # 6e English track (listen-pick, say-it + pronunciation check)
 ├── assets/
 │   ├── quiz.js, quiz.css            # math quiz engine (Settings → Quiz → Result → History) + shared styles
 │   ├── storage.js                   # versioned, namespaced localStorage layer (the only localStorage user)

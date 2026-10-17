@@ -45,6 +45,7 @@
     </div>
     <script type="module">
         import { mountProfiles } from './assets/profiles.js';
+        if (location.hash === '#math') document.getElementById('math').open = true; // en.html's "🧮 Maths" link
         mountProfiles(document.getElementById('profiles'), {
             otherGames: document.getElementById('math'),
             renameButton: document.getElementById('rename'),

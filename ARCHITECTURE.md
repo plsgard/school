@@ -143,7 +143,7 @@ All keys live under the `school.v1.*` namespace and are read/written only throug
 | `school.v1.profiles` | `[{ id, name, avatar, track: 'gs' \| 'en', placeholder? }]` | Seeded on first visit by `profiles.js` with the children's real names: `kid-gs` "Apolline" (🦊, `gs`) and `default` "Louis" (🐼, `en`), no `placeholder` flag. `ensureProfiles()` upgrades a profile stored by an earlier version that still has `placeholder: true` **and** its legacy seeded name ("Enfant 1" / "Enfant 2") to the real name and drops the flag; a profile a parent renamed is left alone. On first open, `gs.html` prefills the GS `firstName` from the profile name (`prefillFirstName`). The 6ème child keeps the id `default` so the math history already under `history.default.*` stays his. |
 | `school.v1.activeProfileId` | string | Defaults to `"default"` if absent. Written by the picker, and by `gs.html` when it has to fall back to a GS profile. |
 | `school.v1.history.<profileId>.<quizId>` | `[{ score, totalQuestions, timerDuration, timeLeft, submittedAutomatically, date }]` | Math quizzes. Capped at 5 entries, newest first. Profile = `historyProfileId(profiles, activeId)`: the active profile only when its track is `'en'` (or no profiles exist yet), otherwise `'default'` — a math page opened after picking 🦊 keeps writing the older child's history. |
-| `school.v1.settings.<profileId>` | `{ sessionItems, practiceItems, parentMode, firstName, audio, voice, extraSessionOn? }` | Defaults `{ sessionItems: 6, practiceItems: 6, parentMode: null, firstName: '', audio: 'clips', voice: '' }`, merged on read. `practiceItems`: games per practice round, read through `practiceItems(settings)` (`gs/rules.js`), which rounds and clamps it to 6–10. `parentMode: null` = never set by a parent (automatic, see Child UX rules); `true`/`false` = explicit. `audio`: `'clips' \| 'device' \| 'silent'`. `voice`: preferred device voice name. `extraSessionOn`: local day (`YYYY-MM-DD`) on which a parent allowed one more session. `firstName` feeds the greeting and the name-spell card. |
+| `school.v1.settings.<profileId>` | `{ sessionItems, practiceItems, parentMode, firstName, audio, voice, extraSessionOn?, enItems?, precision?, tries?, mic?, enVoice? }` | Defaults `{ sessionItems: 6, practiceItems: 6, parentMode: null, firstName: '', audio: 'clips', voice: '' }`, merged on read. `practiceItems`: games per practice round, read through `practiceItems(settings)` (`gs/rules.js`), which rounds and clamps it to 6–10. `parentMode: null` = never set by a parent (automatic, see Child UX rules); `true`/`false` = explicit. `audio`: `'clips' \| 'device' \| 'silent'`. `voice`: preferred device voice name. `extraSessionOn`: local day (`YYYY-MM-DD`) on which a parent allowed one more session. `firstName` feeds the greeting and the name-spell card. English track keys (defaults in `assets/en/rules.js` `EN_DEFAULTS`): `enItems` 12 (6–20), `precision` `'indulgent' \| 'normal' \| 'exigeant'`, `tries` 3 (1–5), `mic` `'auto' \| 'self'`, `enVoice` (device voice name). |
 | `school.v1.srs.<profileId>.<trackId>` | `{ cards: { [cardId]: { box, due, seen, lapses } }, introduced: { [day]: [itemKey] } }` | Leitner state. `cardId = <deckId>/<itemId>#<skill>` (e.g. `letters/a#trace-cap`, `letters/a#trace`, `mots-gs/robot#sound-final`, `numbers/7#trace`, `name/lea#name-spell`); `itemKey = <deckId>/<itemId>`. `due` and the `introduced` keys are local days. One state for both the daily session and practice rounds; `introduced` is the shared daily new-item budget. |
 | `school.v1.sessions.<profileId>.<trackId>` | `[{ date, items: [{ cardId, type, correctFirstTry, attempts, ms }], durationMs }]` | **Daily sessions only.** Last 14 completed sessions, newest first. `date` is an ISO timestamp; the pattern filler game stores `cardId: null`. Drives the daily cap and the parent corner's daily week line. |
 | `school.v1.practice.<profileId>.<trackId>` | `[{ date, theme, items: [{ cardId, type, correctFirstTry, attempts, ms, preview? }], durationMs }]` | Completed practice rounds, newest first, capped at 30 (`appendPractice`). `theme` is a `THEMES` id; `preview: true` marks an item played for exposure and never recorded in the SRS. A round left with 🏠 is not appended (its answered cards are already in the SRS). Feeds the parent corner's practice line. **Separate on purpose:** `sessions` holds 14 entries and drives `dailyCapReached`; unlimited practice rounds stored there would evict today's daily session and give ▶ Jouer back. With two keys, practice can never touch the daily cap. |
@@ -151,22 +151,22 @@ All keys live under the `school.v1.*` namespace and are read/written only throug
 | `school.v1.achievements.<profileId>` | `[{ id, unlockedAt }]` | Future — badges. |
 | `school.v1.theme` | string | Future — themes. |
 
-`trackId` is `'gs'` today; the 6ème track will use `'en'` with the same keys. `migrateLegacyHistory()` runs once on quiz-engine init and copies any pre-namespaced `multiplicationHistory` / `additionHistory` arrays into `school.v1.history.default.<quizId>`, then removes the old keys. Idempotent.
+`trackId` is `'gs'` or `'en'`. `migrateLegacyHistory()` runs once on quiz-engine init and copies any pre-namespaced `multiplicationHistory` / `additionHistory` arrays into `school.v1.history.default.<quizId>`, then removes the old keys. Idempotent.
 
 ## Learning tracks
 
-A track = a set of decks, generators and renderers on top of a shared, track-agnostic engine. Grande Section (`gs.html`) is the only track shipped; the 6ème track (`'en'`) currently has only a profile and the math quizzes.
+A track = a set of decks, generators and renderers on top of a shared, track-agnostic engine. Two tracks ship: Grande Section (`gs.html`, `'gs'`) and 6e English (`en.html`, `'en'`, see [English track](#english-track-6e)).
 
 ### Modules
 
 | Layer | Module | Responsibility |
 |---|---|---|
 | core | `assets/core/scheduler.js` | Pure Leitner: `record`, `dueCards`, `boxCounts`, `addDays`; `GS_PROFILE` intervals. |
-| core | `assets/core/session.js` | Pure daily `compose({ srs, cards, today, rng, constraints })` → `{ slots, introduced }` with `GS_CONSTRAINTS`; pure `composePractice({ srs, cards, today, include, rng, constraints, recent })` → `{ slots, preview }` with `GS_PRACTICE` (see Practice rounds). Both share `pickNew` (staging, prerequisites, budget). |
+| core | `assets/core/session.js` | Pure daily `compose({ srs, cards, today, rng, constraints, exclude? })` → `{ slots, introduced }` with `GS_CONSTRAINTS` (`exclude`: card ids never placed, used by the English track); pure `composePractice({ srs, cards, today, include, rng, constraints, recent })` → `{ slots, preview }` with `GS_PRACTICE` (see Practice rounds). Both share `pickNew` (staging, prerequisites, budget). |
 | core | `assets/core/progress.js` | Pure `recordResult(srs, cardId, correctFirstTry, today)`: `record` + daily-introduction bookkeeping. Pure `recordPractice(…)` (same arguments): the practice Leitner rule. |
 | core | `assets/core/speech.js` | `createSpeech` (one `speak(cue) → Promise` over ordered sources), `createClipSource`, `createDeviceSource`, `SILENT_SOURCE`, `rankVoice`. |
 | shared | `assets/storage.js` | All persistence (see schema), including `loadPractice` / `appendPractice`. |
-| shared | `assets/profiles.js` | `ensureProfiles` (seeds Apolline / Louis, upgrades legacy placeholders), `selectProfile` (track → page: `gs` → `gs.html`; others stay on the landing page and open "Autres jeux"), `trackProfileId`, `renameProfile` / `setFirstName` (one name per child), `prefillFirstName`, `mountProfiles`. |
+| shared | `assets/profiles.js` | `ensureProfiles` (seeds Apolline / Louis, upgrades legacy placeholders), `selectProfile` (track → page: `gs` → `gs.html`, `en` → `en.html`), `trackProfileId`, `renameProfile` / `setFirstName` (one name per child), `prefillFirstName`, `mountProfiles`. |
 | shared | `assets/hold.js` | `holdToActivate(el, action, ms = 1500)`: long-press gate, plain taps do nothing. |
 | shared | `assets/celebration.js` | Confetti on the done screen. |
 | gs | `assets/gs/app.js` | Page controller: profile resolution, audio wiring, home (▶ Jouer + the four theme buttons built from `THEMES`) / exercise / done screens, daily cap, quit button, gates. `runSession` (daily) and `runPractice(themeId)` both play through `play(exercises, onAnswered, { badge })`; `start(run)` is the one entry for ▶ Jouer, a theme button and 🔁 Encore (a second tap while a round starts is ignored, audio is unlocked in the tap, a crash goes back home); `showDone(items, { again })` is the daily or practice done screen. `lastRound` (in memory) feeds `recent`. |
@@ -551,6 +551,43 @@ Every spoken text is a **cue** `{ key, text, display? }`. **One key → one text
 - **Daily cap:** one completed daily session per local day (practice rounds never count). Afterwards home shows 🌙 and "À demain" instead of ▶ Jouer (tapping 🌙 says to come back tomorrow). The parent corner can allow exactly one more session today (`extraSessionOn`).
 - **Parental gates:** ⚙️ (parent corner) and 🦊 (back to the profile picker) on `gs.html`, and ✏️ (rename profiles) on `index.html`, act only on a 1.5 s long-press that fills the button; a tap does nothing. 🏠 (quit a session) needs a 0.8 s hold or two taps within 2 s.
 - **Typography:** non-breaking space before `! ? : ;` in every French string; data texts always go through `textContent`.
+
+## English track (6e)
+
+`en.html` + `assets/en/`. UI copy French, audio English only (device voice, en-GB first; no clips yet).
+
+| Module | Responsibility |
+|---|---|
+| `assets/en/app.js` | Page controller: profile (`trackProfileId(…, 'en')`), home (decks, 🔥 streak), session, done screen (score, words to rework), 🏠 quit, gates. |
+| `assets/en/parent.js` | Parent corner: precision, tries, mic mode, cards per session, voice, mic test, Leitner boxes, words to watch. |
+| `assets/en/decks/index.js` | `DECK_FILES`, `loadDecks`, `expandCards` (item × `SKILLS[kind]` → cards; `vocab`: `listen-pick`, `say-it`). |
+| `assets/en/generators.js` | Pure `generate(card, { cards, rng })` → `listen-pick` (4 choices, emoji + French, distractors from the same deck) or `say-it` (expected = every accepted answer). |
+| `assets/en/pronounce.js` | Pure scorer: `normalise` (case, punctuation, contractions, digits ≤ 20, US → UK spelling), `phoneticKey` (sound spelling, vowel runs kept; lenient merges th/t/d/s/z and drops h), `scoreSpeech(expected[], heard[], level)`. |
+| `assets/en/listen.js` | One-shot `webkitSpeechRecognition` (en-GB, 5 alternatives, 8 s cap); always resolves `{ alternatives, error? }`; `FATAL_ERRORS` switch the session to self-judging. |
+| `assets/en/rules.js` | `EN_PROFILE` (1/2/4/7/21 days), `EN_CONSTRAINTS`, `nextCard`, `enSettings`, `localDay`, `streak`. |
+
+**One card at a time.** `nextCard` runs after every answer: due reviews and new cards alternate (a review first; new = `compose` with every known or played card excluded), then not-due reviews pad. A listen-pick answered right reaches box 2, which unlocks the item's `say-it` card (staged skills) in the same session: day 1 already has speaking. 6 new items a day; when nothing is due or new, padding reviews fill the session; a day-1 session with many misses ends early.
+
+**Pronunciation scoring.** The recogniser returns dictionary words, so tolerance applies to its transcript. Each (accepted answer × recogniser alternative) pair is aligned word by word (LCS; extra words like "um" are free; a leading article is optional); the best pair wins.
+
+| Level | A word matches when | A sentence passes at |
+|---|---|---|
+| Indulgente | as Normale, or one sound off (two on words of 6+ sounds) once the French swaps are merged | 60 % of its words |
+| Normale | exact, recogniser plural slip, or same sound spelling (sea/see, right/write; vowels kept, so pen ≠ pan) | 80 % |
+| Exigeante | exact (after normalisation) or recogniser plural slip | 100 % |
+
+**Never blocked.** Silence or a network error is not a try (three in a row switch the card to self-judging); the model button is disabled while the mic listens. After `tries` misses the model is spoken and "On continue ▶" moves on (recorded wrong: the card comes back sooner). No recognition (Home Screen app, other browsers), a refused mic, or `mic: 'self'`: say it aloud → 👂 Vérifier → model → 👍 / 👎.
+
+```mermaid
+flowchart LR
+  T[🎤 tap] --> L[listen.js]
+  L -->|alternatives| S[scoreSpeech]
+  L -->|silence / network| T
+  L -->|not-allowed, unsupported| SJ[self-judge 👍/👎]
+  S -->|ok| OK[✅ + model spoken] --> N[next card]
+  S -->|miss, tries left| R[heard words green/grey, 🔊 model unlocked] --> T
+  S -->|miss, last try| M[model spoken, On continue ▶] --> N
+```
 
 ## Local development
 

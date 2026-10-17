@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>English · 6e</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/quiz.css">
+    <link rel="stylesheet" href="assets/en/en.css">
+</head>
+<body class="en">
+    <main class="en-app">
+        <section id="home" class="en-screen">
+            <header class="en-top">
+                <a class="en-icon" href="index.html" id="avatar" aria-label="Changer de profil (appui long)">🐼</a>
+                <span class="en-pill" id="streak" hidden></span>
+                <a class="en-icon" href="#parent" id="parentBtn" aria-label="Coin des parents (appui long)">⚙️</a>
+            </header>
+            <div class="en-hero">
+                <h1 id="hello" lang="en">Hello!</h1>
+                <p id="today"></p>
+                <button type="button" class="en-cta" id="play" hidden>▶ Commencer</button>
+            </div>
+            <p class="en-warn" id="micWarn" hidden></p>
+            <h2 class="h5 mb-0">Mes leçons</h2>
+            <div id="decks" class="d-flex flex-column gap-2"></div>
+            <a class="en-note" href="index.html#math" id="maths">🧮 Les jeux de maths</a>
+        </section>
+        <section id="exercise" class="en-screen" hidden>
+            <header class="en-top">
+                <span class="en-pill" id="counter"></span>
+                <button type="button" class="en-icon en-quit" id="quit" aria-label="Arrêter la séance (appui long ou deux fois)">🏠</button>
+            </header>
+            <div class="en-progress" aria-hidden="true"><i id="progress"></i></div>
+            <p class="en-consigne" id="consigne"></p>
+            <div id="stage" class="en-screen"></div>
+            <div class="en-feedback" id="feedback" role="status" aria-live="polite"></div>
+        </section>
+        <section id="done" class="en-screen" hidden>
+            <div class="en-hero">
+                <h1 id="doneTitle" lang="en">Well done!</h1>
+                <p id="doneScore"></p>
+            </div>
+            <div id="rework"></div>
+            <button type="button" class="en-cta primary" id="again">▶ Encore une séance</button>
+            <a class="en-cta" href="en.html">🏠 Accueil</a>
+        </section>
+        <section id="parent" class="en-screen en-parent" hidden></section>
+    </main>
+    <div id="celebration" class="celebration visually-hidden"><div>Well done!</div></div>
+    <div id="confetti" class="confetti"></div>
+    <script type="module" src="assets/en/app.js"></script>
+</body>
+</html>

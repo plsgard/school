@@ -20,7 +20,7 @@ const DEFAULTS = [
 // Placeholders seeded by earlier versions: a profile still carrying one takes its real default name.
 const LEGACY_PLACEHOLDERS = { 'kid-gs': 'Enfant 1', default: 'Enfant 2' };
 const TRACK_LABELS = { gs: 'Grande Section', en: '6e' };
-const TARGET = { gs: 'gs.html' }; // other tracks: the math quizzes ("Autres jeux") until the 6ème track ships
+const TARGET = { gs: 'gs.html', en: 'en.html' }; // the math quizzes stay under "Autres jeux" (en.html links there)
 const MAX_NAME = 30;
 
 export function ensureProfiles() {

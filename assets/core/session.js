@@ -111,7 +111,7 @@ function paddingOrder(cards, srs, today, rng) {
     return [...byBox.keys()].sort((a, b) => b - a).flatMap(box => shuffle(byBox.get(box), rng));
 }
 
-function arrange(candidates, constraints, rng, boxOf, reserve = 0) {
+function arrange(candidates, constraints, rng, boxOf, reserve = 0, exclude = []) {
     // candidates: ordered by priority (due low box → due → new → padding).
     // Fills left to right and stops at the first slot it cannot fill: never compacts across a gap,
     // so the trace stays at an allowed index and no two neighbours share a skill.
@@ -121,7 +121,7 @@ function arrange(candidates, constraints, rng, boxOf, reserve = 0) {
     const limitedKind = constraints.limitedKind;
     const preferred = allowed[Math.floor(rng() * allowed.length)];
     const slots = [];
-    const used = new Set();
+    const used = new Set(exclude);
     let limited = 0;
     let placedSpecial = false;
     let preferredMissed = false;
@@ -160,7 +160,8 @@ function arrange(candidates, constraints, rng, boxOf, reserve = 0) {
     return slots;
 }
 
-export function compose({ srs, cards, today, rng = Math.random, constraints = GS_CONSTRAINTS }) {
+// exclude: card ids never placed (a track composing one card at a time passes the cards already played).
+export function compose({ srs, cards, today, rng = Math.random, constraints = GS_CONSTRAINTS, exclude = [] }) {
     const byId = new Map(cards.map(c => [c.id, c]));
     const due = dueCards(srs, today).map(id => byId.get(id)).filter(Boolean);
     const { newCards, introduced } = pickNew({ srs, cards, today, constraints, rng });
@@ -170,7 +171,7 @@ export function compose({ srs, cards, today, rng = Math.random, constraints = GS
     // since due is sorted lowest box first) slip to a later day. They stay ahead of padding as a fallback.
     const reserve = Math.min(constraints.newSlots ?? 0, newCards.length);
     const keep = Math.max(constraints.items - reserve, 0);
-    const slots = arrange([...due.slice(0, keep), ...newCards, ...due.slice(keep), ...padding], constraints, rng, boxOf, reserve);
+    const slots = arrange([...due.slice(0, keep), ...newCards, ...due.slice(keep), ...padding], constraints, rng, boxOf, reserve, exclude);
     const usedIntroduced = introduced.filter(key => slots.some(s => itemKey(s.id) === key));
     return { slots, introduced: usedIntroduced };
 }

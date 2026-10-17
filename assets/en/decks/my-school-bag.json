@@ -1,0 +1,24 @@
+{
+  "id": "my-school-bag",
+  "kind": "vocab",
+  "label": "My school bag · fournitures",
+  "source": "Exemple tiré des exercices LearningApps de la prof (School supplies). À remplacer par ses vraies leçons.",
+  "items": [
+    { "id": "pen", "en": ["a pen"], "fr": "un stylo", "img": "🖊️" },
+    { "id": "pencil", "en": ["a pencil"], "fr": "un crayon à papier", "img": "✏️" },
+    { "id": "ruler", "en": ["a ruler"], "fr": "une règle", "img": "📏" },
+    { "id": "scissors", "en": ["scissors", "a pair of scissors"], "fr": "des ciseaux", "img": "✂️" },
+    { "id": "school-bag", "en": ["a school bag", "a schoolbag", "a backpack"], "fr": "un cartable", "img": "🎒" },
+    { "id": "exercise-book", "en": ["an exercise book"], "fr": "un cahier", "img": "📓" },
+    { "id": "book", "en": ["a book"], "fr": "un livre", "img": "📕" },
+    { "id": "rubber", "en": ["a rubber", "an eraser"], "fr": "une gomme" },
+    { "id": "glue-stick", "en": ["a glue stick"], "fr": "un bâton de colle" },
+    { "id": "pencil-case", "en": ["a pencil case"], "fr": "une trousse", "img": "👝" },
+    { "id": "pencil-sharpener", "en": ["a pencil sharpener", "a sharpener"], "fr": "un taille-crayon" },
+    { "id": "felt-pens", "en": ["felt pens", "felt-tip pens"], "fr": "des feutres" },
+    { "id": "highlighter", "en": ["a highlighter"], "fr": "un surligneur" },
+    { "id": "diary", "en": ["a diary"], "fr": "un agenda", "img": "📒" },
+    { "id": "calculator", "en": ["a calculator"], "fr": "une calculatrice" },
+    { "id": "set-square", "en": ["a set square"], "fr": "une équerre", "img": "📐" }
+  ]
+}
