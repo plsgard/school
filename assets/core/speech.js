@@ -73,11 +73,20 @@ export function createDeviceSource({ synth = globalThis.speechSynthesis, preferr
     };
 }
 
+// 8 samples of silence: played inside the first user gesture so iOS lets the same element play clips later.
+const SILENT_WAV = 'data:audio/wav;base64,UklGRjQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YRAAAAAAAAAAAAAAAAAAAAAAAAAA';
+
 export function createClipSource({ baseUrl, manifest = new Set() } = {}) {
     // manifest: Set of clip keys that exist (loaded from assets/audio/gs/manifest.json in Task 13)
     let audio = null;
     return {
         name: 'clips',
+        // Call synchronously inside a user gesture (the "Jouer" tap).
+        unlock() {
+            audio ??= new Audio();
+            audio.src = SILENT_WAV;
+            try { audio.play()?.catch?.(() => {}); } catch { /* ignore */ }
+        },
         canPlay(cue) { return !!cue.key && manifest.has(cue.key); },
         play(cue, { onDone }) {
             audio ??= new Audio();

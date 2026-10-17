@@ -9,8 +9,6 @@
 .gs-pill { color: #6b7a99; font-weight: 600; }
 .gs h1 { font-size: 30px; font-weight: 700; margin: 0; }
 .gs-hero { font-size: 84px; text-align: center; line-height: 1; }
-.gs-today { background: #f4f8fd; border-radius: 22px; padding: 14px 16px; display: grid; gap: 8px; }
-.gs-today div { display: flex; justify-content: space-between; gap: 8px; }
 .gs-cta { border: 0; background: #4cb944; color: #fff; font-size: 24px; font-weight: 700; border-radius: 999px; padding: 16px 28px; min-height: 56px; box-shadow: 0 6px 0 #2f8f2a; text-align: center; text-decoration: none; margin-top: auto; touch-action: manipulation; }
 .gs-cta:hover { color: #fff; }
 .gs-cta:active { transform: translateY(3px); box-shadow: 0 3px 0 #2f8f2a; }
@@ -47,20 +45,21 @@
    centres that 2.36em ink box in the tile, and the sizes keep 2.36em inside the smallest tile. */
 .gs-choice.ok { border-color: #4cb944; background: #e6f6e3; }
 .gs-choice.ko { border-color: #ef6f6c; background: #fde8e7; animation: gs-shake .35s; }
-.gs-choice.hint { border-color: #ffb703; animation: gs-pulse 1.4s ease infinite; }
 @keyframes gs-shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 .gs-choice .coll { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; font-size: 26px; line-height: 1.1; }
 .gs-dots { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
 .gs-dot { width: 56px; height: 56px; border-radius: 50%; border: 3px solid #d7e2f0; background: #f4f8fd; touch-action: manipulation; padding: 0; }
 .gs-dot.on { background: #ffb703; border-color: #d79600; }
 .gs-dot.fixed { cursor: default; }
-.gs-ok-btn { margin: 4px auto 0; display: block; min-width: 120px; }
+.gs-ok-btn { margin: 4px auto 0; display: block; min-width: 120px; font-size: 32px; }
+.gs-ok-btn.pulse { animation: gs-pulse 1.4s ease infinite; }
 .gs-slots { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
 .gs-slots span { width: 56px; height: 56px; border: 3px dashed #d7e2f0; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 700; }
 .gs-slots span.filled { border-style: solid; border-color: #4cb944; background: #e6f6e3; }
 .gs-trace { position: relative; background: #fff; border: 3px solid #d7e2f0; border-radius: 22px; overflow: hidden; touch-action: none; aspect-ratio: 1; width: 100%; max-width: 460px; margin: 0 auto; }
 .gs-trace canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; }
-.gs-trace-bar { display: flex; justify-content: center; }
+.gs-trace-bar { display: flex; justify-content: center; align-items: center; gap: 16px; flex-wrap: wrap; }
+.gs-trace-bar .gs-cta.next { margin: 0; }
 .gs-feedback { text-align: center; font-weight: 600; font-size: 20px; min-height: 28px; color: #6b7a99; }
 .gs-muted { color: #6b7a99; text-align: center; }
 .gs-stars { font-size: 34px; text-align: center; letter-spacing: 2px; }
@@ -83,4 +82,11 @@ body.gs.silent .gs-consigne span::before { content: "👩‍🏫 À lire :"; dis
     .gs-choice.digit { font-size: 38px; height: 80px; }
     .gs-seq span { width: 52px; height: 52px; }
 }
-@media (prefers-reduced-motion: reduce) { .gs-choice.ko, .gs-choice.hint, .gs-speak.pulse { animation: none; } }
+/* Home button: quitting needs a long-press (fills up) or a second tap within 2 s (ring shows it is armed). */
+.gs-quit { position: relative; overflow: hidden; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+.gs-quit::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: rgba(76, 185, 68, .45); transform: scale(0); }
+.gs-quit.holding::after { transform: scale(1); transition: transform .8s linear; }
+.gs-quit.armed { box-shadow: 0 0 0 4px #ffb703; }
+.gs-speak:disabled { opacity: .5; }
+.gs-preview { display: flex; justify-content: center; gap: 10px; font-size: 28px; }
+@media (prefers-reduced-motion: reduce) { .gs-choice.ko, .gs-speak.pulse, .gs-ok-btn.pulse { animation: none; } .gs-quit.holding::after { transition: none; } }

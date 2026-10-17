@@ -17,6 +17,8 @@ export const UI_CUES = {
     notThatOne: { key: 'ui.not-that-one', text: 'Pas celle-là.' },
     missing: { key: 'ui.missing', text: 'Il en manque.' },
     tooMany: { key: 'ui.too-many', text: 'Il y en a trop.' },
+    dotsConfirm: { key: 'ui.dots-confirm', text: 'Appuie sur le bouton vert quand c\'est fini.' },
+    restart: { key: 'ui.restart', text: 'Recommencer.' },
     more: {
         1: { key: 'ui.more.1', text: 'Encore une !' },
         2: { key: 'ui.more.2', text: 'Encore deux !' },
@@ -95,55 +97,70 @@ function choiceButton(c) {
     return b;
 }
 
-// Long-press speaks the choice; the click that follows the long-press is swallowed.
-function wirePressToSay(btn, say, speak) {
+// Long-press speaks `say`; the click that follows the long-press is swallowed. Inert once `isLive()` is false.
+function wirePressToSay(btn, say, speak, isLive = () => true) {
     let t = null;
     const clear = () => { clearTimeout(t); t = null; };
     btn.addEventListener('pointerdown', () => {
         delete btn.dataset.held;
         clear();
-        t = setTimeout(() => { btn.dataset.held = '1'; if (say) speak(say); }, LONG_PRESS_MS);
+        if (!isLive()) return;
+        t = setTimeout(() => { if (!isLive()) return; btn.dataset.held = '1'; if (say) speak(say); }, LONG_PRESS_MS);
     });
     for (const ev of ['pointerup', 'pointerleave', 'pointercancel']) btn.addEventListener(ev, clear);
     btn.addEventListener('contextmenu', (e) => e.preventDefault());
 }
 const consumeHeld = (b) => { if (!b.dataset.held) return false; delete b.dataset.held; return true; };
 
-function hideForAWhile(b) {
-    b.style.visibility = 'hidden';
-    setTimeout(() => { b.style.visibility = ''; }, HIDE_MS);
-}
+// The exercise currently on screen, so the page can tear it down if the session aborts.
+let disposeCurrent = null;
+export function disposeExercise() { disposeCurrent?.(); disposeCurrent = null; }
 
-export function renderExercise(root, ex, { speak, parentMode = false, waitForTap = false }) {
+// onSettle(): called once, when the exercise is solved or skipped (the page clears its prompt timer, disables 🔊).
+export function renderExercise(root, ex, { speak, parentMode = false, waitForTap = false, onSettle = () => {} }) {
     const { stage, choices, feedback } = root;
     const t0 = Date.now();
     let misses = 0;
     let finished = false;
-    let cleanup = () => {};
+    const timers = new Set();
+    let destroyTrace = null;
+    const later = (fn, ms) => { const id = setTimeout(() => { timers.delete(id); fn(); }, ms); timers.add(id); return id; };
+    const cleanup = () => { for (const id of timers) clearTimeout(id); timers.clear(); destroyTrace?.(); destroyTrace = null; };
+    disposeExercise();
+    disposeCurrent = cleanup;
+    const live = () => !finished;
+    const hideForAWhile = (b) => { b.style.visibility = 'hidden'; later(() => { b.style.visibility = ''; }, HIDE_MS); };
     renderStage(normaliseStage(ex.stage), stage);
     choices.replaceChildren();
     choices.className = 'gs-choices';
     feedback.replaceChildren();
-    const reveal = () => misses >= 2 && !parentMode;
+    // Two-miss rule (spec §7): the second miss reveals the answer. Parent mode never reveals (R22): the adult guides.
+    const revealing = () => misses >= 2 && !parentMode;
 
     return new Promise(resolve => {
-        const done = async () => {
+        // praise: false = skipped (trace "Suivant" after two misses): no success cue.
+        const finish = async ({ praise = true } = {}) => {
             if (finished) return;
             finished = true;
+            onSettle();
             const ms = Date.now() - t0;
-            feedback.textContent = `⭐ ${ex.success.text}`;
-            await speak(ex.success);
-            if (waitForTap) {
-                const next = button('gs-cta next', 'Suivant ▶', 'Suivant');
-                feedback.append(next);
-                next.focus({ preventScroll: true });
-                await new Promise(r => next.addEventListener('click', r, { once: true }));
-            } else {
-                await sleep(400);
+            if (praise) {
+                feedback.textContent = `⭐ ${ex.success.text}`;
+                await speak(ex.success);
+                if (waitForTap) {
+                    const next = button('gs-cta next', 'Suivant ▶', 'Suivant');
+                    feedback.append(next);
+                    next.focus({ preventScroll: true });
+                    await new Promise(r => next.addEventListener('click', r, { once: true }));
+                } else {
+                    await sleep(400);
+                }
             }
             cleanup();
+            if (disposeCurrent === cleanup) disposeCurrent = null;
             resolve({ correctFirstTry: misses === 0, attempts: misses + 1, ms });
         };
+        const done = () => finish();
 
         if (ex.layout === 'tap' || ex.layout === 'multitap') {
             if (ex.choices.length === 2) choices.classList.add('two');
@@ -154,7 +171,7 @@ export function renderExercise(root, ex, { speak, parentMode = false, waitForTap
             for (const c of ex.choices) {
                 const b = choiceButton(c);
                 buttons.set(c.id, b);
-                wirePressToSay(b, c.say, speak);
+                wirePressToSay(b, c.say, speak, live);
                 b.addEventListener('click', async () => {
                     if (consumeHeld(b) || b.disabled || finished) return;
                     if (c.correct) {
@@ -167,17 +184,20 @@ export function renderExercise(root, ex, { speak, parentMode = false, waitForTap
                     misses++;
                     b.classList.add('ko');
                     b.disabled = true;
+                    if (revealing()) {
+                        // Second miss: no "try again"; show every remaining right answer, the success cue says it.
+                        for (const id of [...remaining]) markOk(id);
+                        await sleep(400);
+                        b.classList.remove('ko');
+                        hideForAWhile(b);
+                        done();
+                        return;
+                    }
                     feedback.textContent = UI_CUES.tryAgain.text;
-                    const said = speak(ex.layout === 'multitap' && c.say ? c.say : UI_CUES.tryAgain);
+                    speak(ex.layout === 'multitap' && c.say ? c.say : UI_CUES.tryAgain);
                     await sleep(400); // let the shake play, then hide the wrong choice for a few seconds
                     b.classList.remove('ko'); b.disabled = false;
                     hideForAWhile(b);
-                    if (reveal() && !finished) {
-                        // Second miss: show every remaining right answer; the success cue says it out loud.
-                        for (const id of [...remaining]) markOk(id);
-                        await said;
-                        done();
-                    }
                 });
                 choices.append(b);
             }
@@ -187,30 +207,45 @@ export function renderExercise(root, ex, { speak, parentMode = false, waitForTap
             choices.classList.add('stack');
             const dots = el('div', 'gs-dots');
             const all = [];
+            const ok = button('gs-cta gs-ok-btn', '✔', 'C\'est bon');
+            let nudged = false;
+            const nudge = () => {
+                // First toggle: show and say where to confirm, once.
+                if (nudged) return;
+                nudged = true;
+                ok.classList.add('pulse');
+                speak(UI_CUES.dotsConfirm);
+            };
             for (let i = 0; i < ex.total; i++) {
                 const fixed = i < ex.lit;
                 const d = button(`gs-dot${fixed ? ' on fixed' : ''}`, null, fixed ? 'Rond déjà allumé' : 'Rond à allumer');
                 d.setAttribute('aria-pressed', String(fixed));
                 if (fixed) d.disabled = true;
-                else d.addEventListener('click', () => { if (finished) return; d.classList.toggle('on'); d.setAttribute('aria-pressed', String(d.classList.contains('on'))); });
+                else d.addEventListener('click', () => {
+                    if (finished) return;
+                    d.classList.toggle('on');
+                    d.setAttribute('aria-pressed', String(d.classList.contains('on')));
+                    nudge();
+                });
                 dots.append(d); all.push(d);
             }
-            const ok = button('gs-cta gs-ok-btn', '✔', 'C\'est bon');
             ok.addEventListener('click', async () => {
                 if (finished || ok.disabled) return;
+                ok.classList.remove('pulse');
                 const n = dots.querySelectorAll('.on').length;
                 if (n === ex.target) { ok.disabled = true; done(); return; }
                 misses++;
+                if (revealing()) {
+                    all.forEach((d, i) => { d.classList.toggle('on', i < ex.target); d.disabled = true; });
+                    ok.disabled = true;
+                    done();
+                    return;
+                }
                 const cueMsg = n < ex.target ? UI_CUES.missing : UI_CUES.tooMany;
                 feedback.textContent = cueMsg.text;
                 ok.disabled = true;
                 await speak(cueMsg);
-                if (reveal()) {
-                    all.forEach((d, i) => { d.classList.toggle('on', i < ex.target); d.disabled = true; });
-                    done();
-                    return;
-                }
-                ok.disabled = false;
+                if (!finished) ok.disabled = false;
             });
             choices.append(dots, ok);
         }
@@ -223,34 +258,42 @@ export function renderExercise(root, ex, { speak, parentMode = false, waitForTap
             let typed = 0;
             want.forEach(() => slots.append(el('span')));
             const tiles = [];
-            const showHint = () => {
-                for (const t of tiles) t.classList.remove('hint');
-                if (!reveal() || typed >= want.length) return;
-                tiles.find(t => t.style.visibility !== 'hidden' && t.dataset.label === want[typed])?.classList.add('hint');
+            const place = (b, label) => {
+                b.style.visibility = 'hidden'; b.disabled = true;
+                const s = slots.children[typed];
+                s.textContent = label; s.classList.add('filled');
+                typed++;
             };
             for (const c of ex.choices) {
                 const b = choiceButton(c);
                 b.dataset.label = c.label;
                 tiles.push(b);
-                wirePressToSay(b, c.say, speak);
+                wirePressToSay(b, c.say, speak, live);
                 b.addEventListener('click', async () => {
                     if (consumeHeld(b) || b.disabled || finished) return;
                     if (want[typed] === c.label) {
-                        b.style.visibility = 'hidden'; b.disabled = true;
-                        const s = slots.children[typed];
-                        s.textContent = c.label; s.classList.add('filled');
-                        typed++;
-                        showHint();
+                        place(b, c.label);
                         if (typed === want.length) { done(); return; }
                         if (c.say) speak(c.say);
                         return;
                     }
                     misses++;
                     b.classList.add('ko'); b.disabled = true;
+                    if (revealing()) {
+                        // Second miss: the remaining letters go in, in order, then the name is said.
+                        await sleep(400);
+                        b.classList.remove('ko'); b.disabled = false;
+                        while (typed < want.length) {
+                            const tile = tiles.find(t => !t.disabled && t.style.visibility !== 'hidden' && t.dataset.label === want[typed]);
+                            if (!tile) break;
+                            place(tile, want[typed]);
+                        }
+                        done();
+                        return;
+                    }
                     feedback.textContent = UI_CUES.notThatOne.text;
                     await speak(UI_CUES.notThatOne);
                     b.classList.remove('ko'); b.disabled = false;
-                    showHint();
                 });
                 pool.append(b);
             }
@@ -264,8 +307,10 @@ export function renderExercise(root, ex, { speak, parentMode = false, waitForTap
             box.setAttribute('aria-label', ex.prompt?.text ?? 'Trace la lettre');
             const bar = el('div', 'gs-trace-bar');
             const resetBtn = button('gs-icon', '↺', 'Recommencer');
+            wirePressToSay(resetBtn, UI_CUES.restart, speak, live);
             bar.append(resetBtn);
             choices.append(box, bar);
+            let skip = null;
             const t = mountTrace(box, ex.trace, {
                 onResult: (r) => {
                     if (finished) return;
@@ -274,11 +319,22 @@ export function renderExercise(root, ex, { speak, parentMode = false, waitForTap
                     misses++;
                     const hint = UI_CUES.traceHint[r.hintKey];
                     feedback.textContent = hint?.text ?? r.hint;
+                    if (revealing() && !skip) {
+                        // Second miss: say the letter, offer a way out; the canvas stays live for one more try.
+                        speak(ex.trace.say ?? hint ?? { text: r.hint });
+                        skip = button('gs-cta next', 'Suivant ▶', 'Suivant');
+                        skip.addEventListener('click', () => finish({ praise: false }), { once: true });
+                        bar.append(skip);
+                        return;
+                    }
                     speak(hint ?? { text: r.hint });
                 },
             });
-            resetBtn.addEventListener('click', () => { if (!finished) { t.reset(); feedback.replaceChildren(); } });
-            cleanup = () => t.destroy();
+            resetBtn.addEventListener('click', () => {
+                if (consumeHeld(resetBtn) || finished) return;
+                t.reset(); feedback.replaceChildren();
+            });
+            destroyTrace = () => t.destroy();
         }
     });
 }

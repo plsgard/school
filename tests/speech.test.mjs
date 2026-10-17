@@ -1,7 +1,7 @@
 // tests/speech.test.mjs
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import { createSpeech, SILENT_SOURCE } from '../assets/core/speech.js';
+import { createSpeech, createClipSource, SILENT_SOURCE } from '../assets/core/speech.js';
 
 function fakeSource(name, { can = true, finishes = true } = {}) {
     const calls = [];
@@ -60,5 +60,22 @@ describe('speak', () => {
         await sp.speak({ text: 'b' });
         assert.deepEqual(a.calls, ['a', 'stop']);
         assert.deepEqual(b.calls, ['b']);
+    });
+});
+
+describe('createClipSource', () => {
+    test('createClipSource_unlockThenPlay_reusesTheElementUnlockedInTheGesture', async () => {
+        const made = [];
+        const prev = globalThis.Audio;
+        globalThis.Audio = class { constructor() { this.plays = []; made.push(this); } play() { this.plays.push(this.src); return Promise.resolve(); } pause() {} };
+        try {
+            const src = createClipSource({ baseUrl: 'assets/audio/gs', manifest: new Set(['ui.done']) });
+            src.unlock();
+            assert.equal(made.length, 1);
+            assert.match(made[0].plays[0], /^data:audio\/wav;base64,/);
+            src.play({ key: 'ui.done', text: 'x' }, { onDone() {} });
+            assert.equal(made.length, 1);
+            assert.equal(made[0].plays[1], 'assets/audio/gs/ui/done.mp3');
+        } finally { globalThis.Audio = prev; }
     });
 });

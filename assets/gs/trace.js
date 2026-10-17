@@ -116,8 +116,8 @@ export function mountTrace(container, model, { onResult }) {
         if (failPending) reset();                              // new attempt before the auto-clear fired
         e.preventDefault();
         drawing = true; activeId = e.pointerId; activeType = e.pointerType;
-        ci.setPointerCapture(e.pointerId);
         strokes.push([pos(e)]);
+        try { ci.setPointerCapture(e.pointerId); } catch { /* capture is a nicety: a stroke must never be left without points */ }
     }
     function move(e) {
         if (!drawing || e.pointerId !== activeId) return;
