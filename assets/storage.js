@@ -37,6 +37,14 @@ export function getActiveProfileId() {
     return localStorage.getItem(`${NS}.activeProfileId`) ?? DEFAULT_PROFILE_ID;
 }
 
+// Profile whose math history a quiz page reads and writes (R28). The math quizzes belong to the older child: a page
+// opened (or bookmarked) after picking a GS child must keep using that history, so only an 'en'-track active
+// profile, or the profile-less legacy setup, gets its own history; anything else falls back to 'default'.
+export function historyProfileId(profiles, activeId) {
+    if (!profiles.length) return activeId;
+    return profiles.find(p => p.id === activeId)?.track === 'en' ? activeId : DEFAULT_PROFILE_ID;
+}
+
 export function loadHistory(quizId, profileId = getActiveProfileId()) {
     return readJSON(historyKey(profileId, quizId), []);
 }

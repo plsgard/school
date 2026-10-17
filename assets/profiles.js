@@ -8,8 +8,7 @@
 //
 // The 6ème profile keeps the id 'default': the older child's math history (and the legacy keys migrated to it)
 // already lives under school.v1.history.default.*.
-import { loadProfiles, saveProfiles, setActiveProfileId, loadSettings, saveSettings, loadSrs, saveSrs } from './storage.js';
-import { nameItemId } from './gs/decks/index.js';
+import { loadProfiles, saveProfiles, setActiveProfileId, loadSettings, saveSettings } from './storage.js';
 import { holdToActivate } from './hold.js';
 
 const DEFAULTS = [
@@ -36,6 +35,13 @@ export function selectProfile(profiles, id) {
     return TARGET[p.track] ?? null;
 }
 
+// Profile a track page plays as: the active one when it belongs to that track, else the first profile of the
+// track (a home-screen web app opened with empty storage, or after picking another child). Never redirects.
+export function trackProfileId(profiles, activeId, track) {
+    if (profiles.find(p => p.id === activeId)?.track === track) return activeId;
+    return profiles.find(p => p.track === track)?.id ?? activeId;
+}
+
 // Greeting name: the first name if set, else a real (non-placeholder) profile name, else nothing.
 export const displayName = (profile, settings) => settings.firstName || (profile?.placeholder ? '' : profile?.name ?? '');
 
@@ -53,16 +59,12 @@ export function renameProfile(id, name) {
     return profiles;
 }
 
-// Game side (parent corner): set the first name, drop the progress of the previous name's card, and rename the
-// picker card when it was a placeholder or equal to the old first name.
+// Game side (parent corner): set the first name and rename the picker card when it was a placeholder or equal to
+// the old first name. Track progress tied to the old name is the track's business (GS: assets/gs/name-cards.js).
 export function setFirstName(id, name, { syncProfile = true } = {}) {
     const next = name.trim().slice(0, MAX_NAME);
     const old = loadSettings(id).firstName;
     const settings = saveSettings(id, { firstName: next });
-    const keep = nameItemId(next);
-    const srs = loadSrs(id, 'gs');
-    const cards = Object.fromEntries(Object.entries(srs.cards).filter(([cid]) => !cid.startsWith('name/') || (keep && cid.startsWith(`name/${keep}#`))));
-    if (Object.keys(cards).length !== Object.keys(srs.cards).length) saveSrs(id, 'gs', { ...srs, cards });
     if (syncProfile && next) {
         const profiles = loadProfiles();
         const p = profiles.find(x => x.id === id);

@@ -71,12 +71,13 @@ describe('setFirstName', () => {
         p.setFirstName('lou', 'Louna-Rose');
         assert.equal(s.loadProfiles()[0].name, 'Lou');
     });
-    test('setFirstName_NewName_DropsSrsOfOtherNameCardsOnly', () => {
+    test('setFirstName_NewName_LeavesTrackProgressToTheTrack', () => {
+        // I9: profiles.js only renames; the GS track prunes its own name cards (assets/gs/name-cards.js).
         p.ensureProfiles();
         const card = { box: 2, due: '2026-10-18', seen: 1, lapses: 0 };
-        s.saveSrs('kid-gs', 'gs', { cards: { 'name/lou#name-spell': card, 'name/zoe#name-spell': card, 'letters/a#trace': card }, introduced: {} });
+        s.saveSrs('kid-gs', 'gs', { cards: { 'name/lou#name-spell': card, 'letters/a#trace': card }, introduced: {} });
         p.setFirstName('kid-gs', 'Zoe');
-        assert.deepEqual(Object.keys(s.loadSrs('kid-gs', 'gs').cards).sort(), ['letters/a#trace', 'name/zoe#name-spell']);
+        assert.deepEqual(Object.keys(s.loadSrs('kid-gs', 'gs').cards).sort(), ['letters/a#trace', 'name/lou#name-spell']);
     });
 });
 
@@ -103,3 +104,23 @@ describe('prefillFirstName', () => {
         assert.equal(p.prefillFirstName(s.loadProfiles()[0]).firstName, '');
     });
 });
+
+describe('trackProfileId', () => {
+    const profiles = [{ id: 'default', track: 'en' }, { id: 'kid-gs', track: 'gs' }, { id: 'kid2', track: 'gs' }];
+    test('trackProfileId_ActiveOnThatTrack_ReturnsActive', () => {
+        assert.equal(p.trackProfileId(profiles, 'kid2', 'gs'), 'kid2');
+    });
+    test('trackProfileId_ActiveOnAnotherTrack_ReturnsFirstProfileOfTheTrack', () => {
+        assert.equal(p.trackProfileId(profiles, 'default', 'gs'), 'kid-gs');
+    });
+    test('trackProfileId_ActiveMissing_ReturnsFirstProfileOfTheTrack', () => {
+        assert.equal(p.trackProfileId(profiles, 'gone', 'gs'), 'kid-gs');
+    });
+    test('trackProfileId_NoProfileOnTheTrack_KeepsActive', () => {
+        assert.equal(p.trackProfileId([{ id: 'default', track: 'en' }], 'default', 'gs'), 'default');
+    });
+    test('trackProfileId_EmptyStorageAfterEnsureProfiles_ReturnsSeededGsProfile', () => {
+        assert.equal(p.trackProfileId(p.ensureProfiles(), s.getActiveProfileId(), 'gs'), 'kid-gs');
+    });
+});
+

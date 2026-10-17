@@ -13,14 +13,17 @@
 //   #historyList                                  — history <ul>
 //   #celebration, #confetti                       — overlay + confetti container
 
-import { loadHistory, saveResult, migrateLegacyHistory } from './storage.js';
+import { loadHistory, saveResult, migrateLegacyHistory, loadProfiles, getActiveProfileId, historyProfileId } from './storage.js';
 import { celebrate } from './celebration.js';
 
 const MIN_QUESTIONS = 1;
 const MIN_TIMER_SECONDS = 10;
 
+// Resolved on every read/write: the active profile can change in another tab.
+const historyProfile = () => historyProfileId(loadProfiles(), getActiveProfileId());
+
 function renderHistory(quizId, listEl) {
-    const history = loadHistory(quizId);
+    const history = loadHistory(quizId, historyProfile());
     listEl.innerHTML = history.map((entry, index) =>
         `<li class="list-group-item">${index + 1}. Score: ${entry.score}/${entry.totalQuestions}, Timer: ${entry.timerDuration}s, Time Left: ${entry.timeLeft}s, Submitted: ${entry.submittedAutomatically ? 'Automatically (Timer Ended)' : 'Manually'}, Date: ${entry.date}</li>`
     ).join('');
@@ -154,7 +157,7 @@ export function startQuiz({ quizId, generateQuestion, validateSettings }) {
 
         if (score === totalQuestions) celebrate();
 
-        saveResult(quizId, { score, totalQuestions, timerDuration, timeLeft, submittedAutomatically });
+        saveResult(quizId, { score, totalQuestions, timerDuration, timeLeft, submittedAutomatically }, historyProfile());
         renderHistory(quizId, historyList);
 
         if (submittedAutomatically) {

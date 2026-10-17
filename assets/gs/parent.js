@@ -6,6 +6,7 @@ import { saveSettings, loadSrs, loadSessions } from '../storage.js';
 import { boxCounts, GS_PROFILE } from '../core/scheduler.js';
 import { cardLabel, extraSessionState } from './rules.js';
 import { setFirstName } from '../profiles.js';
+import { pruneNameCards } from './name-cards.js';
 import { PAGE_CUES } from './cues.js';
 
 const NBSP = ' ';
@@ -47,7 +48,11 @@ export function mountParent(root, { profileId, settings, cards, device, speech, 
     // ---- Settings
     const firstName = h('input', { class: 'form-control', id: 'firstName', value: settings.firstName, autocomplete: 'off', maxLength: 30 });
     // One name per child: also renames a placeholder picker card and drops the old name card's progress.
-    const commitFirstName = () => { if (firstName.value.trim() !== settings.firstName) Object.assign(settings, setFirstName(profileId, firstName.value)); };
+    const commitFirstName = () => {
+        if (firstName.value.trim() === settings.firstName) return;
+        Object.assign(settings, setFirstName(profileId, firstName.value));
+        pruneNameCards(profileId, settings.firstName);
+    };
     firstName.addEventListener('change', commitFirstName);
     const sessionItems = h('select', { class: 'form-select', id: 'sessionItems' },
         [5, 6, 7, 8].map(n => h('option', { value: String(n), selected: n === settings.sessionItems }, String(n))));
@@ -56,7 +61,7 @@ export function mountParent(root, { profileId, settings, cards, device, speech, 
     parentMode.addEventListener('change', () => save({ parentMode: parentMode.checked }));
 
     const settingsCard = card('Réglages',
-        h('label', { class: 'form-label w-100', for: 'firstName' }, 'Prénom de l\'enfant (pour le jeu « remets les lettres de ton prénom »)'),
+        h('label', { class: 'form-label w-100', for: 'firstName' }, 'Prénom de l\'enfant (pour le jeu «\u00a0remets les lettres de ton prénom\u00a0»)'),
         firstName,
         h('label', { class: 'form-label w-100 mt-2', for: 'sessionItems' }, 'Nombre de jeux par partie'),
         sessionItems,
@@ -101,7 +106,7 @@ export function mountParent(root, { profileId, settings, cards, device, speech, 
         h('label', { class: 'form-label w-100 mt-2', for: 'voice' }, 'Voix de l\'appareil'),
         voiceSelect, test, noVoice,
         h('p', { class: 'small text-muted mt-2 mb-0' },
-            'Voix robotique ? Sur iPad\u00a0: Réglages › Accessibilité › Contenu énoncé › Voix › Français, puis téléchargez une voix « améliorée ». Sur Mac\u00a0: Réglages Système › Accessibilité › Contenu énoncé › Voix du système.'));
+            'Voix robotique\u00a0? Sur iPad\u00a0: Réglages › Accessibilité › Contenu énoncé › Voix › Français, puis téléchargez une voix «\u00a0améliorée\u00a0». Sur Mac\u00a0: Réglages Système › Accessibilité › Contenu énoncé › Voix du système.'));
 
     // ---- Today's session (R24: exactly one more completed session today)
     const capLine = h('p', { class: 'mb-2' });

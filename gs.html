@@ -23,7 +23,8 @@
             <h1 id="hello">Salut&nbsp;!</h1>
             <div class="gs-hero" aria-hidden="true">🌟</div>
             <div class="gs-preview" id="today" role="img"></div>
-            <button type="button" class="gs-cta" id="play" aria-label="Jouer">▶ Jouer</button>
+            <!-- M4: ▶ Jouer appears once app.js is ready (renderHome) -->
+            <button type="button" class="gs-cta" id="play" aria-label="Jouer" hidden>▶ Jouer</button>
             <button type="button" class="gs-moon" id="moon" hidden aria-label="Tu as déjà joué aujourd'hui. À demain&nbsp;!">🌙</button>
         </section>
         <section id="exercise" class="gs-screen" hidden>
@@ -43,7 +44,7 @@
         </section>
         <section id="done" class="gs-screen" hidden>
             <h1 id="doneTitle">Bravo&nbsp;!</h1>
-            <div class="gs-hero" aria-hidden="true">🦊🎉</div>
+            <div class="gs-hero" id="doneHero" aria-hidden="true">🎉</div>
             <div class="gs-stars" id="stars"></div>
             <p class="gs-muted" id="tomorrow"></p>
             <a class="gs-cta" href="gs.html" aria-label="Retour à l'accueil">🏠 Retour</a>

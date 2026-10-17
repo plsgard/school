@@ -53,3 +53,21 @@ describe('sessions', () => {
         assert.equal(all[0].date, 'd15');
     });
 });
+
+describe('historyProfileId', () => {
+    const profiles = [{ id: 'kid-gs', track: 'gs' }, { id: 'default', track: 'en' }, { id: 'ado', track: 'en' }];
+    test('historyProfileId_NoProfiles_ReturnsActive', () => {
+        assert.equal(s.historyProfileId([], 'default'), 'default');
+        assert.equal(s.historyProfileId([], 'legacy'), 'legacy');
+    });
+    test('historyProfileId_ActiveIsEnTrack_ReturnsActive', () => {
+        assert.equal(s.historyProfileId(profiles, 'ado'), 'ado');
+    });
+    test('historyProfileId_ActiveIsGsTrack_ReturnsDefault', () => {
+        assert.equal(s.historyProfileId(profiles, 'kid-gs'), 'default');
+    });
+    test('historyProfileId_ActiveUnknown_ReturnsDefault', () => {
+        assert.equal(s.historyProfileId(profiles, 'gone'), 'default');
+    });
+});
+

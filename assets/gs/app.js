@@ -1,6 +1,6 @@
 // assets/gs/app.js
 // Grande Section page: home → 6-item session → done. Wires storage, composer, generators, renderers and speech.
-import { getActiveProfileId, loadProfiles, loadSettings, loadSrs, saveSrs, loadSessions, appendSession } from '../storage.js';
+import { getActiveProfileId, setActiveProfileId, loadProfiles, loadSettings, loadSrs, saveSrs, loadSessions, appendSession } from '../storage.js';
 import { recordResult } from '../core/progress.js';
 import { compose, GS_CONSTRAINTS } from '../core/session.js';
 import { createSpeech, createDeviceSource, createClipSource, SILENT_SOURCE } from '../core/speech.js';
@@ -11,7 +11,9 @@ import { renderExercise, disposeExercise } from './renderers.js';
 import { PAGE_CUES } from './cues.js';
 import { mountParent } from './parent.js';
 import { localDay, dailyCapReached, effectiveParentMode } from './rules.js';
-import { displayName, prefillFirstName } from '../profiles.js';
+import { displayName, prefillFirstName, ensureProfiles, trackProfileId } from '../profiles.js';
+import { pruneNameCards } from './name-cards.js';
+import { sayInput } from './say.js';
 import { holdToActivate } from '../hold.js';
 
 const today = () => localDay(new Date());
@@ -23,11 +25,17 @@ const NBSP = '\u00a0'; // French typography: non-breaking space before ! ? :
 // Fixed UI cues spoken by the page live in cues.js (pure, so tools/cues.mjs can record them).
 const { letsGo: CUE_LETS_GO, comeBackTomorrow: CUE_TOMORROW, done: CUE_DONE } = PAGE_CUES;
 
-const profileId = getActiveProfileId();
-const stored = loadProfiles().find(p => p.id === profileId);
+// I5: opened without a GS profile active (home-screen web app with empty storage, or after picking 🐼): play as the
+// first GS profile. The picker is never forced, so there is no redirect loop.
+let profiles = loadProfiles();
+persist(() => { profiles = ensureProfiles(); });
+const profileId = trackProfileId(profiles, getActiveProfileId(), 'gs');
+if (profileId !== getActiveProfileId()) persist(() => setActiveProfileId(profileId));
+const stored = profiles.find(p => p.id === profileId);
 const profile = stored ?? { id: profileId, name: '', avatar: '🦊' };
 // One name per child (see profiles.js): a named profile seeds the first name once.
 const settings = stored ? prefillFirstName(stored) : loadSettings(profileId);
+persist(() => pruneNameCards(profileId, settings.firstName)); // the first name may have changed on the picker
 const decks = await loadDecks();
 // Rebuilt when the parent corner closes: a new first name changes the name-spell card of the next session.
 let cards = expandCards(decks, { firstName: settings.firstName });
@@ -37,7 +45,7 @@ try {
     const res = await fetch('assets/audio/gs/manifest.json');
     if (res.ok) manifest = new Set(await res.json());
 } catch { /* no clips yet: device voice fallback */ }
-const device = createDeviceSource({ preferredVoice: settings.voice });
+const device = createDeviceSource({ preferredVoice: settings.voice, transform: sayInput }); // I2: "fff" is a sound, not letter names
 const clips = createClipSource({ baseUrl: 'assets/audio/gs', manifest });
 const speech = createSpeech({ sources: [clips, device, SILENT_SOURCE] });
 speech.setSource(settings.audio);
@@ -70,6 +78,11 @@ function unlockAudio() {
 
 let promptTimer = null;
 
+// M9: a full or blocked storage (quota, private mode) must never stop a child's game: log and keep playing.
+function persist(write) {
+    try { write(); } catch (err) { console.warn('[gs] progress not saved', err); }
+}
+
 async function runSession() {
     const sessionProfileId = profileId; // captured: a profile switch mid-session must not leak
     const n = settings.sessionItems;
@@ -80,6 +93,8 @@ async function runSession() {
 
     const exercises = slots.map(c => generate(c, { cards }));
     while (exercises.length < n) exercises.push(generatePattern()); // R13: always a full session
+    // I3: warm the HTTP cache with this session's clips, so the first play of each is not a network round trip.
+    clips.preload(exercises.flatMap(ex => [ex.prompt, ex.success, ex.trace?.say, ...(ex.choices ?? []).map(c => c.say)]));
     const items = [];
     const t0 = Date.now();
     show('exercise');
@@ -99,7 +114,7 @@ async function runSession() {
             if (k < i) dot.className = 'done'; else if (k === i) dot.className = 'now';
             return dot;
         }));
-        $('consigne').textContent = ex.prompt.text;
+        $('consigne').textContent = ex.prompt.display ?? ex.prompt.text; // I6: written form, never phonetic spelling
         replay.disabled = false;
         replay.onclick = () => speech.speak(ex.prompt);
         clearTimeout(promptTimer);
@@ -113,13 +128,17 @@ async function runSession() {
             { speak: speech.speak, parentMode, waitForTap, onSettle: settle });
         clearTimeout(promptTimer);
         items.push({ cardId: ex.cardId, type: ex.type, ...result });
-        if (ex.cardId) { srs = recordResult(srs, ex.cardId, result.correctFirstTry, day); saveSrs(sessionProfileId, 'gs', srs); }
+        if (ex.cardId) {
+            srs = recordResult(srs, ex.cardId, result.correctFirstTry, day);
+            persist(() => saveSrs(sessionProfileId, 'gs', srs));
+        }
     }
 
-    appendSession(sessionProfileId, 'gs', { date: new Date().toISOString(), items, durationMs: Date.now() - t0 });
+    persist(() => appendSession(sessionProfileId, 'gs', { date: new Date().toISOString(), items, durationMs: Date.now() - t0 }));
     show('done');
     const name = displayName(profile, settings);
     $('doneTitle').textContent = name ? `Bravo ${name}${NBSP}!` : `Bravo${NBSP}!`;
+    $('doneHero').textContent = `${profile.avatar || '🦊'}🎉`;
     $('stars').textContent = '⭐'.repeat(items.length); // stars only, no score shown to the child
     $('stars').setAttribute('aria-label', `${items.length} étoiles`);
     $('tomorrow').textContent = 'À demain pour de nouveaux jeux !';
