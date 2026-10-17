@@ -1,5 +1,5 @@
 // assets/core/session.js
-// Pure session composer. Picks due cards first, introduces new ones within a daily budget,
+// Pure session composer. Picks due cards first (keeping slots for new cards), introduces new ones within a daily budget,
 // then arranges them under variety constraints. Track-agnostic: constraints are injected.
 import { dueCards } from './scheduler.js';
 
@@ -8,6 +8,7 @@ export const GS_CONSTRAINTS = {
     traceSlots: [2, 3],
     maxNumbers: 2,
     newPerDay: { letters: 2, words: 3, numbers: 1, name: 1 },
+    newSlots: 2,
 };
 
 const itemKey = (cardId) => cardId.split('#')[0];
@@ -21,29 +22,49 @@ function shuffle(arr, rng) {
     return a;
 }
 
+// A brand-new item enters with its first skill only (deck skill order) and is charged to its kind's daily
+// item budget. Its other skills become eligible as new cards once that first card reached box >= UNLOCK_BOX;
+// those unlocked siblings never charge the item budget again (R26, staged skills).
+const UNLOCK_BOX = 2;
+
 function pickNew({ srs, cards, today, constraints, rng }) {
-    const alreadyToday = new Set(srs.introduced[today] ?? []);
-    const budget = {};
-    for (const [kind, n] of Object.entries(constraints.newPerDay)) budget[kind] = n;
-    for (const key of alreadyToday) {
-        const kind = cards.find(c => itemKey(c.id) === key)?.kind;
+    const budget = { ...constraints.newPerDay };
+    const groups = new Map();
+    for (const c of cards) {
+        const key = itemKey(c.id);
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(c);
+    }
+    for (const key of srs.introduced?.[today] ?? []) {
+        const kind = groups.get(key)?.[0].kind;
         if (kind && budget[kind] > 0) budget[kind]--;
     }
-    const chosenItems = new Set();
-    const out = [];
+    const fresh = [];
+    const unlocked = [];
+    const introduced = [];
     // Deck order is the introduction order (decks list items in teaching order).
-    for (const c of cards) {
-        if (srs.cards[c.id]) continue;
-        const key = itemKey(c.id);
-        if (alreadyToday.has(key)) continue;
-        if (!chosenItems.has(key)) {
-            if ((budget[c.kind] ?? 0) <= 0) continue;
-            budget[c.kind]--;
-            chosenItems.add(key);
+    for (const [key, group] of groups) {
+        const [first] = group;
+        if (!group.some(c => srs.cards[c.id])) {
+            if ((budget[first.kind] ?? 0) <= 0) continue;
+            budget[first.kind]--;
+            fresh.push(first);
+            introduced.push(key);
+        } else if (!srs.cards[first.id]) {
+            unlocked.push(first); // older progress saw a sibling first: the first skill is simply due as new
+        } else if (srs.cards[first.id].box >= UNLOCK_BOX) {
+            unlocked.push(...group.filter(c => !srs.cards[c.id]));
         }
-        out.push(c);
     }
-    return { newCards: shuffle(out, rng), introduced: [...chosenItems] };
+    // Interleave so that new items and unlocked skills of known items share the reserved new slots.
+    const a = shuffle(fresh, rng);
+    const b = shuffle(unlocked, rng);
+    const newCards = [];
+    for (let i = 0; i < Math.max(a.length, b.length); i++) {
+        if (i < a.length) newCards.push(a[i]);
+        if (i < b.length) newCards.push(b[i]);
+    }
+    return { newCards, introduced };
 }
 
 const EASY_BOX = 3;
@@ -101,7 +122,11 @@ export function compose({ srs, cards, today, rng = Math.random, constraints = GS
     const { newCards, introduced } = pickNew({ srs, cards, today, constraints, rng });
     const padding = paddingOrder(cards, srs, today, rng);
     const boxOf = (c) => srs.cards[c.id]?.box ?? 0;
-    const slots = arrange([...due, ...newCards, ...padding], constraints, rng, boxOf);
+    // R26: keep up to NEW_SLOTS slots for new cards whenever some exist; the extra due reviews (highest boxes,
+    // since due is sorted lowest box first) slip to a later day. They stay ahead of padding as a fallback.
+    const reserve = Math.min(constraints.newSlots ?? 0, newCards.length);
+    const keep = Math.max(constraints.items - reserve, 0);
+    const slots = arrange([...due.slice(0, keep), ...newCards, ...due.slice(keep), ...padding], constraints, rng, boxOf);
     const usedIntroduced = introduced.filter(key => slots.some(s => itemKey(s.id) === key));
     return { slots, introduced: usedIntroduced };
 }

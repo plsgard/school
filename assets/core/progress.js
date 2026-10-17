@@ -7,10 +7,11 @@ import { record, GS_PROFILE } from './scheduler.js';
 const itemKey = (cardId) => cardId.split('#')[0];
 
 export function recordResult(srs, cardId, correctFirstTry, today, profile = GS_PROFILE) {
-    const wasNew = !srs.cards[cardId];
+    const key = itemKey(cardId);
+    // Only a brand-new item counts: an unlocked sibling skill of a known item never charges the budget (R26).
+    const wasNew = !Object.keys(srs.cards).some(id => itemKey(id) === key);
     const next = record(srs, cardId, correctFirstTry, today, profile);
     if (!wasNew) return next;
-    const key = itemKey(cardId);
     const todays = srs.introduced?.[today] ?? [];
     if (todays.includes(key)) return next;
     return { ...next, introduced: { ...srs.introduced, [today]: [...todays, key] } };

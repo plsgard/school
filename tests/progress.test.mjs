@@ -29,6 +29,12 @@ describe('recordResult', () => {
         srs = recordResult(srs, 'letters/a#letter-3scripts', false, day);
         assert.deepEqual(srs.introduced[day], ['letters/a']);
     });
+    test('recordResult_UnlockedSiblingOfItemIntroducedEarlier_DoesNotChargeTodaysBudget', () => {
+        const srs = { cards: { 'letters/a#letter-3scripts': { box: 2, due: day, seen: 1, lapses: 0 } }, introduced: { '2026-10-16': ['letters/a'] } };
+        const next = recordResult(srs, 'letters/a#sound-letter', true, day);
+        assert.equal(next.introduced[day], undefined);
+        assert.equal(next.cards['letters/a#sound-letter'].box, 2);
+    });
     test('recordResult_KnownCard_DoesNotTouchIntroduced', () => {
         const srs = { cards: { 'letters/a#trace': { box: 2, due: day, seen: 1, lapses: 0 } }, introduced: { '2026-10-16': ['letters/a'] } };
         const next = recordResult(srs, 'letters/a#trace', true, day);
