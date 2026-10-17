@@ -76,7 +76,7 @@ During a session, 🏠 quits on a 0.8 s hold or two taps within 2 s; a single st
 
 ### Clips to check by ear
 
-Stretched sounds ("fff", "chchch", "le son beu", "Colle les sons…") and nobody has listened to them yet. These **145 clips** (137 recorded from adapted TTS input (`assets/gs/say.js`) plus 8 plain-TTS "le son beu/keu/peu" clips: `ui.sound-pick.{b,k,p}`, `ui.sound-pick-ok.{ballon,banane,bateau,kiwi,papillon}`) must be checked by ear; the voiced continuants (`j`, `z`, `v`, `l`, `m`, `n`, `r`) are the most at risk.
+Stretched sounds ("fff", "chchch", "Colle les sons…") and the "le son beu/keu/peu" prompts have not been listened to yet. These **145 clips** (137 recorded from adapted TTS input, 8 plain TTS) must be checked by ear; the voiced continuants (`j`, `z`, `v`, `l`, `m`, `n`, `r`) are the most at risk.
 
 **Re-record one as manual:** save the mp3 at `assets/audio/gs/<key with '.' replaced by '/'>.mp3` (mono, 32 kbps is enough; e.g. `ui.blend.fa` → `assets/audio/gs/ui/blend/fa.mp3`), then set its entry in `assets/audio/gs/sources.json` to `{ "manual": true, "text": "<the cue text it says>" }`. The `text` must be byte-identical to the cue text, U+00A0 included: copy it exactly (the `STALE` message prints it). `gen-audio.mjs` never overwrites a manual clip (only `--only <key> --force` does) and reports it as `STALE` when the cue text changes.
 
