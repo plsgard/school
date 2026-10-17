@@ -420,6 +420,14 @@ describe('composePractice', () => {
         assert.equal(slots.length, 5); // pool() has 5 words: one preview card per item
         assert.deepEqual([...preview].sort(), slots.map(s => s.id).sort());
     });
+    test('composePractice_FreshProfilePreview_AtMostTwoPerSkill', () => {
+        const srs = { cards: {}, introduced: { [T]: ['words/lapin', 'words/chapeau', 'words/fusee'] } };
+        for (let k = 0; k < 20; k++) {
+            const { preview } = composePractice({ srs, cards: pool(), today: T, include: sons, rng: lcg(k) });
+            const skills = preview.map(id => id.split('#')[1]);
+            for (const sk of new Set(skills)) assert.ok(skills.filter(x => x === sk).length <= 2, preview.join());
+        }
+    });
     test('composePractice_PreviewCards_KnownItemsFirstOnePerItem', () => {
         const srs = { cards: { 'words/moto#syll-count': { box: 1, due: '2026-10-18', seen: 1, lapses: 0 } }, introduced: { [T]: ['words/lapin', 'words/chapeau', 'words/fusee'] } };
         const { preview } = composePractice({ srs, cards: pool(), today: T, include: sons, rng: lcg(5) });

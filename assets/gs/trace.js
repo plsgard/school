@@ -109,9 +109,9 @@ export function mountTrace(container, model, { onResult, onNext = () => {} }) {
             if (e.pointerType !== 'pen' || activeType === 'pen') return;
             dropActiveStroke();                                  // palm/finger stroke in progress: the Pencil wins
         }
-        clearTimeout(idleTimer); idleTimer = null;
         if (graceTimer) { clearTimeout(graceTimer); graceTimer = null; } // lifted and came back: same attempt
         else if (failPending) clearFailed();                    // new attempt before the auto-clear fired
+        clearTimeout(idleTimer); idleTimer = null;              // after clearFailed: it may arm one, the child is drawing
         dropStray();                                            // a stray tap must not become this stroke's start
         if (e.pointerType === 'pen' && strokes.some(st => st[0][3] !== 'pen')) {
             strokes = strokes.filter(st => st[0][3] === 'pen');  // the palm landed before the Pencil: drop its ink

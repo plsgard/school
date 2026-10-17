@@ -183,3 +183,5 @@ body.gs.silent .gs-consigne span::before { content: "👩‍🏫 À lire\00a0:";
     /* the play area (stage, choices, feedback) is centred in the space left under the consigne */
     #exercise .gs-consigne, #exercise .gs-feedback { margin-bottom: auto; }
 }
+/* The 3 s confetti overlay must not swallow taps on the done screen's Encore / Home buttons. */
+.gs .celebration { pointer-events: none; }

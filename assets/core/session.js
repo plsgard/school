@@ -245,12 +245,18 @@ export function composePractice({ srs, cards, today, include = () => true, rng =
         // Never a locked card, even unrecorded: a cursive model before its capital would contradict "capitals first".
         const groups = groupsOf(cards);
         const unknown = themed.filter(c => !st(c) && !fresh.includes(c) && !lockedIn(constraints, srs, groups.get(itemKey(c.id)))(c));
-        for (const c of [...unknown.filter(c => knownItems.has(itemKey(c.id))), ...unknown.filter(c => !knownItems.has(itemKey(c.id)))]) {
-            if (picked.length >= n) break;
-            if (taken.has(itemKey(c.id))) continue;
-            taken.add(itemKey(c.id));
-            picked.push(c);
-            preview.push(c.id);
+        const candidates = [...unknown.filter(c => knownItems.has(itemKey(c.id))), ...unknown.filter(c => !knownItems.has(itemKey(c.id)))];
+        // Variety first: at most 2 preview cards per skill, then the cap is lifted if the theme has nothing else.
+        const perSkill = new Map();
+        for (const cap of [2, Infinity]) {
+            for (const c of candidates) {
+                if (picked.length >= n) break;
+                if (taken.has(itemKey(c.id)) || (perSkill.get(c.skill) ?? 0) >= cap) continue;
+                taken.add(itemKey(c.id));
+                perSkill.set(c.skill, (perSkill.get(c.skill) ?? 0) + 1);
+                picked.push(c);
+                preview.push(c.id);
+            }
         }
     }
     return { slots: orderRound(picked, (c) => st(c)?.box ?? 0, (c) => !st(c)), preview };
