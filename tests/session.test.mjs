@@ -54,4 +54,61 @@ describe('compose', () => {
         const { introduced } = compose({ srs, cards: pool(), today: T });
         assert.ok(!introduced.some(id => id.startsWith('letters/')));
     });
+    test('compose_MoreThan6DueAcrossBoxes_SelectsBox1BeforeBox3', () => {
+        const srs = { cards: {}, introduced: { [T]: [] } };
+        const box1 = ['letters/a#letter-3scripts', 'words/lapin#syll-count', 'numbers/1#count', 'words/moto#sound-pick', 'letters/e#trace'];
+        const box3 = ['letters/i#sound-letter', 'words/fusee#syll-match', 'numbers/2#compare', 'numbers/3#decompose'];
+        for (const id of box3) srs.cards[id] = { box: 3, due: T };
+        for (const id of box1) srs.cards[id] = { box: 1, due: T };
+        for (let k = 0; k < 50; k++) {
+            const { slots } = compose({ srs, cards: pool(), today: T });
+            for (const id of box1) assert.ok(slots.some(s => s.id === id), `missing box-1 ${id}`);
+            assert.equal(slots.filter(s => srs.cards[s.id]?.box === 3).length, 1);
+        }
+    });
+    test('compose_MixedBoxPadding_PadsOnlyFromBox4OrMoreWhenEnough', () => {
+        const cards = pool();
+        const srs = { cards: {}, introduced: { [T]: [] } };
+        const boxFor = { letters: 5, words: 4, numbers: 1 };
+        cards.forEach((c, i) => { srs.cards[c.id] = { box: c.kind === 'numbers' ? 1 + (i % 3) : boxFor[c.kind], due: '2026-12-01' }; });
+        for (let k = 0; k < 50; k++) {
+            const { slots } = compose({ srs, cards, today: T });
+            assert.equal(slots.length, 6);
+            for (const s of slots) assert.ok(srs.cards[s.id].box >= 4, `${s.id} box ${srs.cards[s.id].box}`);
+        }
+    });
+    test('compose_ThinPool_KeepsInvariantsAndNeverCompacts', () => {
+        const cards = [];
+        for (const l of 'aeiom') for (const sk of ['sound-letter', 'trace']) cards.push(card(`letters/${l}#${sk}`, 'letters', sk));
+        const srs = { cards: {}, introduced: { [T]: [] } };
+        for (const c of cards) srs.cards[c.id] = { box: 5, due: '2026-12-01' };
+        for (let k = 0; k < 200; k++) {
+            const { slots } = compose({ srs, cards, today: T });
+            assert.ok(slots.length <= 6);
+            for (let i = 1; i < slots.length; i++) assert.notEqual(slots[i].skill, slots[i - 1].skill);
+            const idx = slots.map((s, i) => s.skill === 'trace' ? i : -1).filter(i => i >= 0);
+            assert.ok(idx.length <= 1);
+            if (idx.length) assert.ok(GS_CONSTRAINTS.traceSlots.includes(idx[0]), `trace at ${idx[0]}`);
+        }
+    });
+    test('compose_EasyCardAvailable_PlacesBox3OrMoreInSlot0Or1', () => {
+        const srs = { cards: {}, introduced: { [T]: [] } };
+        for (const l of 'aeiolmnt') for (const sk of ['letter-3scripts', 'sound-letter', 'trace']) srs.cards[`letters/${l}#${sk}`] = { box: 1, due: T };
+        srs.cards['words/lapin#syll-count'] = { box: 3, due: T };
+        for (let k = 0; k < 50; k++) {
+            const { slots } = compose({ srs, cards: pool(), today: T });
+            assert.ok(slots.slice(0, 2).some(s => srs.cards[s.id]?.box >= 3));
+        }
+    });
+    test('compose_NumbersTrace_CountsTowardMaxNumbers', () => {
+        const cards = [];
+        for (let n = 0; n <= 5; n++) for (const sk of ['count', 'compare', 'trace']) cards.push(card(`numbers/${n}#${sk}`, 'numbers', sk));
+        for (const w of ['lapin', 'moto']) for (const sk of ['syll-count', 'sound-pick']) cards.push(card(`words/${w}#${sk}`, 'words', sk));
+        const srs = { cards: {}, introduced: { [T]: [] } };
+        for (const c of cards) srs.cards[c.id] = { box: c.kind === 'numbers' ? 1 : 2, due: T };
+        for (let k = 0; k < 50; k++) {
+            const { slots } = compose({ srs, cards, today: T });
+            assert.ok(slots.filter(s => s.kind === 'numbers').length <= 2);
+        }
+    });
 });

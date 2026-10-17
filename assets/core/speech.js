@@ -28,7 +28,8 @@ export function createSpeech({ sources, order = ['clips', 'device', 'silent'], t
         return new Promise(resolve => {
             let finished = false;
             const done = () => { if (finished) return; finished = true; clearTimeout(timer); if (current?.done === done) current = null; resolve(); };
-            const timer = setTimeout(done, timeoutMs(cue.text ?? ''));
+            // On timeout, silence the source first so a late clip cannot play over the next cue.
+            const timer = setTimeout(() => { try { source.stop(); } catch { /* ignore */ } done(); }, timeoutMs(cue.text ?? ''));
             current = { source, done };
             try { source.play(cue, { onDone: done }); } catch { done(); }
         });

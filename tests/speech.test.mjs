@@ -47,6 +47,18 @@ describe('speak', () => {
         const p1 = sp.speak({ text: 'a' });
         const p2 = sp.speak({ text: 'b' });
         await Promise.all([p1, p2]);
-        assert.deepEqual(dev.calls, ['a', 'stop', 'b']);
+        // 'a' is stopped by the second speak(); 'b' never finishes, so its timeout stops it too.
+        assert.deepEqual(dev.calls, ['a', 'stop', 'b', 'stop']);
+    });
+    test('speak_AfterTimeout_StopsTimedOutSourceBeforeNextCue', async () => {
+        const a = fakeSource('clips', { finishes: false });
+        const b = fakeSource('device');
+        const sp = createSpeech({ sources: [a, b, SILENT_SOURCE], timeoutMs: () => 20 });
+        sp.setSource('clips');
+        await sp.speak({ key: 'k', text: 'a' });
+        sp.setSource('device');
+        await sp.speak({ text: 'b' });
+        assert.deepEqual(a.calls, ['a', 'stop']);
+        assert.deepEqual(b.calls, ['b']);
     });
 });
