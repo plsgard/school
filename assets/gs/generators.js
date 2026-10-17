@@ -16,7 +16,9 @@ const PATTERN_NAMES = { '🔴': 'rouge', '🔵': 'bleu', '🟢': 'vert', '🟡':
 
 const shuffle = (arr, rng) => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const pick = (arr, rng) => arr[Math.floor(rng() * arr.length)];
-const cue = (key, text) => ({ key, text });
+// French typography: a non-breaking space (U+00A0) before ! ? : ; so the mark never wraps to a line of its own.
+const frenchSpaces = (s) => s.replace(/ ([!?:;])/g, '\u00a0$1');
+const cue = (key, text) => ({ key, text: frenchSpaces(text) });
 // Capitalises the first letter of every sentence (start, and after . ! ?). "…" is not a sentence end.
 const sentences = (s) => s.replace(/(^|[.!?]\s+)(\p{Ll})/gu, (_, sep, ch) => sep + ch.toUpperCase());
 // "que" elides before a vowel-initial word (qu'un); "huit" has an h aspiré (que huit).

@@ -142,6 +142,16 @@ describe('generate', () => {
             }
         }
     });
+    test('generate_FrenchTexts_UseNonBreakingSpaceBeforeDoublePunctuation', () => {
+        const all = [...cards, ...expandCards(decks, { firstName: 'Zoé' }).filter(c => c.kind === 'name')];
+        for (const r of RNGS) {
+            const exs = [...all.map(card => generate(card, { cards: all, rng: () => r })), generatePattern(() => r)];
+            for (const ex of exs) {
+                const texts = [ex.prompt, ex.success, ...(ex.choices ?? []).map(c => c.say), ex.trace?.say].filter(Boolean).map(c => c.text);
+                for (const s of texts) assert.doesNotMatch(s, / [!?:;]/, `${ex.cardId}: ${s}`);
+            }
+        }
+    });
     test('generate_NumberCues_UseNumberWords', () => {
         for (const id of ['numbers/7#count', 'numbers/7#number-line', 'numbers/7#compare', 'mots-p1/lapin#syll-count']) {
             for (const ch of generate(byId(id), { cards, rng }).choices) assert.doesNotMatch(ch.say.text, /\d/, id);
@@ -157,42 +167,42 @@ describe('generate', () => {
         assert.equal(ex.success.key, 'ui.name-spell-ok.louzoé');
     });
     test('generate_Compare_PromptText', () => {
-        assert.equal(generate(byId('numbers/8#compare'), { cards, rng }).prompt.text, 'Où y en a-t-il le plus ?');
+        assert.equal(generate(byId('numbers/8#compare'), { cards, rng }).prompt.text, 'Où y en a-t-il le plus\u00a0?');
     });
     test('generate_Trace_PromptAndSuccessTexts', () => {
         const ex = generate(byId('letters/l#trace'), { cards, rng });
         assert.equal(ex.prompt.text, 'Trace la lettre elle. Pars du point vert.');
-        assert.equal(ex.success.text, 'Bravo, tu as bien tracé la lettre elle !');
+        assert.equal(ex.success.text, 'Bravo, tu as bien tracé la lettre elle\u00a0!');
     });
     test('generate_SyllCount_PromptDoesNotSegmentAndSuccessDoes', () => {
         const ex = generate(byId('mots-p1/lapin#syll-count'), { cards, rng });
-        assert.equal(ex.prompt.text, 'Frappe dans tes mains en disant lapin. Combien de syllabes ?');
-        assert.equal(ex.success.text, 'Bravo ! La, pin : deux syllabes.');
-        assert.equal(generate(byId('mots-p1/chat#syll-count'), { cards, rng }).success.text, 'Bravo ! Chat : une syllabe.');
+        assert.equal(ex.prompt.text, 'Frappe dans tes mains en disant lapin. Combien de syllabes\u00a0?');
+        assert.equal(ex.success.text, 'Bravo\u00a0! La, pin\u00a0: deux syllabes.');
+        assert.equal(generate(byId('mots-p1/chat#syll-count'), { cards, rng }).success.text, 'Bravo\u00a0! Chat\u00a0: une syllabe.');
     });
     test('generate_Count_SuccessTextUsesNumberWord', () => {
-        assert.equal(generate(byId('numbers/7#count'), { cards, rng }).success.text, 'Oui, il y en a sept !');
+        assert.equal(generate(byId('numbers/7#count'), { cards, rng }).success.text, 'Oui, il y en a sept\u00a0!');
     });
     test('generate_NumberLine_SuccessTexts', () => {
-        assert.equal(generate(byId('numbers/5#number-line'), { cards, rng }).success.text, 'Oui, c\'est cinq ! Il vient juste après quatre.');
-        assert.equal(generate(byId('numbers/1#number-line'), { cards, rng }).success.text, 'Oui, c\'est un ! Il vient juste avant deux.');
+        assert.equal(generate(byId('numbers/5#number-line'), { cards, rng }).success.text, 'Oui, c\'est cinq\u00a0! Il vient juste après quatre.');
+        assert.equal(generate(byId('numbers/1#number-line'), { cards, rng }).success.text, 'Oui, c\'est un\u00a0! Il vient juste avant deux.');
     });
     test('generate_Decompose_UsesNumberWords', () => {
         const ex = generate(byId('numbers/5#decompose'), { cards, rng: () => 0.3 });
         assert.equal(ex.lit, 2);
-        assert.equal(ex.prompt.text, 'Cinq, c\'est deux et encore combien ? Allume les ronds.');
-        assert.equal(ex.success.text, 'Oui ! Cinq, c\'est deux et trois.');
+        assert.equal(ex.prompt.text, 'Cinq, c\'est deux et encore combien\u00a0? Allume les ronds.');
+        assert.equal(ex.success.text, 'Oui\u00a0! Cinq, c\'est deux et trois.');
     });
     test('generate_SoundLetter_SuccessNamesTheLetter', () => {
         const ex = generate(byId('letters/l#sound-letter'), { cards, rng: () => 0.05 });
-        assert.equal(ex.success.text, 'Oui ! C\'est la lettre elle, comme au début de lapin !');
+        assert.equal(ex.success.text, 'Oui\u00a0! C\'est la lettre elle, comme au début de lapin\u00a0!');
         const a = generate(byId('letters/a#sound-letter'), { cards, rng });
-        assert.equal(a.success.text, 'Oui ! La lettre a fait aaa !');
+        assert.equal(a.success.text, 'Oui\u00a0! La lettre a fait aaa\u00a0!');
     });
     test('generate_SoundPick_StretchesOnlyContinuantsAndVowels', () => {
-        assert.equal(generate(byId('mots-p1/fusee#sound-pick'), { cards, rng }).prompt.text, 'Quel mot commence par fff ?');
-        assert.equal(generate(byId('mots-p1/chat#sound-pick'), { cards, rng }).prompt.text, 'Quel mot commence par chchch ?');
-        assert.equal(generate(byId('mots-p1/bateau#sound-pick'), { cards, rng }).prompt.text, 'Quel mot commence par le son beu ?');
+        assert.equal(generate(byId('mots-p1/fusee#sound-pick'), { cards, rng }).prompt.text, 'Quel mot commence par fff\u00a0?');
+        assert.equal(generate(byId('mots-p1/chat#sound-pick'), { cards, rng }).prompt.text, 'Quel mot commence par chchch\u00a0?');
+        assert.equal(generate(byId('mots-p1/bateau#sound-pick'), { cards, rng }).prompt.text, 'Quel mot commence par le son beu\u00a0?');
     });
     test('generate_SyllMatch_OneDistractorRhymesWithTheWord', () => {
         for (const r of RNGS) {
@@ -246,12 +256,12 @@ describe('generate', () => {
     test('generate_Compare_ElidesQueBeforeUn', () => {
         const ex = generate(byId('numbers/2#compare'), { cards, rng: () => 0.05 });
         assert.equal(ex.success.key, 'ui.compare-ok.2.1');
-        assert.equal(ex.success.text, 'Oui, deux, c\'est plus qu\'un !');
+        assert.equal(ex.success.text, 'Oui, deux, c\'est plus qu\'un\u00a0!');
     });
     test('generate_Compare_KeepsQueBeforeHuit', () => {
         const ex = generate(byId('numbers/9#compare'), { cards, rng });
         assert.equal(ex.success.key, 'ui.compare-ok.9.8');
-        assert.equal(ex.success.text, 'Oui, neuf, c\'est plus que huit !');
+        assert.equal(ex.success.text, 'Oui, neuf, c\'est plus que huit\u00a0!');
     });
     test('generate_Compare_NeverShowsAnEmptyCollection', () => {
         for (const r of RNGS) {
@@ -264,7 +274,7 @@ describe('generate', () => {
     test('generate_SoundPick_StageShowsLetterAndSpeechUsesSchwa', () => {
         const b = generate(byId('mots-p1/bateau#sound-pick'), { cards, rng });
         assert.equal(b.stage.text, 'b');
-        assert.match(b.success.text, /^Oui ! \p{Lu}\p{Ll}+ commence par le son beu !$/u);
+        assert.match(b.success.text, /^Oui\u00a0! \p{Lu}\p{Ll}+ commence par le son beu\u00a0!$/u);
         const f = generate(byId('mots-p1/fusee#sound-pick'), { cards, rng });
         assert.equal(f.stage.text, 'fff');
     });
@@ -277,13 +287,13 @@ describe('generate', () => {
     });
     test('generate_NameSpell_SpokenNameIsCleaned', () => {
         const a = expandCards(decks, { firstName: 'Lou#/' });
-        assert.equal(generate(a.find(c => c.kind === 'name'), { cards: a, rng }).success.text, 'Elle, o, u : Lou !');
+        assert.equal(generate(a.find(c => c.kind === 'name'), { cards: a, rng }).success.text, 'Elle, o, u\u00a0: Lou\u00a0!');
         const b = expandCards(decks, { firstName: 'Marie-Anne' });
-        assert.match(generate(b.find(c => c.kind === 'name'), { cards: b, rng }).success.text, / : Marie-Anne !$/);
+        assert.match(generate(b.find(c => c.kind === 'name'), { cards: b, rng }).success.text, /\u00a0: Marie-Anne\u00a0!$/);
     });
     test('generate_SoundLetter_PromptStartsWithCapital', () => {
         const ex = generate(byId('letters/l#sound-letter'), { cards, rng: () => 0.05 });
-        assert.equal(ex.prompt.text, 'Lllapin. Quelle lettre chante au début de lapin ?');
+        assert.equal(ex.prompt.text, 'Lllapin. Quelle lettre chante au début de lapin\u00a0?');
     });
     test('generate_PromptAndSuccess_EverySentenceStartsWithCapital', () => {
         for (const r of RNGS) {

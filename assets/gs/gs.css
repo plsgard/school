@@ -3,7 +3,7 @@
 .gs { background: #e9f2fb; color: #223252; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; overflow-x: hidden; }
 .gs-app { max-width: 620px; margin: 0 auto; min-height: 100dvh; display: flex; flex-direction: column; padding: 12px max(16px, env(safe-area-inset-left)) 20px max(16px, env(safe-area-inset-right)); box-sizing: border-box; }
 .gs-screen { display: flex; flex-direction: column; gap: 12px; flex: 1; min-width: 0; }
-.gs-screen.visually-hidden { display: none !important; }
+.gs [hidden] { display: none !important; } /* flex/grid rules below must not resurrect hidden elements */
 .gs-top { display: flex; justify-content: space-between; align-items: center; }
 .gs-icon { border: 0; background: #f4f8fd; width: 56px; height: 56px; border-radius: 50%; font-size: 24px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; color: inherit; touch-action: manipulation; }
 .gs-pill { color: #6b7a99; font-weight: 600; }
@@ -89,6 +89,5 @@ body.gs.silent .gs-consigne span::before { content: "👩‍🏫 À lire :"; dis
 .gs-quit.armed { box-shadow: 0 0 0 4px #ffb703; }
 .gs-speak:disabled { opacity: .5; }
 .gs-moon { border: 0; background: #223252; color: #ffe08a; width: 140px; height: 140px; border-radius: 50%; font-size: 76px; margin: auto auto 0; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 0 #101a30; touch-action: manipulation; }
-.gs-moon.visually-hidden { display: none !important; }
 .gs-preview { display: flex; justify-content: center; gap: 10px; font-size: 28px; }
 @media (prefers-reduced-motion: reduce) { .gs-choice.ko, .gs-speak.pulse, .gs-ok-btn.pulse, .gs-cta.next.pulse { animation: none; } .gs-quit.holding::after { transition: none; } }

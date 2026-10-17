@@ -40,11 +40,12 @@ describe('recordResult', () => {
         recordResult(srs, 'letters/a#trace', true, day);
         assert.deepEqual(srs, fresh());
     });
-    test('recordResult_TwoAbandonedSessionsThenFullOne_FullSessionHasSixRealCards', () => {
-        let srs = fresh();
-        srs = playSession(srs, 0).srs;   // Jouer, then 🏠 before the first answer
-        srs = playSession(srs, 0).srs;   // again
-        const { slots } = playSession(srs, 6);
+    test('recordResult_SessionAbandonedAfterOneAnswer_OnlyThatItemIsIntroducedAndNextSessionIsFull', () => {
+        const first = playSession(fresh(), 1);   // Jouer, one answer, then 🏠
+        const item = first.slots[0].id.split('#')[0];
+        assert.deepEqual(first.srs.introduced[day], [item]);
+        assert.equal(Object.keys(first.srs.cards).length, 1);
+        const { slots } = compose({ srs: first.srs, cards, today: day, constraints: GS_CONSTRAINTS, rng: () => 0.3 });
         assert.equal(slots.length, 6);
     });
 });

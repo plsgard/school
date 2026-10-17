@@ -15,7 +15,8 @@ const pad = (n) => String(n).padStart(2, '0');
 const localDay = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 const today = () => localDay(new Date());
 const $ = (id) => document.getElementById(id);
-const show = (id) => { for (const s of document.querySelectorAll('.gs-screen')) s.classList.toggle('visually-hidden', s.id !== id); };
+// `hidden` (display: none), not .visually-hidden: a hidden control must not stay focusable.
+const show = (id) => { for (const s of document.querySelectorAll('.gs-screen')) s.hidden = s.id !== id; };
 const NBSP = '\u00a0'; // French typography: non-breaking space before ! ? :
 
 // Fixed UI cues spoken by the page (one text per key; Task 13 records them).
@@ -51,9 +52,9 @@ function playedToday() {
 
 function renderHome() {
     const rest = playedToday();
-    $('play').classList.toggle('visually-hidden', rest);
-    $('today').classList.toggle('visually-hidden', rest);
-    $('moon').classList.toggle('visually-hidden', !rest);
+    $('play').hidden = rest;
+    $('today').hidden = rest;
+    $('moon').hidden = !rest;
     $('avatar').textContent = profile.avatar || '🦊';
     $('hello').textContent = profile.name ? `Salut ${profile.name}${NBSP}!` : `Salut${NBSP}!`;
     $('today').textContent = '⭐'.repeat(settings.sessionItems);
