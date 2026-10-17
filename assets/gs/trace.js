@@ -132,7 +132,8 @@ export function mountTrace(container, model, { onResult, onStroke1 = () => {} })
         if (drawing) return;
         const r = score(strokes, model);
         if (!r.ok && !r.hintKey) dropStray();                  // too short to score (a tap): wipe it, it is not a miss
-        if (!r.ok && r.hintKey) {
+        // 'blue': the green stroke is good, only the blue one is missing — keep the ink so the child can go on from the blue dot.
+        if (!r.ok && r.hintKey && r.hintKey !== 'blue') {
             failPending = true;
             failTimer = setTimeout(() => { if (!drawing) reset(); }, FAIL_CLEAR_MS);
         }

@@ -30,12 +30,12 @@ export const UI_CUES = {
         2: { key: 'ui.more.2', text: 'Encore deux lettres !' },
         3: { key: 'ui.more.3', text: 'Encore trois lettres !' },
     },
-    traceBlue: { key: 'ui.trace-blue', text: 'Maintenant, pars du point bleu !' },
     traceHint: {
         start: { key: 'ui.trace-hint.start', text: 'Pars du point vert.' },
         follow: { key: 'ui.trace-hint.follow', text: 'Suis le chemin gris.' },
         inside: { key: 'ui.trace-hint.inside', text: 'Presque ! Reste dans le chemin.' },
         arrows: { key: 'ui.trace-hint.arrows', text: 'Suis les flèches.' },
+        blue: { key: 'ui.trace-blue', text: 'Maintenant, pars du point bleu !' }, // also said when stroke 1 is done
     },
 };
 
@@ -413,7 +413,7 @@ export function renderExercise(root, ex, { speak, parentMode = false, waitForTap
             choices.append(box, bar);
             let skip = null;
             const t = mountTrace(box, ex.trace, {
-                onStroke1: () => { if (!finished) speak(UI_CUES.traceBlue); },
+                onStroke1: () => { if (!finished) { tell(UI_CUES.traceHint.blue.text); speak(UI_CUES.traceHint.blue); } },
                 onResult: (r) => {
                     if (finished) return;
                     if (r.ok) { done(); return; }

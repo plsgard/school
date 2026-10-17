@@ -11,6 +11,7 @@ export const TRACE_HINTS = {
     follow: 'Suis le chemin gris.',
     inside: 'Presque\u00a0! Reste dans le chemin.',
     arrows: 'Suis les flèches.',
+    blue: 'Maintenant, pars du point bleu\u00a0!', // two-stroke model: green stroke done, blue one not started
 };
 
 // Shoelace signed area of a closed polyline (y down: > 0 = clockwise on screen). Only its sign is used.
@@ -27,7 +28,8 @@ export function score(strokes, model) {
     const main = model.pts, second = model.pts2 ?? [];
     const dist = (p, w) => Math.hypot(p[0] - w[0], p[1] - w[1]);
     const covered = (wp) => wp.filter(w => pts.some(p => dist(p, w) < R)).length / wp.length;
-    const coverage = second.length ? Math.min(covered(main), covered(second)) : covered(main);
+    const coverMain = covered(main);
+    const coverage = second.length ? Math.min(coverMain, covered(second)) : coverMain;
     const wp = [...main, ...second];
     const outside = pts.filter(p => !wp.some(w => dist(p, w) < R_OUT)).length / pts.length;
     const startOk = dist(pts[0], main[0]) < R_START;
@@ -35,7 +37,8 @@ export function score(strokes, model) {
     const modelArea = closed ? signedArea(main) : 0;
     const dirOk = Math.abs(modelArea) < MIN_CLOSED_AREA || Math.sign(signedArea(pts)) === Math.sign(modelArea);
     const ok = coverage >= 0.85 && outside < 0.25 && startOk && dirOk;
-    const hintKey = ok ? '' : !startOk ? 'start' : coverage < 0.85 ? 'follow' : !dirOk ? 'arrows' : 'inside';
+    const blue = second.length > 0 && coverMain >= 0.85 && coverage < 0.85 && outside < 0.25; // only the blue stroke is missing
+    const hintKey = ok ? '' : !startOk ? 'start' : blue ? 'blue' : coverage < 0.85 ? 'follow' : !dirOk ? 'arrows' : 'inside';
     return { ok, coverage, outside, startOk, hint: TRACE_HINTS[hintKey] ?? '', hintKey };
 }
 

@@ -67,10 +67,10 @@ describe('score', () => {
         pts: [[20, 72], [30, 72], [40, 72], [50, 72], [60, 72], [70, 72], [80, 72]],
         pts2: [[50, 20], [50, 25], [50, 30], [50, 35], [50, 40], [50, 45], [50, 50]],
     };
-    test('score_TwoStrokeModelFirstStrokeOnly_IsNotOk', () => {
+    test('score_TwoStrokeModelFirstStrokeOnly_IsNotOkAndHintsBlueDot', () => {
         const r = score([ideal(twoStroke.pts)], twoStroke);
         assert.equal(r.ok, false);
-        assert.equal(r.hintKey, 'follow');
+        assert.equal(r.hintKey, 'blue');
     });
     test('score_TwoStrokeModelSecondStrokeOnly_IsNotOk', () => {
         const r = score([ideal(twoStroke.pts2)], twoStroke);
@@ -191,6 +191,15 @@ describe('firstStrokeDone', () => {
     });
     test('firstStrokeDone_HalfOfTheGreenStroke_IsFalse', () => {
         assert.equal(firstStrokeDone([ideal(x.trace.slice(0, 5))], m), false);
+    });
+    test('score_GreenStrokeDoneBlueMissing_HintsBlueDot', () => {
+        const r = score([ideal(x.trace)], m);
+        assert.equal(r.ok, false);
+        assert.equal(r.hintKey, 'blue');
+        assert.equal(r.hint, 'Maintenant, pars du point bleu\u00a0!');
+    });
+    test('score_GreenStrokeHalfDoneOnTwoStrokeModel_HintsFollow', () => {
+        assert.equal(score([ideal(x.trace.slice(0, 5))], m).hintKey, 'follow');
     });
     test('firstStrokeDone_OneStrokeModel_IsFalse', () => {
         const a = letters.items.find(it => it.id === 'a').trace;
