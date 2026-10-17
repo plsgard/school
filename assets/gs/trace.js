@@ -5,7 +5,7 @@
 // continues the same attempt (two-stroke letters, a mid-letter lift). Only once a hint was given does the next
 // pointerdown start a new attempt; the canvas also clears its own ink FAIL_CLEAR_MS after the hint, so every
 // attempt is scored on its own strokes. onResult's contract is unchanged.
-import { score, createPointerFilter, keepStrokes } from './trace-score.js';
+import { score, createPointerFilter, keepStrokes, firstStrokeDone } from './trace-score.js';
 import { LIGNAGE, curveSegments, arrowSpots } from './trace-geom.js';
 
 // One filter for the whole page session: once a Pencil has been seen, finger/palm touches stay rejected
@@ -16,11 +16,13 @@ const FAIL_CLEAR_MS = 1200;   // after a failed attempt, the ink is cleared so t
 const LIFT_GRACE_MS = 900;    // a lift shorter than this is part of the same attempt
 const TWO_STROKE_GRACE_MS = 2500; // two-stroke models (x, 4, 5): time to move the hand to the blue dot
 
-export function mountTrace(container, model, { onResult }) {
+// onStroke1 (optional): two-stroke models only, called once per attempt when the green stroke is done and the
+// grace window for the blue stroke starts (the page says "Maintenant, pars du point bleu !").
+export function mountTrace(container, model, { onResult, onStroke1 = () => {} }) {
     container.innerHTML = '<canvas class="trace-model"></canvas><canvas class="trace-ink"></canvas>';
     const [cm, ci] = container.querySelectorAll('canvas');
     let W = 300, dprUsed = 0, strokes = [], drawing = false, activeId = null, activeType = '', mctx, ictx;
-    let failTimer = null, failPending = false, graceTimer = null;
+    let failTimer = null, failPending = false, graceTimer = null, blueSaid = false;
 
     function size() {
         const r = container.getBoundingClientRect();
@@ -117,6 +119,7 @@ export function mountTrace(container, model, { onResult }) {
         if (r.ok) { onResult(r); return; }
         clearTimeout(graceTimer);
         graceTimer = setTimeout(settleLift, model.pts2 ? TWO_STROKE_GRACE_MS : LIFT_GRACE_MS);
+        if (!blueSaid && firstStrokeDone(strokes, model)) { blueSaid = true; onStroke1(); }
     }
     // The child did not come back within the grace window: score what is there and give the hint.
     function dropStray() {
@@ -143,7 +146,7 @@ export function mountTrace(container, model, { onResult }) {
     function reset() {
         clearTimeout(failTimer); failTimer = null; failPending = false;
         clearTimeout(graceTimer); graceTimer = null;
-        strokes = []; drawing = false; activeId = null; activeType = '';
+        strokes = []; drawing = false; activeId = null; activeType = ''; blueSaid = false;
         ictx.clearRect(0, 0, W, W); drawModel();
     }
     // iPad Safari fires resize for toolbar moves too: only a real size change re-lays the canvases (and clears ink).

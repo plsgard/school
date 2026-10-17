@@ -41,6 +41,13 @@ export function score(strokes, model) {
 
 // Strokes too short to earn a hint (a stray tap) are dropped before the next stroke starts: otherwise the tap stays
 // first in `strokes` and the real stroke fails "Pars du point vert." (P3). A scored attempt (ok or hinted) is kept.
+// Two-stroke models: the green stroke is done (it alone would pass) but the letter is not, so the child
+// must now go to the blue dot. False on one-stroke models and once the whole letter passes.
+export function firstStrokeDone(strokes, model) {
+    if (!model.pts2) return false;
+    return score(strokes, { pts: model.pts }).ok && !score(strokes, model).ok;
+}
+
 export function keepStrokes(strokes, model) {
     const r = score(strokes, model);
     return r.ok || r.hintKey ? strokes : [];

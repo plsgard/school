@@ -35,11 +35,12 @@ export function modelSvg(model, { size = 400, points = false, title = '' } = {})
     ].join('\n');
 }
 
-export function sheetSvg(entries, { cols = 6, cell = 200 } = {}) {
-    const rows = Math.ceil(entries.length / cols);
+// Square canvas (cols = ceil(√n) by default, padded height): qlmanage thumbnails crop a non-square sheet.
+export function sheetSvg(entries, { cols = Math.ceil(Math.sqrt(entries.length)), cell = 200 } = {}) {
+    const rows = Math.ceil(entries.length / cols), side = Math.max(cols, rows) * cell;
     const cells = entries.map(({ model, title }, i) => modelSvg(model, { size: cell, title })
         .replace('<svg ', `<svg x="${(i % cols) * cell}" y="${Math.floor(i / cols) * cell}" `));
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="${cols * cell}" height="${rows * cell}">\n${cells.join('\n')}\n</svg>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${side}" height="${side}">\n<rect width="${side}" height="${side}" fill="#ffffff"/>\n${cells.join('\n')}\n</svg>`;
 }
 
 const modelOf = (it) => ({ pts: it.trace, pts2: it.trace2, dot: it.dot, bar: it.bar });

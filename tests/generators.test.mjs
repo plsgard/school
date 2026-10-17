@@ -427,6 +427,19 @@ describe('generate', () => {
         assert.equal(ex.trace.kind, 'letter');
         assert.equal(ex.trace.pts2, undefined);
     });
+    test('generate_TwoStrokeLetterTrace_PromptNamesTheBlueDot', () => {
+        const ex = generate(byId('letters/x#trace'), { cards, rng });
+        assert.equal(ex.prompt.key, 'ui.trace.x');
+        assert.equal(ex.prompt.text, 'Trace la lettre ixe. Pars du point vert, puis du point bleu.');
+        assert.ok(ex.trace.pts2.length >= 7);
+    });
+    test('generate_TwoStrokeDigitTrace_PromptNamesTheBlueDot', () => {
+        const four = cards.find(c => c.kind === 'numbers' && c.item.n === 4);
+        const item = { ...four.item, trace: [[52, 30], [36, 58], [66, 58]], trace2: [[56, 30], [56, 72]] };
+        const ex = generate({ ...four, id: 'numbers/4#trace', skill: 'trace', item }, { cards, rng });
+        assert.equal(ex.prompt.text, 'Trace le chiffre quatre. Pars du point vert, puis du point bleu.');
+        assert.equal(ex.prompt.display, 'Trace le chiffre 4. Pars du point vert, puis du point bleu.');
+    });
     test('generate_DigitTrace_SaysChiffreAndShowsTheDigit', () => {
         const seven = cards.find(c => c.kind === 'numbers' && c.item.n === 7);
         const ex = generate({ ...seven, id: 'numbers/7#trace', skill: 'trace', item: { ...seven.item, trace: [[36, 30], [64, 30], [44, 72]] } }, { cards, rng });

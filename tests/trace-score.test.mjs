@@ -2,7 +2,7 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { score, createPointerFilter, keepStrokes } from '../assets/gs/trace-score.js';
+import { score, createPointerFilter, keepStrokes, firstStrokeDone } from '../assets/gs/trace-score.js';
 
 const model = { pts: [[20, 50], [40, 50], [60, 50], [80, 50]] };
 const letters = JSON.parse(await readFile(new URL('../assets/gs/decks/letters.json', import.meta.url), 'utf8'));
@@ -178,5 +178,22 @@ describe('TRACE_HINTS', () => {
         const { UI_CUES } = await import('../assets/gs/renderers.js');
         assert.deepEqual(Object.keys(TRACE_HINTS).sort(), Object.keys(UI_CUES.traceHint).sort());
         for (const [k, text] of Object.entries(TRACE_HINTS)) assert.equal(text, UI_CUES.traceHint[k].text, k);
+    });
+});
+describe('firstStrokeDone', () => {
+    const x = letters.items.find(it => it.id === 'x');
+    const m = { pts: x.trace, pts2: x.trace2 };
+    test('firstStrokeDone_GreenStrokeOnlyOnTwoStrokeModel_IsTrue', () => {
+        assert.equal(firstStrokeDone([ideal(x.trace)], m), true);
+    });
+    test('firstStrokeDone_BothStrokesDrawn_IsFalse', () => {
+        assert.equal(firstStrokeDone([ideal(x.trace), ideal(x.trace2)], m), false);
+    });
+    test('firstStrokeDone_HalfOfTheGreenStroke_IsFalse', () => {
+        assert.equal(firstStrokeDone([ideal(x.trace.slice(0, 5))], m), false);
+    });
+    test('firstStrokeDone_OneStrokeModel_IsFalse', () => {
+        const a = letters.items.find(it => it.id === 'a').trace;
+        assert.equal(firstStrokeDone([ideal(a)], { pts: a }), false);
     });
 });

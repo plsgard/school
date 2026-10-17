@@ -21,7 +21,10 @@ export function curveSegments(pts) {
     return segs;
 }
 
-// Arrow positions by arc length, skipping spots that sit on a retraced part of the path (they would point both ways).
+// Arrow positions by arc length. On a retraced part of the path (stems of d p h k, …) one arrow would point both
+// ways, so it becomes a pair of opposite arrows set PAIR_OFFSET beside the stroke, each on the right of its own
+// direction (↓ on one side, ↑ on the other); the way back does not add a second pair where one already stands.
+const PAIR_OFFSET = 2.5;
 export function arrowSpots(pts, every = 22, first = 12) {
     const segs = [];
     let total = 0;
@@ -36,16 +39,21 @@ export function arrowSpots(pts, every = 22, first = 12) {
         const t = sg.len ? (d - sg.from) / sg.len : 0;
         return { x: sg.a[0] + (sg.b[0] - sg.a[0]) * t, y: sg.a[1] + (sg.b[1] - sg.a[1]) * t, ang: Math.atan2(sg.b[1] - sg.a[1], sg.b[0] - sg.a[0]) };
     };
-    const spots = [];
+    const spots = [], pairs = [];
     for (let d = first; d < total - 4; d += every) {
         const p = at(d);
         let retraced = false;
         for (let e = 0; e <= total && !retraced; e += 1) {
             if (Math.abs(e - d) < 10) continue;
             const q = at(e);
-            if (Math.hypot(q.x - p.x, q.y - p.y) < 3) retraced = true;
+            // Same place, opposite way (within ~15°): a retrace. A crossing or a same-way overlap keeps its one arrow.
+            if (Math.hypot(q.x - p.x, q.y - p.y) < 3 && Math.cos(q.ang - p.ang) < -0.96) retraced = true;
         }
-        if (!retraced) spots.push(p);
+        if (!retraced) { spots.push(p); continue; }
+        if (pairs.some(q => Math.hypot(q.x - p.x, q.y - p.y) < every * 0.6)) continue; // the way back: already paired
+        pairs.push(p);
+        const [ox, oy] = [-Math.sin(p.ang) * PAIR_OFFSET, Math.cos(p.ang) * PAIR_OFFSET]; // right of the travel direction
+        spots.push({ x: p.x + ox, y: p.y + oy, ang: p.ang }, { x: p.x - ox, y: p.y - oy, ang: p.ang + (p.ang > 0 ? -Math.PI : Math.PI) });
     }
     return spots;
 }
