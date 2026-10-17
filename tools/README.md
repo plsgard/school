@@ -9,7 +9,7 @@ Records one mp3 per spoken cue into `assets/audio/gs/<key with dots as slashes>.
 - `sources.json` — the recipe of every clip (text sent to the engine, engine, voice, rate, bitrate).
 
 Idempotent: a clip is recorded only when it is missing or its recipe changed (edit a cue text, re-run, only that clip
-is redone). Re-run after adding or changing a deck. Takes ~4 min for the full track on an M-series Mac.
+is redone). Re-run after adding or changing a deck. Recording the full track from scratch takes several minutes on an M-series Mac (~4 min when it had 719 clips); a re-run with nothing to record takes ~2 s.
 
 | Option | Default | |
 |---|---|---|
@@ -31,8 +31,9 @@ recorded `input` is not `sayInput(current text)`, or a manual clip whose `text` 
 `STALE manual clip <key>` message: re-record it and update its `text`, or delete its `sources.json` entry to fall
 back to a TTS clip. Clip keys are ASCII (e.g. `ui.pattern-choice.etoile` says "étoile").
 
-**Size.** 719 clips, ~30 min of speech: ~15 MB at 64 kbps, ~7.3 MB at 32 kbps (the default). Leading/trailing
-silence is trimmed.
+**Size.** 1359 clips, ~58 min of speech, ~14 MB at 32 kbps (the default). Leading/trailing silence is trimmed.
+`--prune` after a deck or cue change deletes the clips no cue asks for any more (e.g. the `nuage` clips when *tambour*
+replaced it).
 
 ### Which cues exist (`tools/cues.mjs`)
 
@@ -40,8 +41,10 @@ silence is trimmed.
 
 - exercise cues: every card of the shipped decks is run through `generate()` with seeded rngs until 400 seeds in a
   row bring no new key (same for `generatePattern()`); this reaches every rng-dependent key (syll-match / rhyme /
-  sound-pick pairs, the 45 decompose splits, the 17 compare pairs, the 45 blend syllables, the 9 pattern colours…);
-- fixed cues: `UI_CUES` (`assets/gs/renderers.js`) and `PAGE_CUES` (`assets/gs/cues.js`, used by `app.js` and `parent.js`);
+  sound-pick pairs, the 45 decompose splits, the 17 compare pairs, the 45 blend syllables, the 9 pattern colours,
+  the sound-final targets, the syll-initial tiles, the dice faces, the add splits per object…);
+- fixed cues: `UI_CUES` (`assets/gs/renderers.js`, collected recursively: `traceHint.*`, `traceNext[1–3]`…) and `PAGE_CUES`
+  (`assets/gs/cues.js`, used by `app.js` and `parent.js`, incl. `practice.<theme>` and `practiceDone`);
 - the name-spell prompt; cues with no clip (accented letters of the first name, the first-name success line `ui.name-spell-ok.<name>`) fall through to the device voice.
 
 A key with two different texts throws. `tests/audio-cues.test.mjs` sweeps 300 other seeds and fails if any emitted
@@ -58,22 +61,40 @@ zero-crossing voiced/unvoiced profile of each clip, since nobody listened):
 | `fff`, `sss`, `chchch` | letter names: "effe effe effe" (~0.9 s, vowel/fricative alternation) | `ffffffeu`, `sssssseu`, `chchchchchcheu` (one long fricative, then a schwa) |
 | `lll`, `mmm`, `vvv`, `zzz`, `jjj`… | letter names or ambiguous | `lllllleu`, … |
 | `fffusée`, `lllapin` | ~ the plain word | `ffffffusée` (a slightly longer onset) |
-| `aaa`, `eee`… | one vowel, a bit long | `aaaaaa` (longer) |
+| `aaa`, `eee`, `ééé`… | one vowel, a bit long | `aaaaaa`, `éééééé` (longer, no schwa after a vowel) |
 | `za`, `zi` | abbreviations: "zone artisanale", "zone industrielle" (1.2 s) | `zah`, `zih` |
 | `beu`, `peu`, `keu` | a syllable (fine) | unchanged |
 
 ### Clips to re-record (human listening check)
 
-The spec wants stretched sounds as real recordings. These 145 clips (137 recorded from adapted TTS input plus 8 plain-TTS "le son beu/keu/peu" clips: `ui.sound-pick.{b,k,p}`, `ui.sound-pick-ok.{ballon,banane,bateau,kiwi,papillon}`) must be
-listened to; re-record the bad ones: save the mp3 at the same path (mono, 32 kbps is enough) and set its
-`sources.json` entry to `{ "manual": true, "text": "<the cue text it says>" }`, so a re-run never overwrites it
-(only `--only <key> --force` does):
-
-- `ui.sound-pick.{b,ch,f,k,l,m,p,r,s,v}` and `ui.sound-pick-ok.*` (17 words) — "fff", "chchch", "le son beu";
-- `ui.sound-letter.{a,e,i,o,u,n,j,z}`, `ui.sound-letter-ok.{a,e,i,o,u,n,j,z}` — "le son aaa", "nnn";
-- `ui.sound-letter.<letter>.<word>` (10: f.fusee, l.lama, l.lapin, m.maison, m.moto, r.raisin, s.sapin, s.souris, v.velo, v.voiture) — "fffusée";
-- `ui.blend.*` and `ui.blend-ok.*` (45 + 45) — "Colle les sons : fff… aaa…";
-- `syl.za`, `syl.zi`.
+The spec wants stretched sounds as real recordings. **263 clips** have not been listened to yet: 186 recorded from
+adapted TTS input (the stretched sounds above, `ui.sound-final.*` included), 21 plain-TTS "le son beu / teu / gueu…"
+clips, and 56 more flagged during the build (syllables spelled for the voice such as `syl.requin.1` "reu" or
+`syl.chameau.2` "meau", the capital prompts, the next-dot colour cues, the practice cues). The full key list and the
+manual re-recording procedure are in the [README](../README.md#clips-to-check-by-ear). In short: save the mp3 at the
+same path (mono, 32 kbps is enough) and set its `sources.json` entry to `{ "manual": true, "text": "<the cue text it
+says>" }`, so a re-run never overwrites it (only `--only <key> --force` does).
 
 Most at risk (voiced continuants, where the measurement cannot tell a stretch from a spelled letter):
-`j`, `z`, `v`, `l`, `m`, `n`, `r` in the lists above.
+`j`, `z`, `v`, `l`, `m`, `n`, `r`; and `ui.sound-final.eacute` (6.5 s).
+
+## `node tools/trace-sheet.mjs` — render trace models before they ship
+
+Dev aid, no dependencies. Draws each trace model as an SVG through `assets/gs/trace-geom.js`, so the render shows
+exactly what the canvas draws: lignage, grey corridors, arrows, numbered start dots.
+
+```
+node tools/trace-sheet.mjs [--deck letters|numbers|caps|all] [--only a,b] [--points] [--state k] [--out DIR]
+qlmanage -t -s 400 -o DIR DIR/caps-e.svg     # macOS: SVG → PNG to look at
+```
+
+| Option | Default | |
+|---|---|---|
+| `--deck` | `all` | `letters` (cursive `trace`), `numbers` (digits), `caps` (`capTrace`), or all three |
+| `--only a,b` | | only these item ids; without it, a contact sheet `sheet-<deck>.svg` is written too |
+| `--points` | | number every waypoint, one colour per stroke |
+| `--state k` | `0` | draw the start dots as they look once k strokes are done (a hidden coincident dot appears) |
+| `--out DIR` | `$TMPDIR/trace-sheet` | output folder; never commit it |
+
+Files are `<deck>-<id>.svg`. The check loop per glyph, and the model conventions, are in the
+[README](../README.md#add-or-change-a-trace-model-capital-cursive-letter-digit).

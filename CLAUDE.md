@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A static, zero-build web app the owner built for his own kids: timed math quizzes for the older child (6e) and a spaced-repetition **Grande Section learning track** (`gs.html`: sounds, letters, syllables, tracing, numbers to 10) for a 5-year-old who cannot read yet. Hosted on **GitHub Pages directly off `main`** — pushing to `main` is the deploy. There is no CI, no build, no package manager, no backend; persistence is `localStorage`. Pure modules have `node:test` tests.
+A static, zero-build web app the owner built for his own kids: timed math quizzes for the older child (6e) and a spaced-repetition **Grande Section learning track** (`gs.html`: sounds, letters, syllables, tracing in capitals and cursive, numbers to 10; one daily session plus unlimited themed practice rounds) for a 5-year-old who cannot read yet. Hosted on **GitHub Pages directly off `main`** — pushing to `main` is the deploy. There is no CI, no build, no package manager, no backend; persistence is `localStorage`. Pure modules have `node:test` tests.
 
 The audience is young learners — keep UI copy simple, validation friendly, and avoid clever abstractions that make the source harder to tweak on the fly. On the GS track every instruction must work for a non-reader (spoken, with pictures), and every French text must be correct French (typography included: non-breaking space before `! ? : ;`).
 
@@ -23,18 +23,20 @@ See [`README.md`](README.md) for run/deploy/test basics, the iPad setup, deck au
 │   ├── celebration.js               # confetti + congrats overlay
 │   ├── profiles.js, hold.js         # profile picker / profile ↔ track; long-press parental gate
 │   ├── core/                        # track-agnostic engine: scheduler.js, session.js, progress.js, speech.js
-│   ├── gs/                          # GS track: app.js, parent.js, generators.js, renderers.js, trace*.js,
-│   │   │                            #   rules.js, cues.js, say.js, name-cards.js, gs.css
-│   │   └── decks/                   # index.js (DECK_FILES) + letters.json, numbers.json, mots-p1.json
+│   ├── gs/                          # GS track: app.js, parent.js, themes.js, generators.js, renderers.js,
+│   │   │                            #   trace.js, trace-score.js, trace-geom.js, rules.js, cues.js, say.js,
+│   │   │                            #   name-cards.js, gs.css
+│   │   └── decks/                   # index.js (DECK_FILES) + letters.json, numbers.json,
+│   │                                #   mots-p1.json (période 1), mots-gs.json (generic GS words)
 │   └── audio/gs/                    # recorded mp3 clips + manifest.json + sources.json (generated)
-├── tools/                           # gen-audio.mjs, cues.mjs, README.md (clip recording)
+├── tools/                           # gen-audio.mjs, cues.mjs (clip recording), trace-sheet.mjs (trace model renders), README.md
 ├── tests/                           # *.test.mjs (node:test), helpers/
 ├── ARCHITECTURE.md, README.md, CLAUDE.md
 ```
 
 A quiz page is a thin shell: standardised markup + a `<script type="module">` that calls `startQuiz({ quizId, generateQuestion, validateSettings? })`. The engine handles timer, scoring, history, and celebration. Quiz-specific settings are read inside the per-page closures; the engine doesn't need to know about them.
 
-`gs.html` is a thin shell too: markup for four screens + `assets/gs/app.js`. `assets/core/*` never imports a track, storage or the page; tracks pass their constraints in.
+`gs.html` is a thin shell too: markup for four screens + `assets/gs/app.js`. `assets/core/*` never imports a track, storage or the page; tracks pass their constraints in (skill names such as the trace slot and the capitals-first prerequisite are data in `GS_CONSTRAINTS` / `GS_PRACTICE`, never code). Practice themes (`assets/gs/themes.js`) are a GS concept: core's `composePractice` only receives `inTheme(id)` as an `include(card)` predicate.
 
 ## Working in this repo
 
@@ -45,7 +47,7 @@ A quiz page is a thin shell: standardised markup + a `<script type="module">` th
 - **Don't introduce a build step, framework, or package manager** without a concrete reason. The "push to deploy" simplicity is load-bearing (that includes no `package.json` just to silence a Node warning).
 - **Bootstrap 5.3 from CDN with SRI hashes pinned.** If you bump the version, recompute the SRI hashes (`curl … | openssl dgst -sha384 -binary | openssl base64 -A`) — don't drop the `integrity` attribute.
 - **Spoken text = cues, one key → one text.** Changing or adding a cue text (generators, `UI_CUES`, `PAGE_CUES`) or a deck means re-running `node tools/gen-audio.mjs` and committing the clips; `tests/audio-cues.test.mjs` fails on a missing or stale clip. See [`tools/README.md`](tools/README.md).
-- **Adding a word deck**: see [README.md](README.md#add-a-word-deck-one-per-période). **Adding a quiz**: copy an existing `<topic>.html`, change `quizId` and `generateQuestion`; pick a fresh `quizId` (it's part of the localStorage key). See [README.md](README.md#add-a-new-math-quiz).
+- **Adding a word deck**: see [README.md](README.md#add-a-word-deck-one-per-période). **Adding or changing a trace model** (capital, cursive, digit): render it with `tools/trace-sheet.mjs` and look at it before shipping, see [README.md](README.md#add-or-change-a-trace-model-capital-cursive-letter-digit). **Adding a quiz**: copy an existing `<topic>.html`, change `quizId` and `generateQuestion`; pick a fresh `quizId` (it's part of the localStorage key). See [README.md](README.md#add-a-new-math-quiz).
 
 ## Conventions
 
