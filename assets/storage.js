@@ -64,3 +64,51 @@ export function migrateLegacyHistory() {
         localStorage.removeItem(legacyKey);
     }
 }
+
+// ---- Profiles, settings, spaced repetition, sessions (learning tracks) ----
+
+const SESSIONS_LIMIT = 14;
+const DEFAULT_SETTINGS = { sessionItems: 6, parentMode: false, firstName: '', audio: 'clips', voice: '' };
+
+export function loadProfiles() {
+    return readJSON(`${NS}.profiles`, []);
+}
+
+export function saveProfiles(profiles) {
+    writeJSON(`${NS}.profiles`, profiles);
+}
+
+export function setActiveProfileId(profileId) {
+    localStorage.setItem(`${NS}.activeProfileId`, profileId);
+}
+
+export function loadSettings(profileId) {
+    return { ...DEFAULT_SETTINGS, ...readJSON(`${NS}.settings.${profileId}`, {}) };
+}
+
+export function saveSettings(profileId, patch) {
+    const next = { ...loadSettings(profileId), ...patch };
+    writeJSON(`${NS}.settings.${profileId}`, next);
+    return next;
+}
+
+export function loadSrs(profileId, trackId) {
+    return readJSON(`${NS}.srs.${profileId}.${trackId}`, { cards: {}, introduced: {} });
+}
+
+export function saveSrs(profileId, trackId, srs) {
+    writeJSON(`${NS}.srs.${profileId}.${trackId}`, srs);
+}
+
+export function loadSessions(profileId, trackId) {
+    return readJSON(`${NS}.sessions.${profileId}.${trackId}`, []);
+}
+
+export function appendSession(profileId, trackId, session) {
+    const key = `${NS}.sessions.${profileId}.${trackId}`;
+    const all = readJSON(key, []);
+    all.unshift(session);
+    if (all.length > SESSIONS_LIMIT) all.length = SESSIONS_LIMIT;
+    writeJSON(key, all);
+    return all;
+}
