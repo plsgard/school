@@ -277,6 +277,7 @@ export function renderExercise(root, ex, { speak, parentMode = false, waitForTap
                 if (revealing()) {
                     locked = true;
                     for (const x of buttons.values()) x.disabled = true;
+                    b.classList.remove('selected'); // only the right answer stays highlighted
                     ok.disabled = true;
                     buttons.get(ex.choices.find(c => c.correct).id).classList.add('ok');
                     await sleep(400);

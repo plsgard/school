@@ -1,5 +1,7 @@
 /* Grande Section track. Bootstrap 5.3 handles the reset; this file owns tiles, trace box and the big CTAs.
    Tap targets are >= 56 px everywhere; layout fits 390 px phones and iPad portrait. */
+/* No "fi"/"fl" ligatures: a child learning letters must see f and i as two letters. Cursive keeps its joins (calt). */
+.gs, .gs button { font-variant-ligatures: no-common-ligatures; } /* buttons reset font-variant via the UA "font" shorthand */
 .gs { background: #e9f2fb; color: #223252; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; overflow-x: hidden; }
 .gs-app { max-width: 620px; margin: 0 auto; min-height: 100dvh; display: flex; flex-direction: column; padding: 12px max(16px, env(safe-area-inset-left)) 20px max(16px, env(safe-area-inset-right)); box-sizing: border-box; }
 .gs-screen { display: flex; flex-direction: column; gap: 12px; flex: 1; min-width: 0; }
