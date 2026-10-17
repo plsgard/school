@@ -6,24 +6,33 @@ const R_OUT = 13.5;      // beyond this from every waypoint = outside the corrid
 const R_START = 12.6;
 
 // Same texts as the ui.trace-hint.* cues in renderers.js (one text per clip key; tested).
-export const TRACE_HINTS = { start: 'Pars du point vert.', follow: 'Suis le chemin gris.', inside: 'Presque\u00a0! Reste dans le chemin.' };
+export const TRACE_HINTS = {
+    start: 'Pars du point vert.',
+    follow: 'Suis le chemin gris.',
+    inside: 'Presque\u00a0! Reste dans le chemin.',
+    arrows: 'Suis les flèches.',
+};
 
+// model: { pts, pts2? }. With pts2 (x, 4, 5) both strokes must be covered. A closed model (0, 8: start and end
+// within R_START) cannot be told apart by its start, so its direction is checked instead (spec §8.5).
 export function score(strokes, model) {
     const pts = strokes.flat();
     if (pts.length < 8) return { ok: false, coverage: 0, outside: 0, startOk: false, hint: '', hintKey: '' };
-    const wp = model.pts;
+    const main = model.pts, second = model.pts2 ?? [];
     const dist = (p, w) => Math.hypot(p[0] - w[0], p[1] - w[1]);
-    const hit = wp.filter(w => pts.some(p => dist(p, w) < R)).length;
+    const covered = (wp) => wp.filter(w => pts.some(p => dist(p, w) < R)).length / wp.length;
+    const coverage = second.length ? Math.min(covered(main), covered(second)) : covered(main);
+    const wp = [...main, ...second];
     const outside = pts.filter(p => !wp.some(w => dist(p, w) < R_OUT)).length / pts.length;
-    const coverage = hit / wp.length;
-    const startOk = dist(pts[0], wp[0]) < R_START;
-    const ok = coverage >= 0.85 && outside < 0.25 && startOk;
-    const hintKey = ok ? '' : !startOk ? 'start' : coverage < 0.85 ? 'follow' : 'inside';
+    const startOk = dist(pts[0], main[0]) < R_START;
+    const closed = dist(main[0], main[main.length - 1]) < R_START;
+    const firstHit = (w) => pts.findIndex(p => dist(p, w) < R);
+    const dirOk = !closed || firstHit(main[2]) < firstHit(main[main.length - 3]);
+    const ok = coverage >= 0.85 && outside < 0.25 && startOk && dirOk;
+    const hintKey = ok ? '' : !startOk ? 'start' : coverage < 0.85 ? 'follow' : !dirOk ? 'arrows' : 'inside';
     return { ok, coverage, outside, startOk, hint: TRACE_HINTS[hintKey] ?? '', hintKey };
 }
 
-// Strokes too short to earn a hint (a stray tap) are dropped before the next stroke starts: otherwise the tap stays
-// first in `strokes` and the real stroke fails "Pars du point vert." (P3). A scored attempt (ok or hinted) is kept.
 export function keepStrokes(strokes, model) {
     const r = score(strokes, model);
     return r.ok || r.hintKey ? strokes : [];

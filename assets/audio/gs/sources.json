@@ -5423,6 +5423,14 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.trace-hint.arrows": {
+  "input": "Suis les flèches.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.trace-hint.follow": {
   "input": "Suis le chemin gris.",
   "engine": "say",

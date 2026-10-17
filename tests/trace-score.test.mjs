@@ -71,6 +71,25 @@ describe('score', () => {
         assert.equal(r.ok, false);
         assert.equal(r.hint, '');
     });
+    test('score_TwoStrokeModelFirstStrokeOnly_IsNotOk', () => {
+        const m = { pts: [[20, 50], [40, 50], [60, 50], [80, 50], [80, 60], [80, 70]], pts2: [[50, 30], [50, 40], [50, 50]] };
+        const r = score([ideal(m.pts)], m);
+        assert.equal(r.ok, false);
+        assert.equal(r.hintKey, 'follow');
+    });
+    test('score_TwoStrokeModelBothStrokes_IsOk', () => {
+        const m = { pts: [[20, 50], [40, 50], [60, 50], [80, 50], [80, 60], [80, 70]], pts2: [[50, 30], [50, 40], [50, 50]] };
+        assert.equal(score([ideal(m.pts), ideal(m.pts2)], m).ok, true);
+    });
+    test('score_ClosedModelReversed_HintsArrows', () => {
+        const ring = Array.from({ length: 17 }, (_, i) => [50 + 20 * Math.sin(-i * Math.PI / 8), 50 - 20 * Math.cos(i * Math.PI / 8)]);
+        const r = score([ideal(ring).slice().reverse()], { pts: ring });
+        assert.equal(r.startOk, true);
+        assert.equal(r.ok, false);
+        assert.equal(r.hintKey, 'arrows');
+        assert.equal(r.hint, 'Suis les flèches.');
+        assert.equal(score([ideal(ring)], { pts: ring }).ok, true);
+    });
 });
 
 describe('createPointerFilter', () => {

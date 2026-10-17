@@ -422,5 +422,20 @@ describe('generate', () => {
         const hearts = generatePattern(() => 0.9).choices.find(c => c.emoji === '❤️');
         assert.deepEqual(hearts.say, { key: 'ui.pattern-choice.coeur', text: 'cœur' });
     });
+    test('generate_LetterTrace_KindLetterAndNoSecondStroke', () => {
+        const ex = generate(byId('letters/a#trace'), { cards, rng });
+        assert.equal(ex.trace.kind, 'letter');
+        assert.equal(ex.trace.pts2, undefined);
+    });
+    test('generate_DigitTrace_SaysChiffreAndShowsTheDigit', () => {
+        const seven = cards.find(c => c.kind === 'numbers' && c.item.n === 7);
+        const ex = generate({ ...seven, id: 'numbers/7#trace', skill: 'trace', item: { ...seven.item, trace: [[36, 30], [64, 30], [44, 72]] } }, { cards, rng });
+        assert.equal(ex.prompt.key, 'ui.trace-digit.7');
+        assert.equal(ex.prompt.text, 'Trace le chiffre sept. Pars du point vert.');
+        assert.equal(ex.prompt.display, 'Trace le chiffre 7. Pars du point vert.');
+        assert.equal(ex.success.text, 'Bravo, tu as bien tracé le chiffre sept\u00a0!');
+        assert.equal(ex.trace.kind, 'digit');
+        assert.equal(ex.trace.say.key, 'num.7');
+    });
 });
 

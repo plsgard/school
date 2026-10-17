@@ -34,6 +34,7 @@ export const UI_CUES = {
         start: { key: 'ui.trace-hint.start', text: 'Pars du point vert.' },
         follow: { key: 'ui.trace-hint.follow', text: 'Suis le chemin gris.' },
         inside: { key: 'ui.trace-hint.inside', text: 'Presque ! Reste dans le chemin.' },
+        arrows: { key: 'ui.trace-hint.arrows', text: 'Suis les flèches.' },
     },
 };
 

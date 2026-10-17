@@ -677,6 +677,7 @@
   "ui.syll-match.lapin",
   "ui.test",
   "ui.too-many",
+  "ui.trace-hint.arrows",
   "ui.trace-hint.follow",
   "ui.trace-hint.inside",
   "ui.trace-hint.start",
