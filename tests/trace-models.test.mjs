@@ -5,6 +5,7 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { score } from '../assets/gs/trace-score.js';
+import { strokesOf } from '../assets/gs/trace-geom.js';
 
 const load = async (n) => JSON.parse(await readFile(new URL(`../assets/gs/decks/${n}.json`, import.meta.url), 'utf8'));
 const letters = (await load('letters')).items;
@@ -33,7 +34,7 @@ function checkModel(it, label) {
         for (let i = 1; i < stroke.length; i++) assert.ok(d(stroke[i - 1], stroke[i]) <= 20, `${label}: gap ${i}`);
     }
     assert.ok(m.pts.length >= 10 && m.pts.length <= 26, `${label}: ${m.pts.length} waypoints`);
-    const strokes = [ideal(m.pts), ...(m.pts2 ? [ideal(m.pts2)] : [])];
+    const strokes = strokesOf(m).map(ideal);
     assert.equal(score(strokes, m).ok, true, `${label}: ideal stroke`);
     const reversed = [ideal(m.pts).slice().reverse(), ...strokes.slice(1)];
     if (isClosed(m.pts)) {
@@ -136,5 +137,74 @@ describe('traceModels', () => {
         for (let a = 0; a >= -360; a -= 30) ink.push(at(cb, ry2, a));          // bottom loop counter-clockwise
         for (let a = 180; a <= 225; a += 22.5) ink.push(at(ct, ry1, a));      // back up through the centre
         assert.equal(score([ideal(ink)], m).hintKey, 'arrows');
+    });
+});
+
+// Capitales d'imprimerie (addendum D3/D4): one straight line or one curve per stroke, top → bottom, left → right.
+const CAP_COUNTS = { a: 3, b: 3, c: 1, d: 2, e: 4, f: 3, g: 2, h: 3, i: 1, j: 1, k: 3, l: 2, m: 4, n: 3, o: 1, p: 2, q: 2, r: 3, s: 1, t: 2, u: 1, v: 2, w: 4, x: 2, y: 3, z: 3 };
+const capM = (l) => ({ strokes: l.capTrace });
+const rev = (s) => ideal(s).slice().reverse();
+describe('capModels', () => {
+    test('capModels_EveryLetter_HasTheTableStrokeCount', () => {
+        assert.deepEqual(Object.fromEntries(letters.map(l => [l.id, l.capTrace?.length])), CAP_COUNTS);
+    });
+    test('capModels_EveryModel_AtMostFourStrokes', () => {
+        for (const l of letters) assert.ok(l.capTrace.length <= 4, l.id);
+    });
+    test('capModels_EveryStroke_DrawableOnTheCapLines', () => {
+        for (const l of letters) {
+            const ys = l.capTrace.flat().map(p => p[1]);
+            assert.ok(Math.abs(Math.min(...ys) - 16) <= 1, `${l.id} top`);
+            if (l.id !== 'q') assert.ok(Math.abs(Math.max(...ys) - 72) <= 1, `${l.id} bottom`);
+            l.capTrace.forEach((s, k) => {
+                assert.ok(s.length >= 4, `${l.id}${k + 1}: ${s.length} waypoints`);
+                for (let i = 1; i < s.length; i++) assert.ok(d(s[i - 1], s[i]) <= 12, `${l.id}${k + 1} gap ${i}`);
+                for (const [x, y] of s) assert.ok(x >= 10 && x <= 90 && y >= 14 && y <= 80, `${l.id}${k + 1} ${x},${y}`);
+                if (!isClosed(s)) assert.ok(d(s[0], s[s.length - 1]) >= 15, `${l.id}${k + 1} start≈end`);
+            });
+        }
+    });
+    test('capModels_ClosedStrokes_OnlyOAndTheRingOfQ', () => {
+        const closed = letters.flatMap(l => l.capTrace.map((s, k) => isClosed(s) ? `${l.id}${k + 1}` : null)).filter(Boolean);
+        assert.deepEqual(closed, ['o1', 'q1']);
+    });
+    test('capModels_IdealStrokesInOrder_AreOk', () => {
+        for (const l of letters) assert.equal(score(l.capTrace.map(ideal), capM(l)).ok, true, l.id);
+    });
+    test('capModels_EachStrokeReversed_Fails', () => {
+        for (const l of letters) l.capTrace.forEach((s, k) => {
+            const ink = l.capTrace.map((t, j) => (j === k ? rev(t) : ideal(t)));
+            const r = score(ink, capM(l));
+            const want = isClosed(s) ? 'arrows' : k === 0 ? 'start' : 'next';
+            assert.equal(r.hintKey, want, `${l.id} stroke ${k + 1} reversed: ${JSON.stringify(r)}`);
+        });
+    });
+    test('capModels_FirstTwoStrokesSwapped_Fails', () => {
+        for (const l of letters.filter(l => l.capTrace.length >= 2)) {
+            const ink = l.capTrace.map(ideal);
+            [ink[0], ink[1]] = [ink[1], ink[0]];
+            assert.equal(score(ink, capM(l)).ok, false, l.id);
+        }
+    });
+    test('capModels_EachDonePrefix_WaitsForTheNextDot', () => {
+        for (const l of letters) for (let k = 1; k < l.capTrace.length; k++) {
+            const r = score(l.capTrace.slice(0, k).map(ideal), capM(l));
+            assert.deepEqual([r.hintKey, r.next, r.waiting], ['next', k, true], `${l.id} after ${k}`);
+        }
+    });
+    // Q12: where a stroke ends on the next one's start (a corner: L, Z, K, Y, B, R), the pen may go on without lifting.
+    test('capModels_CornersDrawnWithoutLifting_AreOk', () => {
+        const joined = [];
+        for (const l of letters) {
+            const paths = []; // waypoint lists, one per pen stroke
+            l.capTrace.forEach((s, k) => {
+                const prev = l.capTrace[k - 1];
+                if (prev && !isClosed(prev) && d(prev[prev.length - 1], s[0]) <= 12.6) { paths[paths.length - 1].push(...s.slice(1)); joined.push(`${l.id}${k}`); }
+                else paths.push([...s]);
+            });
+            const ink = paths.map(ideal);
+            assert.equal(score(ink, capM(l)).ok, true, `${l.id} continuous: ${JSON.stringify(score(ink, capM(l)))}`);
+        }
+        assert.deepEqual(joined.sort(), ['b2', 'k2', 'l1', 'r2', 'y2', 'z1', 'z2']); // R: the belly runs on into the leg
     });
 });

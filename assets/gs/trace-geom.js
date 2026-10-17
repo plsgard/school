@@ -5,6 +5,39 @@
 // Lignage, top to bottom (spec §8.1). The hampe line (t, d, digit tops) is a guide only: never drawn by the app.
 export const LIGNAGE = { ascender: 16, hampe: 30, xHeight: 42, baseline: 72, descender: 92 };
 
+// Lines and band per model kind (addendum D2), shared by the canvas and the sheet. Cursive letters and digits: tinted
+// x-height band, faint ascender and descender lines, x-height line, strong baseline. Capitals span 16 → 72 with no band
+// (a band would say "letters live here"): a cap line as strong as the baseline's colour, a faint bar guide at 44.
+// width is in canvas px; the sheet scales it by 0.35.
+export function lignageFor(kind = 'cursive') {
+    if (kind === 'cap') return { band: null, lines: [{ y: 16, color: '#9fb2cf', width: 1.5 }, { y: 44, color: '#eef2f8', width: 1 }, { y: 72, color: '#9fb2cf', width: 2 }] };
+    const L = LIGNAGE;
+    return {
+        band: [L.xHeight, L.baseline, '#f3f7fc'],
+        lines: [{ y: L.ascender, color: '#eef2f8', width: 1 }, { y: L.xHeight, color: '#dfe7f2', width: 1 }, { y: L.baseline, color: '#9fb2cf', width: 2 }, { y: L.descender, color: '#eef2f8', width: 1 }],
+    };
+}
+
+// N ordered strokes (addendum D1). Deck capitals give `strokes`; cursive letters and digits may still come as the
+// legacy { pts, pts2 } shape (tests, older callers): both normalise to the same list.
+export const strokesOf = (model) => model.strokes ?? [model.pts, model.pts2].filter(Boolean);
+export const MAX_STROKES = 4; // E, M, W
+// Start-dot colour by stroke index: 1 green, 2 blue (x, 4 and 5 keep their look), 3 orange, 4 violet.
+export const DOT_COLORS = ['#4cb944', '#4c8fd9', '#f08c00', '#9b59b6'];
+const COINCIDENT = 7; // a pending dot this close to a dot already shown waits until the earlier stroke is done
+
+// Dots to draw while `cur` strokes are done (addendum D5): done strokes lose their dot, the active one is filled,
+// pending ones are rings. Digits only on multi-stroke models. Shared by trace.js and tools/trace-sheet.mjs.
+export function startDots(strokes, cur) {
+    const digit = strokes.length >= 2, shown = [];
+    for (let k = cur; k < strokes.length; k++) {
+        const [x, y] = strokes[k][0];
+        if (k > cur && shown.some(s => Math.hypot(s.x - x, s.y - y) < COINCIDENT)) continue;
+        shown.push({ x, y, n: k + 1, color: DOT_COLORS[k], active: k === cur, digit });
+    }
+    return shown;
+}
+
 // Catmull-Rom through the waypoints, as cubic Bézier segments [c1x, c1y, c2x, c2y, x, y] (one per waypoint pair):
 // sharp at retrace reversals, smooth elsewhere. Midpoint quadratics were tried and rejected: they cut reversals
 // short (m/n legs, s closure).

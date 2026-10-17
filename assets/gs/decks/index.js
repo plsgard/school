@@ -16,6 +16,7 @@ function skillsFor(kind, item, deck) {
         case 'letters': return [
             'letter-3scripts',
             item.sound ? 'sound-letter' : null,
+            item.capTrace ? 'trace-cap' : null, // capitals first: the cursive trace waits for it (session prereqs)
             item.trace ? 'trace' : null,
             item.sound && item.continuant ? 'blend' : null,
         ].filter(Boolean);

@@ -2,7 +2,7 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { score, createPointerFilter, keepStrokes, firstStrokeDone, createBlueTracker } from '../assets/gs/trace-score.js';
+import { score, createPointerFilter, keepStrokes, NEXT_HINTS } from '../assets/gs/trace-score.js';
 
 const model = { pts: [[20, 50], [40, 50], [60, 50], [80, 50]] };
 const letters = JSON.parse(await readFile(new URL('../assets/gs/decks/letters.json', import.meta.url), 'utf8'));
@@ -70,7 +70,9 @@ describe('score', () => {
     test('score_TwoStrokeModelFirstStrokeOnly_IsNotOkAndHintsBlueDot', () => {
         const r = score([ideal(twoStroke.pts)], twoStroke);
         assert.equal(r.ok, false);
-        assert.equal(r.hintKey, 'blue');
+        assert.equal(r.hintKey, 'next');
+        assert.equal(r.next, 1);
+        assert.equal(r.hint, NEXT_HINTS[1]);
     });
     test('score_TwoStrokeModelSecondStrokeOnly_IsNotOk', () => {
         const r = score([ideal(twoStroke.pts2)], twoStroke);
@@ -157,6 +159,10 @@ describe('keepStrokes', () => {
     test('keepStrokes_StrayTapOnly_DropsIt', () => {
         assert.deepEqual(keepStrokes([[[70, 20, 0.5, 'pen'], [70.4, 20.2, 0.5, 'pen']]], model), []);
     });
+    test('keepStrokes_TapsOnly_ReturnsEmpty', () => {
+        const taps = [[[70, 20, 0.5, 'pen'], [70.4, 20.2, 0.5, 'pen']], [[30, 60, 0.5, 'pen'], [30.5, 60, 0.5, 'pen']]];
+        assert.deepEqual(keepStrokes(taps, model), []);
+    });
     test('keepStrokes_StrokeThatEarnedAHint_KeepsIt', () => {
         const rev = [along()[0].slice().reverse()];
         assert.equal(keepStrokes(rev, model), rev);
@@ -167,7 +173,6 @@ describe('keepStrokes', () => {
     });
     test('keepStrokes_StrayTapThenRealStroke_ScoresTheRealStrokeAlone', () => {
         const tap = [[70, 20, 0.5, 'pen']];
-        assert.equal(score([tap, ...along()], model).hintKey, 'start'); // the bug: the tap became the start point
         assert.equal(score([...keepStrokes([tap], model), ...along()], model).ok, true);
     });
 });
@@ -179,49 +184,137 @@ describe('TRACE_HINTS', () => {
         assert.deepEqual(Object.keys(TRACE_HINTS).sort(), Object.keys(UI_CUES.traceHint).sort());
         for (const [k, text] of Object.entries(TRACE_HINTS)) assert.equal(text, UI_CUES.traceHint[k].text, k);
     });
+    test('TRACE_HINTS_NextHints_MatchTheSpokenUiCueTexts', async () => {
+        const { UI_CUES } = await import('../assets/gs/renderers.js');
+        for (const k of [1, 2, 3]) assert.equal(NEXT_HINTS[k], UI_CUES.traceNext[k].text, String(k));
+        assert.equal(UI_CUES.traceNext[1].key, 'ui.trace-blue');
+        assert.equal(UI_CUES.traceNext[1].text, 'Maintenant, pars du point bleu\u00a0!');
+    });
 });
-describe('firstStrokeDone', () => {
+describe('score (two-stroke x)', () => {
     const x = letters.items.find(it => it.id === 'x');
     const m = { pts: x.trace, pts2: x.trace2 };
-    test('firstStrokeDone_GreenStrokeOnlyOnTwoStrokeModel_IsTrue', () => {
-        assert.equal(firstStrokeDone([ideal(x.trace)], m), true);
+    test('score_GreenStrokeOnlyOnTwoStrokeModel_WaitsForStroke1', () => {
+        const r = score([ideal(x.trace)], m);
+        assert.equal(r.waiting && r.next === 1, true);
     });
-    test('firstStrokeDone_BothStrokesDrawn_IsFalse', () => {
-        assert.equal(firstStrokeDone([ideal(x.trace), ideal(x.trace2)], m), false);
+    test('score_BothStrokesDrawn_IsOk', () => {
+        assert.equal(score([ideal(x.trace), ideal(x.trace2)], m).ok, true);
     });
-    test('firstStrokeDone_HalfOfTheGreenStroke_IsFalse', () => {
-        assert.equal(firstStrokeDone([ideal(x.trace.slice(0, 5))], m), false);
+    test('score_HalfOfTheGreenStroke_HintsFollowNotWaiting', () => {
+        const r = score([ideal(x.trace.slice(0, 5))], m);
+        assert.equal(r.hintKey, 'follow');
+        assert.equal(r.waiting, false);
     });
     test('score_GreenStrokeDoneBlueMissing_HintsBlueDot', () => {
         const r = score([ideal(x.trace)], m);
         assert.equal(r.ok, false);
-        assert.equal(r.hintKey, 'blue');
-        assert.equal(r.hint, 'Maintenant, pars du point bleu\u00a0!');
+        assert.equal(r.hintKey, 'next');
+        assert.equal(r.next, 1);
+        assert.equal(r.hint, 'Maintenant, pars du point bleu !');
+        assert.equal(r.hint, NEXT_HINTS[1]);
     });
     test('score_GreenStrokeHalfDoneOnTwoStrokeModel_HintsFollow', () => {
         assert.equal(score([ideal(x.trace.slice(0, 5))], m).hintKey, 'follow');
     });
-    test('firstStrokeDone_OneStrokeModel_IsFalse', () => {
+    test('score_OneStrokeModel_NeverNext', () => {
         const a = letters.items.find(it => it.id === 'a').trace;
-        assert.equal(firstStrokeDone([ideal(a)], { pts: a }), false);
+        for (const ink of [[ideal(a)], [ideal(a.slice(0, 6))], [ideal(a).slice().reverse()]]) {
+            const r = score(ink, { pts: a });
+            assert.notEqual(r.hintKey, 'next');
+            assert.equal(r.waiting, false);
+        }
     });
 });
 
-describe('createBlueTracker', () => {
-    test('blue_WaitingRightAfterTheCue_IsSilentAndNotAMiss', () => {
-        const t = createBlueTracker();
-        t.stroke(); t.cueSaid();
-        assert.deepEqual(t.blue(), { speak: false, miss: false });
+describe('score (N strokes)', () => {
+    const tri = { strokes: [
+        [[20, 20], [20, 30], [20, 40], [20, 50], [20, 60], [20, 70]],
+        [[45, 20], [45, 30], [45, 40], [45, 50], [45, 60], [45, 70]],
+        [[70, 20], [70, 30], [70, 40], [70, 50], [70, 60], [70, 70]],
+    ] };
+    const I = tri.strokes.map(ideal);
+    const tap = [[90, 90, 0.5, 'pen'], [90.3, 90.2, 0.5, 'pen']];
+    test('score_ThreeStrokesInOrder_IsOk', () => {
+        const r = score(I, tri);
+        assert.equal(r.ok, true);
+        assert.equal(r.next, 3);
     });
-    test('blue_AfterAFreshStroke_SpeaksAndIsAMiss', () => {
-        const t = createBlueTracker();
-        t.stroke(); t.cueSaid(); t.blue();
-        t.stroke();
-        assert.deepEqual(t.blue(), { speak: true, miss: true });
+    test('score_FirstStrokeDoneOnly_WaitsForStroke1WithBlueHint', () => {
+        const r = score([I[0]], tri);
+        assert.deepEqual([r.hintKey, r.next, r.waiting, r.hint, r.keep], ['next', 1, true, NEXT_HINTS[1], 1]);
     });
-    test('blue_TwiceWithoutANewStroke_SecondIsSilent', () => {
-        const t = createBlueTracker();
-        t.stroke(); t.blue();
-        assert.deepEqual(t.blue(), { speak: false, miss: false });
+    test('score_TwoStrokesDone_WaitsForStroke2WithOrangeHint', () => {
+        const r = score([I[0], I[1]], tri);
+        assert.deepEqual([r.hintKey, r.next, r.waiting, r.hint, r.keep], ['next', 2, true, NEXT_HINTS[2], 2]);
+    });
+    test('score_ThreeOfFourStrokesDone_WaitsForStroke3WithVioletHint', () => {
+        const four = { strokes: [...tri.strokes, [[20, 80], [35, 80], [50, 80], [65, 80]]] };
+        const r = score(I, four);
+        assert.deepEqual([r.hintKey, r.next, r.waiting, r.hint], ['next', 3, true, NEXT_HINTS[3]]);
+        assert.equal(NEXT_HINTS[3], 'Maintenant, pars du point violet !');
+        assert.equal(NEXT_HINTS[2], 'Maintenant, pars du point orange !');
+    });
+    test('score_FirstDoneThenThirdDrawn_NextNotWaiting', () => {
+        const r = score([I[0], I[2]], tri);
+        assert.deepEqual([r.hintKey, r.next, r.waiting, r.keep], ['next', 1, false, 1]);
+        assert.equal(r.hint, NEXT_HINTS[1]);
+    });
+    test('score_SecondStrokeDrawnFirst_HintsStart', () => {
+        const r = score([I[1], I[0], I[2]], tri);
+        assert.equal(r.hintKey, 'start');
+        assert.equal(r.keep, 0);
+    });
+    test('score_StrokeStoppingShortOfItsEnd_HintsFollow', () => {
+        const r = score([I[0], I[1].slice(0, -9), I[2]], tri);
+        assert.equal(r.hintKey, 'follow');
+        assert.equal(r.next, 1);
+    });
+    test('score_StrayTapBetweenStrokes_IsIgnored', () => {
+        assert.equal(score([I[0], tap, I[1], I[2]], tri).ok, true);
+    });
+    test('score_StrayTapBeforeRealStroke_IsIgnored', () => {
+        assert.equal(score([tap, ...along()], model).ok, true);
+    });
+    test('score_MidStrokeLift_ContinuesTheSameStroke', () => {
+        assert.equal(score([I[0].slice(0, 25), I[0].slice(25), I[1], I[2]], tri).ok, true);
+    });
+    test('score_ClosedFirstStrokeReversed_HintsArrows', () => {
+        const ring = Array.from({ length: 17 }, (_, i) => [50 + 20 * Math.sin(-i * Math.PI / 8), 50 - 20 * Math.cos(i * Math.PI / 8)]);
+        const tail = [[60, 80], [66, 84], [72, 88], [78, 92]];
+        const r = score([ideal(ring).reverse(), ideal(tail)], { strokes: [ring, tail] });
+        assert.equal(r.hintKey, 'arrows');
+    });
+    test('score_LegacyTwoStrokeShape_SameAsStrokes', () => {
+        const [a, b] = [tri.strokes[0], tri.strokes[2]];
+        for (const ink of [[ideal(a)], [ideal(a), ideal(b)], [ideal(b), ideal(a)]]) {
+            assert.deepEqual(score(ink, { pts: a, pts2: b }), score(ink, { strokes: [a, b] }));
+        }
+    });
+    test('score_WaitingResult_KeepCountsDoneStrokesOnly', () => {
+        assert.equal(score([I[0], I[1].slice(0, 20)], tri).keep, 1);
+        assert.equal(score([I[0], I[1], I[2].slice(0, 20)], tri).keep, 2);
+    });
+    // Q12: a corner (end of stroke k = start of stroke k + 1) may be drawn without lifting the pen.
+    const L = { strokes: [
+        [[30, 16], [30, 24], [30, 32], [30, 40], [30, 48], [30, 56], [30, 64], [30, 72]],
+        [[30, 72], [37.5, 72], [45, 72], [53, 72], [60.5, 72], [68, 72]],
+    ] };
+    test('score_CornerDrawnInOneContinuousStroke_IsOk', () => {
+        const one = ideal([...L.strokes[0], ...L.strokes[1].slice(1)]);
+        const r = score([one], L);
+        assert.equal(r.ok, true, JSON.stringify(r));
+    });
+    test('score_CornerDrawnAsTwoStrokes_IsOk', () => {
+        assert.equal(score(L.strokes.map(ideal), L).ok, true);
+    });
+    test('score_CornerDrawnFromTheBarEnd_HintsStart', () => {
+        const back = ideal([...L.strokes[0], ...L.strokes[1].slice(1)]).reverse();
+        assert.equal(score([back], L).hintKey, 'start');
+    });
+    test('score_ContinuousStrokeStoppingHalfwayAlongTheSecond_KeepsTheFirst', () => {
+        const part = ideal([...L.strokes[0], ...L.strokes[1].slice(1, 3)]);
+        const r = score([part], L);
+        assert.deepEqual([r.ok, r.next, r.hintKey], [false, 1, 'follow']);
     });
 });

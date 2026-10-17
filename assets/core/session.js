@@ -3,11 +3,15 @@
 // then arranges them under variety constraints. Track-agnostic: constraints are injected.
 import { dueCards } from './scheduler.js';
 
-// specialSlotSkill: the one skill that may only sit at one of specialSlots (GS: tracing, mid-session);
+// specialSlotSkills: the skills that may only sit at one of specialSlots, at most one such card per session (GS: tracing,
+// capitals or cursive, mid-session; a legacy `specialSlotSkill` string is still accepted);
+// prereqs: a card of `skill` stays new-locked while its item's sibling of skill `after` is below box `box`
+// (GS: capitals first, the cursive trace waits for the capital trace to be solid);
 // limitedKind: the card kind capped at maxLimited per session (GS: numbers).
 export const GS_CONSTRAINTS = {
     items: 6,
-    specialSlotSkill: 'trace',
+    specialSlotSkills: ['trace-cap', 'trace'],
+    prereqs: [{ skill: 'trace', after: 'trace-cap', box: 3 }],
     specialSlots: [2, 3],
     limitedKind: 'numbers',
     maxLimited: 2,
@@ -16,6 +20,22 @@ export const GS_CONSTRAINTS = {
 };
 
 const itemKey = (cardId) => cardId.split('#')[0];
+const specialsOf = (k) => k.specialSlotSkills ?? (k.specialSlotSkill ? [k.specialSlotSkill] : []);
+const specialTest = (k) => { const sp = specialsOf(k); return (c) => sp.includes(c.skill); };
+// A card is locked while a prereq rule names its skill and its item has a sibling of skill `after` below `box`
+// (unseen = box 0). No such sibling (digits have no trace-cap): never locked. Gates only unseen cards: a card
+// already in srs stays scheduled whatever its siblings (progress continuity).
+const lockedIn = (constraints, srs, group) => (c) => (constraints.prereqs ?? [])
+    .some(p => p.skill === c.skill && group.some(g => g.skill === p.after && (srs.cards[g.id]?.box ?? 0) < p.box));
+const groupsOf = (cards) => {
+    const groups = new Map();
+    for (const c of cards) {
+        const key = itemKey(c.id);
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(c);
+    }
+    return groups;
+};
 
 function shuffle(arr, rng) {
     const a = arr.slice();
@@ -33,12 +53,8 @@ const UNLOCK_BOX = 2;
 
 function pickNew({ srs, cards, today, constraints, rng }) {
     const budget = { ...constraints.newPerDay };
-    const groups = new Map();
-    for (const c of cards) {
-        const key = itemKey(c.id);
-        if (!groups.has(key)) groups.set(key, []);
-        groups.get(key).push(c);
-    }
+    const groups = groupsOf(cards);
+    const isSpecial = specialTest(constraints);
     for (const key of srs.introduced?.[today] ?? []) {
         const kind = groups.get(key)?.[0].kind;
         if (kind && budget[kind] > 0) budget[kind]--;
@@ -57,15 +73,16 @@ function pickNew({ srs, cards, today, constraints, rng }) {
         } else if (!srs.cards[first.id]) {
             unlocked.push(first); // older progress saw a sibling first: the first skill is simply due as new
         } else if (srs.cards[first.id].box >= UNLOCK_BOX) {
-            unlocked.push(...group.filter(c => !srs.cards[c.id]));
+            const locked = lockedIn(constraints, srs, group);
+            unlocked.push(...group.filter(c => !srs.cards[c.id] && !locked(c)));
         }
     }
     // Interleave so that new items and unlocked skills of known items share the reserved new slots.
-    // P1: while no card of the special-slot skill (trace) is known, co-introduce it with the first fresh item that has
-    // one, so the very first sessions already have their special slot (staging alone would wait for box 2).
-    const sp = constraints.specialSlotSkill;
-    if (sp && !cards.some(c => c.skill === sp && srs.cards[c.id]) && !unlocked.some(c => c.skill === sp)) {
-        const extra = fresh.map(f => groups.get(itemKey(f.id)).find(c => c.skill === sp)).find(Boolean);
+    // P1: while no card of a special-slot skill (a trace) is known, co-introduce one with the first fresh item that has
+    // an unlocked one (GS: its trace-cap, never the cursive trace), so the very first sessions already have their
+    // special slot (staging alone would wait for box 2).
+    if (!cards.some(c => isSpecial(c) && srs.cards[c.id]) && !unlocked.some(isSpecial)) {
+        const extra = fresh.map(f => { const g = groups.get(itemKey(f.id)); const locked = lockedIn(constraints, srs, g); return g.find(c => isSpecial(c) && !locked(c)); }).find(Boolean);
         if (extra) unlocked.push(extra);
     }
     const a = shuffle(fresh, rng);
@@ -99,7 +116,7 @@ function arrange(candidates, constraints, rng, boxOf, reserve = 0) {
     // Fills left to right and stops at the first slot it cannot fill: never compacts across a gap,
     // so the trace stays at an allowed index and no two neighbours share a skill.
     const n = constraints.items;
-    const special = constraints.specialSlotSkill;
+    const isSpecial = specialTest(constraints);
     const allowed = constraints.specialSlots ?? [];
     const limitedKind = constraints.limitedKind;
     const preferred = allowed[Math.floor(rng() * allowed.length)];
@@ -125,19 +142,19 @@ function arrange(candidates, constraints, rng, boxOf, reserve = 0) {
         let pick = null;
         // The special skill goes at the preferred slot; the other allowed slot is a fallback only when it comes later.
         if (!placedSpecial && allowed.includes(i) && (i === preferred || preferredMissed)) {
-            pick = find(c => c.skill === special, i);
+            pick = find(isSpecial, i);
             if (!pick && i === preferred) preferredMissed = true;
         }
         // Spec §10.3: one easy card (box >= 3) in slot 0 or 1 when one is available.
         if (!pick && i < 2 && !slots.some(s => boxOf(s) >= EASY_BOX)) {
-            pick = find(c => c.skill !== special && boxOf(c) >= EASY_BOX, i);
+            pick = find(c => !isSpecial(c) && boxOf(c) >= EASY_BOX, i);
         }
-        pick ??= find(c => c.skill !== special, i);
+        pick ??= find(c => !isSpecial(c), i);
         if (!pick) break;
         slots.push(pick); used.add(pick.id);
         perSkill.set(pick.skill, (perSkill.get(pick.skill) ?? 0) + 1);
         if (isNew(pick)) newPlaced++;
-        if (pick.skill === special) placedSpecial = true;
+        if (isSpecial(pick)) placedSpecial = true;
         if (pick.kind === limitedKind) limited++;
     }
     return slots;
@@ -168,7 +185,8 @@ export const GS_PRACTICE = {
     weakBox: 2,     // a not-due card is weak when box <= weakBox or lapses >= weakLapses
     weakLapses: 2,
     newPerDay: GS_CONSTRAINTS.newPerDay,
-    specialSlotSkill: GS_CONSTRAINTS.specialSlotSkill, // pickNew's trace co-introduction, as in the daily session
+    specialSlotSkills: GS_CONSTRAINTS.specialSlotSkills, // pickNew's trace co-introduction, as in the daily session
+    prereqs: GS_CONSTRAINTS.prereqs,                     // capitals first, previews included
 };
 
 // Greedy order: an easy card first (never a new one when anything else exists), then never the same card twice in a
@@ -224,7 +242,9 @@ export function composePractice({ srs, cards, today, include = () => true, rng =
     if (picked.length < n) {
         const knownItems = new Set(Object.keys(srs.cards).map(itemKey));
         const taken = new Set(fresh.map(c => itemKey(c.id)));
-        const unknown = themed.filter(c => !st(c) && !fresh.includes(c));
+        // Never a locked card, even unrecorded: a cursive model before its capital would contradict "capitals first".
+        const groups = groupsOf(cards);
+        const unknown = themed.filter(c => !st(c) && !fresh.includes(c) && !lockedIn(constraints, srs, groups.get(itemKey(c.id)))(c));
         for (const c of [...unknown.filter(c => knownItems.has(itemKey(c.id))), ...unknown.filter(c => !knownItems.has(itemKey(c.id)))]) {
             if (picked.length >= n) break;
             if (taken.has(itemKey(c.id))) continue;

@@ -14,13 +14,21 @@ const allWords = wordDecks.flatMap(d => d.items);
 const BEFORE = JSON.parse(await readFile(new URL('./helpers/card-ids-2026-10-17.json', import.meta.url), 'utf8'));
 
 describe('expandCards', () => {
-    test('expandCards_LetterWithSoundAndTrace_HasFourSkills', () => {
+    test('expandCards_LetterWithSoundAndTrace_HasFiveSkills', () => {
         const a = expandCards(decks, { firstName: '' }).filter(c => c.id.startsWith('letters/l#')).map(c => c.skill).sort();
-        assert.deepEqual(a, ['blend', 'letter-3scripts', 'sound-letter', 'trace']);
+        assert.deepEqual(a, ['blend', 'letter-3scripts', 'sound-letter', 'trace', 'trace-cap']);
+    });
+    test('expandCards_Letters_TraceCapRightBeforeTrace', () => {
+        const all = expandCards(decks, { firstName: '' });
+        for (const l of decks[0].items) {
+            const skills = all.filter(c => c.id.startsWith(`letters/${l.id}#`)).map(c => c.skill);
+            assert.equal(skills[0], 'letter-3scripts', l.id);
+            assert.equal(skills.indexOf('trace') - skills.indexOf('trace-cap'), 1, `${l.id}: ${skills}`);
+        }
     });
     test('expandCards_OcclusiveLetter_HasThreeScriptsAndTrace', () => {
         const p = expandCards(decks, { firstName: '' }).filter(c => c.id.startsWith('letters/p#')).map(c => c.skill);
-        assert.deepEqual(p, ['letter-3scripts', 'trace']);
+        assert.deepEqual(p, ['letter-3scripts', 'trace-cap', 'trace']);
     });
     test('expandCards_Digits0To9_HaveATraceCardAnd10DoesNot', () => {
         const cards = expandCards(decks, { firstName: '' });

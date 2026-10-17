@@ -1,7 +1,7 @@
 // tests/trace-geom.test.mjs
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import { LIGNAGE, curveSegments, arrowSpots } from '../assets/gs/trace-geom.js';
+import { LIGNAGE, curveSegments, arrowSpots, strokesOf, startDots, lignageFor, DOT_COLORS, MAX_STROKES } from '../assets/gs/trace-geom.js';
 
 describe('curveSegments', () => {
     test('curveSegments_StraightLine_ControlPointsOnTheLine', () => {
@@ -43,5 +43,47 @@ describe('arrowSpots', () => {
 describe('LIGNAGE', () => {
     test('LIGNAGE_Lines_TopToBottom', () => {
         assert.deepEqual(Object.values(LIGNAGE), [16, 30, 42, 72, 92]);
+    });
+});
+describe('strokesOf', () => {
+    test('strokesOf_LegacyPtsAndPts2_SameAsStrokes', () => {
+        const a = [[0, 0], [10, 0]], b = [[0, 10], [10, 10]];
+        assert.deepEqual(strokesOf({ pts: a, pts2: b }), [a, b]);
+        assert.deepEqual(strokesOf({ pts: a }), [a]);
+        assert.deepEqual(strokesOf({ strokes: [a, b] }), [a, b]);
+    });
+});
+describe('startDots', () => {
+    const A = [[[50, 16], [26, 72]], [[50, 16], [74, 72]], [[36, 52], [64, 52]]];
+    test('startDots_OneStrokeModel_PlainActiveDotWithoutDigit', () => {
+        assert.deepEqual(startDots([[[50, 16], [50, 72]]], 0), [{ x: 50, y: 16, n: 1, color: DOT_COLORS[0], active: true, digit: false }]);
+    });
+    test('startDots_CoincidentStarts_SecondHiddenUntilFirstDone', () => {
+        assert.deepEqual(startDots(A, 0).map(d => d.n), [1, 3]);
+        assert.deepEqual(startDots(A, 1).map(d => [d.n, d.active]), [[2, true], [3, false]]);
+    });
+    test('startDots_DoneStrokes_LoseTheirDot', () => {
+        assert.deepEqual(startDots(A, 2).map(d => d.n), [3]);
+        assert.deepEqual(startDots(A, 3), []);
+    });
+    test('startDots_MultiStroke_DigitsAndColoursByIndex', () => {
+        for (const d of startDots(A, 0)) { assert.equal(d.digit, true); assert.equal(d.color, DOT_COLORS[d.n - 1]); }
+    });
+    test('startDots_MaxStrokes_OneColourPerStroke', () => {
+        assert.equal(MAX_STROKES, 4);
+        assert.equal(new Set(DOT_COLORS).size, MAX_STROKES);
+        assert.deepEqual(DOT_COLORS.slice(0, 2), ['#4cb944', '#4c8fd9']); // x, 4 and 5 keep their green and blue
+    });
+});
+describe('lignageFor', () => {
+    test('lignageFor_Cap_NoBandCapAndBaseLines', () => {
+        const l = lignageFor('cap');
+        assert.equal(l.band, null);
+        assert.deepEqual(l.lines.map(x => x.y), [16, 44, 72]);
+    });
+    test('lignageFor_Cursive_UnchangedBandAndFourLines', () => {
+        const l = lignageFor();
+        assert.deepEqual(l.band.slice(0, 2), [42, 72]);
+        assert.deepEqual(l.lines.map(x => x.y), [16, 42, 72, 92]);
     });
 });

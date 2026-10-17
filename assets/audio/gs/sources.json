@@ -9551,6 +9551,422 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.trace-cap-ok.a": {
+  "input": "Bravo, tu as bien tracé la lettre a en capitale !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap-ok.b": {
+  "input": "Bravo, tu as bien tracé la lettre bé en capitale !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap-ok.c": {
+  "input": "Bravo, tu as bien tracé la lettre cé en capitale !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap-ok.d": {
+  "input": "Bravo, tu as bien tracé la lettre dé en capitale !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap-ok.e": {
+  "input": "Bravo, tu as bien tracé la lettre e en capitale !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap-ok.f": {
+  "input": "Bravo, tu as bien tracé la lettre effe en capitale !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap-ok.g": {
+  "input": "Bravo, tu as bien tracé la lettre gé en capitale !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap-ok.h": {
+  "input": "Bravo, tu as bien tracé la lettre ache en capitale !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap-ok.i": {
+  "input": "Bravo, tu as bien tracé la lettre i en capitale !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap-ok.j": {
+  "input": "Bravo, tu as bien tracé la lettre ji en capitale !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap-ok.k": {
+  "input": "Bravo, tu as bien tracé la lettre ka en capitale !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap-ok.l": {
+  "input": "Bravo, tu as bien tracé la lettre elle en capitale !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap-ok.m": {
+  "input": "Bravo, tu as bien tracé la lettre emme en capitale !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap-ok.n": {
+  "input": "Bravo, tu as bien tracé la lettre enne en capitale !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap-ok.o": {
+  "input": "Bravo, tu as bien tracé la lettre o en capitale !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap-ok.p": {
+  "input": "Bravo, tu as bien tracé la lettre pé en capitale !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap-ok.q": {
+  "input": "Bravo, tu as bien tracé la lettre ku en capitale !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap-ok.r": {
+  "input": "Bravo, tu as bien tracé la lettre erre en capitale !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap-ok.s": {
+  "input": "Bravo, tu as bien tracé la lettre esse en capitale !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap-ok.t": {
+  "input": "Bravo, tu as bien tracé la lettre té en capitale !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap-ok.u": {
+  "input": "Bravo, tu as bien tracé la lettre u en capitale !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap-ok.v": {
+  "input": "Bravo, tu as bien tracé la lettre vé en capitale !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap-ok.w": {
+  "input": "Bravo, tu as bien tracé la lettre double vé en capitale !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap-ok.x": {
+  "input": "Bravo, tu as bien tracé la lettre ixe en capitale !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap-ok.y": {
+  "input": "Bravo, tu as bien tracé la lettre i grec en capitale !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap-ok.z": {
+  "input": "Bravo, tu as bien tracé la lettre zède en capitale !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap.a": {
+  "input": "Trace la lettre a en capitale. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap.b": {
+  "input": "Trace la lettre bé en capitale. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap.c": {
+  "input": "Trace la lettre cé en capitale. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap.d": {
+  "input": "Trace la lettre dé en capitale. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap.e": {
+  "input": "Trace la lettre e en capitale. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap.f": {
+  "input": "Trace la lettre effe en capitale. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap.g": {
+  "input": "Trace la lettre gé en capitale. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap.h": {
+  "input": "Trace la lettre ache en capitale. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap.i": {
+  "input": "Trace la lettre i en capitale. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap.j": {
+  "input": "Trace la lettre ji en capitale. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap.k": {
+  "input": "Trace la lettre ka en capitale. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap.l": {
+  "input": "Trace la lettre elle en capitale. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap.m": {
+  "input": "Trace la lettre emme en capitale. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap.n": {
+  "input": "Trace la lettre enne en capitale. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap.o": {
+  "input": "Trace la lettre o en capitale. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap.p": {
+  "input": "Trace la lettre pé en capitale. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap.q": {
+  "input": "Trace la lettre ku en capitale. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap.r": {
+  "input": "Trace la lettre erre en capitale. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap.s": {
+  "input": "Trace la lettre esse en capitale. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap.t": {
+  "input": "Trace la lettre té en capitale. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap.u": {
+  "input": "Trace la lettre u en capitale. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap.v": {
+  "input": "Trace la lettre vé en capitale. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap.w": {
+  "input": "Trace la lettre double vé en capitale. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap.x": {
+  "input": "Trace la lettre ixe en capitale. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap.y": {
+  "input": "Trace la lettre i grec en capitale. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-cap.z": {
+  "input": "Trace la lettre zède en capitale. Pars du point vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.trace-digit-ok.0": {
   "input": "Bravo, tu as bien tracé le chiffre zéro !",
   "engine": "say",
@@ -9945,6 +10361,22 @@
  },
  "ui.trace-ok.z": {
   "input": "Bravo, tu as bien tracé la lettre zède !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-orange": {
+  "input": "Maintenant, pars du point orange !",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
+ "ui.trace-violet": {
+  "input": "Maintenant, pars du point violet !",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,

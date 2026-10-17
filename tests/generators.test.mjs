@@ -79,7 +79,25 @@ describe('generate', () => {
     test('generate_Trace_CarriesWaypoints', () => {
         const ex = generate(find('letters/a#trace'), { cards, rng });
         assert.equal(ex.layout, 'trace');
-        assert.ok(ex.trace.pts.length > 5);
+        assert.ok(ex.trace.strokes[0].length > 5);
+        assert.equal(ex.trace.strokes.length, 1);
+        assert.equal(ex.trace.lignage, 'cursive');
+        assert.equal(ex.trace.pts, undefined);
+    });
+    test('generate_LetterCapTrace_TextsKeysAndStrokes', () => {
+        const ex = generate(find('letters/a#trace-cap'), { cards, rng });
+        assert.equal(ex.layout, 'trace');
+        assert.equal(ex.prompt.key, 'ui.trace-cap.a');
+        assert.equal(ex.prompt.text, 'Trace la lettre a en capitale. Pars du point vert.');
+        assert.equal(ex.prompt.display, 'Trace la lettre A en capitale. Pars du point vert.');
+        assert.equal(ex.success.key, 'ui.trace-cap-ok.a');
+        assert.equal(ex.success.text, 'Bravo, tu as bien tracé la lettre a en capitale\u00a0!');
+        assert.equal(ex.success.display, 'Bravo, tu as bien tracé la lettre A en capitale\u00a0!');
+        assert.equal(ex.trace.strokes.length, 3);
+        assert.deepEqual(ex.trace.strokes, find('letters/a#trace-cap').item.capTrace);
+        assert.deepEqual([ex.trace.lignage, ex.trace.kind, ex.trace.label, ex.trace.say.key], ['cap', 'cap', 'A', 'letter.a.name']);
+        const w = generate(find('letters/w#trace-cap'), { cards, rng });
+        assert.equal(w.prompt.text, 'Trace la lettre double vé en capitale. Pars du point vert.');
     });
     test('generate_Blend_CorrectIsConsonantPlusVowel', () => {
         const ex = generate(find('letters/f#blend'), { cards, rng });
@@ -428,13 +446,14 @@ describe('generate', () => {
     test('generate_LetterTrace_KindLetterAndNoSecondStroke', () => {
         const ex = generate(byId('letters/a#trace'), { cards, rng });
         assert.equal(ex.trace.kind, 'letter');
-        assert.equal(ex.trace.pts2, undefined);
+        assert.equal(ex.trace.strokes.length, 1);
     });
     test('generate_TwoStrokeLetterTrace_PromptNamesTheBlueDot', () => {
         const ex = generate(byId('letters/x#trace'), { cards, rng });
         assert.equal(ex.prompt.key, 'ui.trace.x');
         assert.equal(ex.prompt.text, 'Trace la lettre ixe. Pars du point vert, puis du point bleu.');
-        assert.ok(ex.trace.pts2.length >= 7);
+        assert.equal(ex.trace.strokes.length, 2);
+        assert.ok(ex.trace.strokes[1].length >= 7);
     });
     test('generate_TwoStrokeDigitTrace_PromptNamesTheBlueDot', () => {
         const four = cards.find(c => c.kind === 'numbers' && c.item.n === 4);
@@ -442,6 +461,7 @@ describe('generate', () => {
         const ex = generate({ ...four, id: 'numbers/4#trace', skill: 'trace', item }, { cards, rng });
         assert.equal(ex.prompt.text, 'Trace le chiffre quatre. Pars du point vert, puis du point bleu.');
         assert.equal(ex.prompt.display, 'Trace le chiffre 4. Pars du point vert, puis du point bleu.');
+        assert.deepEqual(ex.trace.strokes, [item.trace, item.trace2]);
     });
     test('generate_DigitTrace_SaysChiffreAndShowsTheDigit', () => {
         const seven = cards.find(c => c.kind === 'numbers' && c.item.n === 7);

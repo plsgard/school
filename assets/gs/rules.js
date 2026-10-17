@@ -43,6 +43,7 @@ const SKILL_LABELS = {
     'letter-3scripts': 'trois écritures',
     'blend': 'coller les sons',
     'trace': 'tracer',
+    'trace-cap': 'tracer en capitale',
     'name-spell': 'épeler',
     'count': 'compter',
     'compare': 'comparer',
@@ -80,9 +81,11 @@ export function adultHint(ex) {
         const [c, v, syl] = ex.sounds;
         return `Faites-lui étirer le premier son, puis coller les deux sons${NBSP}: ${c}… ${v}… ${syl}.`;
     }
-    if (ex.type === 'trace') {
-        const what = ex.trace?.kind === 'digit' ? 'le chiffre' : 'la lettre';
-        const second = ex.trace?.pts2 ? ' Puis le deuxième trait, au point bleu.' : '';
+    if (ex.type === 'trace' || ex.type === 'trace-cap') {
+        const kind = ex.trace?.kind;
+        const what = kind === 'digit' ? 'le chiffre' : kind === 'cap' ? 'la lettre en capitale' : 'la lettre';
+        const n = ex.trace?.strokes?.length ?? 1;
+        const second = n === 2 ? ' Puis le deuxième trait, au point bleu.' : n > 2 ? ' Puis chaque trait, dans l\'ordre des numéros.' : '';
         return `Montrez le point vert, puis tracez ${what} une fois dans l'air, ensemble.${second}`;
     }
     return null;

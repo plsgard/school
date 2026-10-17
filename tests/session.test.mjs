@@ -20,6 +20,14 @@ const lcg = (seed) => () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 2 ** 
 const realDecks = await Promise.all(DECK_FILES.map(async n => JSON.parse(await readFile(new URL(`../assets/gs/decks/${n}.json`, import.meta.url), 'utf8'))));
 const realCards = expandCards(realDecks, { firstName: 'Léa' });
 const itemOf = (id) => id.split('#')[0];
+const isTraceSlot = (s) => s.skill === 'trace' || s.skill === 'trace-cap';
+// Capitals first (addendum D10): a letter's cursive trace is never new while its trace-cap is below box 3.
+function assertNoCursiveBeforeCap(srs, slots, label) {
+    for (const s of slots) {
+        if (s.kind !== 'letters' || s.skill !== 'trace' || srs.cards[s.id]) continue;
+        assert.ok((srs.cards[`${itemOf(s.id)}#trace-cap`]?.box ?? 0) >= 3, `${label}: ${s.id} new before its capital`);
+    }
+}
 const addDays = (iso, n) => new Date(Date.parse(`${iso}T00:00:00Z`) + n * 864e5).toISOString().slice(0, 10);
 
 // One session a day, as the page plays it, for `days` days; the child answers right with probability p.
@@ -30,6 +38,7 @@ function simulate(days, p, seed = 7) {
     for (let d = 0; d < days; d++) {
         const today = addDays('2026-11-01', d);
         const { slots } = compose({ srs, cards: realCards, today, rng });
+        assertNoCursiveBeforeCap(srs, slots, `day ${d}`);
         for (const s of slots) {
             firstDay[itemOf(s.id)] ??= d;
             srs = recordResult(srs, s.id, rng() < p, today);
@@ -156,7 +165,7 @@ describe('compose', () => {
         const { slots } = compose({ srs: { cards: {}, introduced: {} }, cards: pool(), today: T, rng: seq(0.1, 0.5, 0.9) });
         const firstSkill = { letters: 'letter-3scripts', words: 'syll-count', numbers: 'count' };
         // P1: the special-slot skill (trace) is the one exemption, co-introduced while no trace card is known yet
-        for (const s of slots) if (s.skill !== GS_CONSTRAINTS.specialSlotSkill) assert.equal(s.skill, firstSkill[s.kind], s.id);
+        for (const s of slots) if (!GS_CONSTRAINTS.specialSlotSkills.includes(s.skill)) assert.equal(s.skill, firstSkill[s.kind], s.id);
     });
     test('compose_NoTraceCardKnownYet_CoIntroducesOneTraceSibling', () => {
         for (let k = 0; k < 50; k++) {
@@ -258,7 +267,7 @@ describe('compose', () => {
             const today = addDays('2026-11-01', d);
             const { slots } = compose({ srs, cards: realCards, today, rng });
             assert.equal(slots.length, 6, `day ${d}`);
-            const idx = slots.map((s, i) => s.skill === 'trace' ? i : -1).filter(i => i >= 0);
+            const idx = slots.map((s, i) => isTraceSlot(s) ? i : -1).filter(i => i >= 0);
             assert.equal(idx.length, 1, `day ${d} trace ${idx}`); // real decks always have trace-capable letters (P1)
             assert.ok(GS_CONSTRAINTS.specialSlots.includes(idx[0]), `day ${d} trace ${idx}`);
             for (let i = 1; i < slots.length; i++) assert.notEqual(slots[i].skill, slots[i - 1].skill, `day ${d}`);
@@ -266,7 +275,74 @@ describe('compose', () => {
             const newItems = {};
             for (const s of slots) if (!Object.keys(srs.cards).some(id => itemOf(id) === itemOf(s.id))) (newItems[s.kind] ??= new Set()).add(itemOf(s.id));
             for (const [kind, set] of Object.entries(newItems)) assert.ok(set.size <= GS_CONSTRAINTS.newPerDay[kind], `day ${d} ${kind} ${[...set]}`);
+            assertNoCursiveBeforeCap(srs, slots, `day ${d}`);
             for (const s of slots) srs = recordResult(srs, s.id, rng() < 0.9, today);
+        }
+    });
+    // Capitals first (addendum D10): letters a e i with their capital and cursive trace cards.
+    const capPool = () => {
+        const c = [];
+        for (const l of 'aei') for (const sk of ['letter-3scripts', 'trace-cap', 'trace']) c.push(card(`letters/${l}#${sk}`, 'letters', sk));
+        for (const w of ['lapin', 'chapeau', 'fusee', 'moto', 'sapin']) for (const sk of ['syll-count', 'sound-pick']) c.push(card(`words/${w}#${sk}`, 'words', sk));
+        return c;
+    };
+    const later = '2026-12-01';
+    const capSrs = (capBox) => {
+        const srs = { cards: {}, introduced: {} };
+        for (const l of 'aei') srs.cards[`letters/${l}#letter-3scripts`] = { box: 2, due: later };
+        for (const w of ['lapin', 'chapeau', 'fusee', 'moto', 'sapin']) srs.cards[`words/${w}#syll-count`] = { box: 3, due: T };
+        srs.cards['letters/a#trace-cap'] = { box: capBox, due: later };
+        return srs;
+    };
+    test('compose_CursiveTraceWithCapBelowBox3_StaysLocked', () => {
+        const srs = capSrs(2);
+        for (let k = 0; k < 50; k++) {
+            const { slots } = compose({ srs, cards: capPool(), today: T, rng: lcg(k) });
+            assert.ok(!slots.some(s => s.id === 'letters/a#trace'), slots.map(s => s.id).join());
+        }
+    });
+    test('compose_CursiveTraceWithCapAtBox3_IsUnlocked', () => {
+        const srs = capSrs(3);
+        let seen = false;
+        for (let k = 0; k < 50; k++) seen ||= compose({ srs, cards: capPool(), today: T, rng: lcg(k) }).slots.some(s => s.id === 'letters/a#trace');
+        assert.ok(seen);
+    });
+    test('compose_KnownCursiveTraceWithoutCap_StaysScheduled', () => {
+        const srs = capSrs(0);
+        delete srs.cards['letters/a#trace-cap'];
+        srs.cards['letters/a#trace'] = { box: 1, due: T };
+        let seen = false;
+        for (let k = 0; k < 50; k++) seen ||= compose({ srs, cards: capPool(), today: T, rng: lcg(k) }).slots.some(s => s.id === 'letters/a#trace');
+        assert.ok(seen);
+    });
+    test('compose_NoTraceKnown_CoIntroducesTraceCapNotTrace', () => {
+        for (let k = 0; k < 20; k++) {
+            const { slots } = compose({ srs: { cards: {}, introduced: {} }, cards: realCards, today: T, rng: lcg(k) });
+            const special = slots.filter(isTraceSlot);
+            assert.equal(special.length, 1, slots.map(s => s.id).join());
+            assert.equal(special[0].skill, 'trace-cap', special[0].id);
+        }
+    });
+    test('compose_CapAndCursiveBothDue_OneSpecialPerSession', () => {
+        const srs = capSrs(3);
+        for (const l of 'aei') { srs.cards[`letters/${l}#trace-cap`] = { box: 3, due: T }; srs.cards[`letters/${l}#trace`] = { box: 1, due: T }; }
+        for (let k = 0; k < 50; k++) {
+            const { slots } = compose({ srs, cards: capPool(), today: T, rng: lcg(k) });
+            const idx = slots.map((s, i) => GS_CONSTRAINTS.specialSlotSkills.includes(s.skill) ? i : -1).filter(i => i >= 0);
+            assert.equal(idx.length, 1, slots.map(s => s.id).join());
+            assert.ok([2, 3].includes(idx[0]), `special at ${idx[0]}`);
+        }
+    });
+    test('compose_LegacySpecialSlotSkillString_StillWorks', () => {
+        const cards = capPool();
+        const constraints = { ...GS_CONSTRAINTS, specialSlotSkills: undefined, prereqs: undefined, specialSlotSkill: 'trace' };
+        const srs = capSrs(0);
+        for (const l of 'aei') srs.cards[`letters/${l}#trace`] = { box: 1, due: T };
+        for (let k = 0; k < 20; k++) {
+            const { slots } = compose({ srs, cards, today: T, rng: lcg(k), constraints });
+            const idx = slots.map((s, i) => s.skill === 'trace' ? i : -1).filter(i => i >= 0);
+            assert.equal(idx.length, 1, slots.map(s => s.id).join());
+            assert.ok([2, 3].includes(idx[0]));
         }
     });
 });
@@ -374,6 +450,15 @@ describe('composePractice', () => {
         for (const w of ['chapeau', 'fusee', 'moto']) srs.cards[`words/${w}#sound-pick`] = { box: 1, due: T, seen: 1, lapses: 1 };
         for (let k = 0; k < 20; k++) assert.equal(composePractice({ srs, cards: pool(), today: T, include: sons, rng: lcg(k) }).slots[0].id, 'words/lapin#syll-count');
     });
+    test('composePractice_LockedCursiveTrace_NeverPreviewed', () => {
+        const srs = { cards: {}, introduced: {} };
+        for (const l of 'aei') srs.cards[`letters/${l}#letter-3scripts`] = { box: 2, due: '2026-12-01', seen: 2, lapses: 0 };
+        for (let k = 0; k < 50; k++) {
+            const { slots, preview } = composePractice({ srs, cards: realCards, today: T, include: c => c.skill === 'trace' || c.skill === 'trace-cap', rng: lcg(k) });
+            assert.ok(!preview.some(id => /^letters\/.#trace$/.test(id)), preview.join());
+            assert.ok(!slots.some(s => s.kind === 'letters' && s.skill === 'trace'), slots.map(s => s.id).join());
+        }
+    });
     test('composePractice_RealDecks200Seeds_NoSameCardAdjacentAndFullRounds', () => {
         // The 10-day simulation state: some known, some due, budget partly spent.
         const rng = lcg(13);
@@ -383,7 +468,7 @@ describe('composePractice', () => {
             for (const s of compose({ srs, cards: realCards, today, rng }).slots) srs = recordResult(srs, s.id, rng() < 0.8, today);
         }
         const day = addDays('2026-11-01', 10);
-        for (const include of [sons, c => c.skill === 'trace', c => c.kind === 'numbers', c => c.skill === 'letter-3scripts']) {
+        for (const include of [sons, c => c.skill === 'trace', c => c.skill === 'trace' || c.skill === 'trace-cap', c => c.kind === 'numbers', c => c.skill === 'letter-3scripts']) {
             for (let k = 0; k < 200; k++) {
                 const { slots } = composePractice({ srs, cards: realCards, today: day, include, rng: lcg(k), constraints: P(10) });
                 assert.equal(slots.length, 10);

@@ -21,6 +21,9 @@ describe('themeOf', () => {
     test('themeOf_DigitTrace_IsEcrireNotNombres', () => {
         assert.equal(themeOf({ kind: 'numbers', skill: 'trace' }), 'ecrire');
     });
+    test('themeOf_CapitalTrace_IsEcrire', () => {
+        assert.equal(themeOf({ kind: 'letters', skill: 'trace-cap' }), 'ecrire');
+    });
     test('themeOf_BlendAndSoundLetter_SonsAndLettres', () => {
         assert.equal(themeOf({ skill: 'blend' }), 'sons');
         assert.equal(themeOf({ skill: 'sound-letter' }), 'lettres');

@@ -31,6 +31,13 @@ describe('collectCues', () => {
         assert.equal(cues.get('syl.chateau.1'), 'cha');
     });
 
+    test('collectCues_CapitalTrace_KeysAndNextCues', () => {
+        for (const k of ['ui.trace-cap.a', 'ui.trace-cap-ok.z', 'ui.trace-violet']) assert.ok(cues.has(k), k);
+        assert.equal(cues.get('ui.trace-orange'), 'Maintenant, pars du point orange\u00a0!');
+        assert.equal(cues.get('ui.trace-violet'), 'Maintenant, pars du point violet\u00a0!');
+        assert.equal(cues.get('ui.trace-blue'), 'Maintenant, pars du point bleu\u00a0!');
+    });
+
     test('collectCues_LargeSeededSweep_EmitsNoKeyMissingFromTheCues', () => {
         // Seeds disjoint from the ones collectCues sweeps: an rng-dependent key it missed would show up here.
         const missing = new Set();

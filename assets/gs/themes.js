@@ -6,8 +6,9 @@
 export const THEMES = [
     { id: 'sons', emoji: '👂', label: 'Sons', skills: ['syll-count', 'syll-match', 'syll-initial', 'rhyme', 'sound-pick', 'sound-final', 'blend'] },
     { id: 'lettres', emoji: '🔤', label: 'Lettres', skills: ['letter-3scripts', 'sound-letter', 'name-spell'] },
-    // trace is Écrire whatever its kind: a digit trace card is kind 'numbers' but never plays in a Nombres round.
-    { id: 'ecrire', emoji: '✏️', label: 'Écrire', skills: ['trace'] },
+    // Écrire: capital letters (trace-cap, learnt first) and cursive letters and digits (trace). trace is Écrire whatever
+    // its kind: a digit trace card is kind 'numbers' but never plays in a Nombres round.
+    { id: 'ecrire', emoji: '✏️', label: 'Écrire', skills: ['trace-cap', 'trace'] },
     { id: 'nombres', emoji: '🔢', label: 'Nombres', skills: ['count', 'compare', 'decompose', 'number-line', 'dice', 'before-after', 'add'] },
 ];
 

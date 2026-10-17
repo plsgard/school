@@ -78,6 +78,7 @@ describe('cardLabel', () => {
     });
     test('cardLabel_LetterCard_ShowsLetterAndSkill', () => {
         assert.equal(cardLabel('letters/a#trace', cards), 'lettre a · tracer');
+        assert.equal(cardLabel('letters/a#trace-cap', cards), 'lettre a · tracer en capitale');
     });
     test('cardLabel_NumberCard_ShowsNumberAndSkill', () => {
         assert.equal(cardLabel('numbers/7#count', cards), 'nombre 7 · compter');
@@ -122,7 +123,15 @@ describe('adultHint', () => {
         assert.equal(adultHint({ type: 'trace', trace: { kind: 'digit' } }), 'Montrez le point vert, puis tracez le chiffre une fois dans l\'air, ensemble.');
     });
     test('adultHint_TwoStrokeTrace_MentionsTheBlueDot', () => {
-        assert.match(adultHint({ type: 'trace', trace: { kind: 'digit', pts2: [[0, 0]] } }), /deuxième trait, au point bleu\.$/);
+        assert.match(adultHint({ type: 'trace', trace: { kind: 'digit', strokes: [[[0, 0]], [[0, 0]]] } }), /deuxième trait, au point bleu\.$/);
+    });
+    test('adultHint_CapitalTraceWithFourStrokes_FollowsTheNumbers', () => {
+        const ex = generate(cards.find(c => c.id === 'letters/e#trace-cap'), { cards });
+        assert.equal(adultHint(ex), 'Montrez le point vert, puis tracez la lettre en capitale une fois dans l\'air, ensemble. Puis chaque trait, dans l\'ordre des numéros.');
+    });
+    test('adultHint_OneStrokeCapitalTrace_NoSecondSentence', () => {
+        const ex = generate(cards.find(c => c.id === 'letters/o#trace-cap'), { cards });
+        assert.equal(adultHint(ex), 'Montrez le point vert, puis tracez la lettre en capitale une fois dans l\'air, ensemble.');
     });
 });
 
