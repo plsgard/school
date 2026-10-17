@@ -19,15 +19,16 @@ export const UI_CUES = {
     tooMany: { key: 'ui.too-many', text: 'Il y en a trop.' },
     dotsConfirm: { key: 'ui.dots-confirm', text: 'Appuie sur le bouton vert quand c\'est fini.' },
     restart: { key: 'ui.restart', text: 'Recommencer.' },
+    nextHint: { key: 'ui.next-hint', text: 'Appuie sur la flèche pour continuer.' },
     more: {
-        1: { key: 'ui.more.1', text: 'Encore une !' },
-        2: { key: 'ui.more.2', text: 'Encore deux !' },
-        3: { key: 'ui.more.3', text: 'Encore trois !' },
+        1: { key: 'ui.more.1', text: 'Encore une !' },
+        2: { key: 'ui.more.2', text: 'Encore deux !' },
+        3: { key: 'ui.more.3', text: 'Encore trois !' },
     },
     traceHint: {
         start: { key: 'ui.trace-hint.start', text: 'Pars du point vert.' },
         follow: { key: 'ui.trace-hint.follow', text: 'Suis le chemin gris.' },
-        inside: { key: 'ui.trace-hint.inside', text: 'Presque ! Reste dans le chemin.' },
+        inside: { key: 'ui.trace-hint.inside', text: 'Presque ! Reste dans le chemin.' },
     },
 };
 
@@ -124,6 +125,7 @@ export function renderExercise(root, ex, { speak, parentMode = false, waitForTap
     let finished = false;
     const timers = new Set();
     let destroyTrace = null;
+    let locked = false; // set by a revealing miss: no tile may come back to life before finish() runs
     const later = (fn, ms) => { const id = setTimeout(() => { timers.delete(id); fn(); }, ms); timers.add(id); return id; };
     const cleanup = () => { for (const id of timers) clearTimeout(id); timers.clear(); destroyTrace?.(); destroyTrace = null; };
     disposeExercise();
@@ -143,6 +145,7 @@ export function renderExercise(root, ex, { speak, parentMode = false, waitForTap
             if (finished) return;
             finished = true;
             onSettle();
+            onFinish();
             const ms = Date.now() - t0;
             if (praise) {
                 feedback.textContent = `⭐ ${ex.success.text}`;
@@ -161,6 +164,7 @@ export function renderExercise(root, ex, { speak, parentMode = false, waitForTap
             resolve({ correctFirstTry: misses === 0, attempts: misses + 1, ms });
         };
         const done = () => finish();
+        let onFinish = () => {};
 
         if (ex.layout === 'tap' || ex.layout === 'multitap') {
             if (ex.choices.length === 2) choices.classList.add('two');
@@ -185,18 +189,23 @@ export function renderExercise(root, ex, { speak, parentMode = false, waitForTap
                     b.classList.add('ko');
                     b.disabled = true;
                     if (revealing()) {
-                        // Second miss: no "try again"; show every remaining right answer, the success cue says it.
+                        // Second miss: no "try again"; lock every tile, show every remaining right answer,
+                        // the success cue says it.
+                        locked = true;
+                        for (const x of buttons.values()) x.disabled = true;
                         for (const id of [...remaining]) markOk(id);
                         await sleep(400);
                         b.classList.remove('ko');
-                        hideForAWhile(b);
+                        b.style.visibility = 'hidden';
                         done();
                         return;
                     }
                     feedback.textContent = UI_CUES.tryAgain.text;
                     speak(ex.layout === 'multitap' && c.say ? c.say : UI_CUES.tryAgain);
                     await sleep(400); // let the shake play, then hide the wrong choice for a few seconds
-                    b.classList.remove('ko'); b.disabled = false;
+                    b.classList.remove('ko');
+                    if (finished || locked) return;
+                    b.disabled = false;
                     hideForAWhile(b);
                 });
                 choices.append(b);
@@ -321,10 +330,12 @@ export function renderExercise(root, ex, { speak, parentMode = false, waitForTap
                     feedback.textContent = hint?.text ?? r.hint;
                     if (revealing() && !skip) {
                         // Second miss: say the letter, offer a way out; the canvas stays live for one more try.
-                        speak(ex.trace.say ?? hint ?? { text: r.hint });
-                        skip = button('gs-cta next', 'Suivant ▶', 'Suivant');
+                        const said = speak(ex.trace.say ?? hint ?? { text: r.hint });
+                        skip = button('gs-cta next pulse', 'Suivant ▶', 'Suivant');
                         skip.addEventListener('click', () => finish({ praise: false }), { once: true });
                         bar.append(skip);
+                        onFinish = () => { skip.remove(); }; // never two "Suivant" at once (praise adds its own)
+                        said.then(() => { if (!finished) speak(UI_CUES.nextHint); }); // once, after the letter name
                         return;
                     }
                     speak(hint ?? { text: r.hint });

@@ -1,7 +1,7 @@
 // assets/gs/app.js
 // Grande Section page: home → 6-item session → done. Wires storage, composer, generators, renderers and speech.
-import { getActiveProfileId, loadProfiles, loadSettings, loadSrs, saveSrs, appendSession } from '../storage.js';
-import { record } from '../core/scheduler.js';
+import { getActiveProfileId, loadProfiles, loadSettings, loadSrs, saveSrs, loadSessions, appendSession } from '../storage.js';
+import { recordResult } from '../core/progress.js';
 import { compose, GS_CONSTRAINTS } from '../core/session.js';
 import { createSpeech, createDeviceSource, createClipSource, SILENT_SOURCE } from '../core/speech.js';
 import { celebrate } from '../celebration.js';
@@ -12,14 +12,16 @@ import { mountParent } from './parent.js';
 
 // R7: local calendar day (France is UTC+1/+2; a UTC date would merge or skip days around midnight).
 const pad = (n) => String(n).padStart(2, '0');
-const today = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
+const localDay = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const today = () => localDay(new Date());
 const $ = (id) => document.getElementById(id);
 const show = (id) => { for (const s of document.querySelectorAll('.gs-screen')) s.classList.toggle('visually-hidden', s.id !== id); };
 const NBSP = '\u00a0'; // French typography: non-breaking space before ! ? :
 
 // Fixed UI cues spoken by the page (one text per key; Task 13 records them).
-const CUE_LETS_GO = { key: 'ui.lets-go', text: 'C\'est parti !' };
-const CUE_DONE = { key: 'ui.done', text: 'Bravo ! Tu as fini pour aujourd\'hui.' };
+const CUE_LETS_GO = { key: 'ui.lets-go', text: 'C\'est parti !' };
+const CUE_TOMORROW = { key: 'ui.come-back-tomorrow', text: 'Tu as déjà joué aujourd\'hui. À demain\u00a0!' };
+const CUE_DONE = { key: 'ui.done', text: 'Bravo ! Tu as fini pour aujourd\'hui.' };
 
 const profileId = getActiveProfileId();
 const profile = loadProfiles().find(p => p.id === profileId) ?? { id: profileId, name: '', avatar: '🦊' };
@@ -40,7 +42,18 @@ const silent = settings.audio === 'silent';
 document.body.classList.toggle('silent', silent);
 
 // Child-facing home: avatar, greeting, one ⭐ per game of the day, ▶ Jouer. Stats live in the parent corner.
+// Spec §13 R4: one session a day. A parent can open one more (Task 11 sets settings.extraSessionOn = today).
+function playedToday() {
+    const day = today();
+    if (settings.extraSessionOn === day) return false;
+    return loadSessions(profileId, 'gs').some(s => s.date && localDay(new Date(s.date)) === day);
+}
+
 function renderHome() {
+    const rest = playedToday();
+    $('play').classList.toggle('visually-hidden', rest);
+    $('today').classList.toggle('visually-hidden', rest);
+    $('moon').classList.toggle('visually-hidden', !rest);
     $('avatar').textContent = profile.avatar || '🦊';
     $('hello').textContent = profile.name ? `Salut ${profile.name}${NBSP}!` : `Salut${NBSP}!`;
     $('today').textContent = '⭐'.repeat(settings.sessionItems);
@@ -60,9 +73,8 @@ async function runSession() {
     const n = settings.sessionItems;
     let srs = loadSrs(sessionProfileId, 'gs');
     const day = today();
-    const { slots, introduced } = compose({ srs, cards, today: day, constraints: { ...GS_CONSTRAINTS, items: n } });
-    srs = { ...srs, introduced: { ...srs.introduced, [day]: [...new Set([...(srs.introduced[day] ?? []), ...introduced])] } };
-    saveSrs(sessionProfileId, 'gs', srs);
+    // Items count as introduced only when one of their cards is answered (recordResult), never at session start.
+    const { slots } = compose({ srs, cards, today: day, constraints: { ...GS_CONSTRAINTS, items: n } });
 
     const exercises = slots.map(c => generate(c, { cards }));
     while (exercises.length < n) exercises.push(generatePattern()); // R13: always a full session
@@ -97,7 +109,7 @@ async function runSession() {
             { speak: speech.speak, parentMode: settings.parentMode, waitForTap, onSettle: settle });
         clearTimeout(promptTimer);
         items.push({ cardId: ex.cardId, type: ex.type, ...result });
-        if (ex.cardId) { srs = record(srs, ex.cardId, result.correctFirstTry, day); saveSrs(sessionProfileId, 'gs', srs); }
+        if (ex.cardId) { srs = recordResult(srs, ex.cardId, result.correctFirstTry, day); saveSrs(sessionProfileId, 'gs', srs); }
     }
 
     appendSession(sessionProfileId, 'gs', { date: new Date().toISOString(), items, durationMs: Date.now() - t0 });
@@ -105,7 +117,7 @@ async function runSession() {
     $('doneTitle').textContent = profile.name ? `Bravo ${profile.name}${NBSP}!` : `Bravo${NBSP}!`;
     $('stars').textContent = '⭐'.repeat(items.length); // stars only, no score shown to the child
     $('stars').setAttribute('aria-label', `${items.length} étoiles`);
-    $('tomorrow').textContent = 'À demain pour de nouveaux jeux !';
+    $('tomorrow').textContent = 'À demain pour de nouveaux jeux !';
     celebrate({ duration: 3000, pieces: 80 });
     speech.speak(CUE_DONE);
 }
@@ -122,6 +134,8 @@ $('play').addEventListener('click', () => {
         show('home');
     });
 });
+
+$('moon').addEventListener('click', () => { unlockAudio(); speech.speak(CUE_TOMORROW); });
 
 // Any touch in the exercise is an explicit user action: the pending auto-play must not cut what it starts.
 $('exercise').addEventListener('pointerdown', () => clearTimeout(promptTimer), true);
