@@ -47,6 +47,9 @@
 .gs-choice.ko { border-color: #ef6f6c; background: #fde8e7; animation: gs-shake .35s; }
 @keyframes gs-shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 .gs-choice .coll { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; font-size: 26px; line-height: 1.1; }
+.gs-choice.with-coll { flex-direction: column; gap: 6px; }
+.gs-choice .coll-digit { font-size: 34px; line-height: 1; }
+.gs-choice.selected { border-color: #ffb703; background: #fff4d6; box-shadow: 0 0 0 3px #ffe08a; }
 .gs-dots { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
 .gs-dot { width: 56px; height: 56px; border-radius: 50%; border: 3px solid #d7e2f0; background: #f4f8fd; touch-action: manipulation; padding: 0; }
 .gs-dot.on { background: #ffb703; border-color: #d79600; }

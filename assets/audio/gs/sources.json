@@ -655,6 +655,14 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.blend-confirm": {
+  "input": "Écoute, puis appuie sur le bouton vert.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.blend-ok.fa": {
   "input": "Oui ! Ffffffeu et aaaaaa, ça fait fa !",
   "engine": "say",
@@ -2775,6 +2783,14 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.look": {
+  "input": "Regarde.",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.missing": {
   "input": "Il en manque.",
   "engine": "say",
@@ -2935,6 +2951,14 @@
   "bitrate": "32k",
   "trim": true
  },
+ "ui.pattern-choice.coeur": {
+  "input": "cœur",
+  "engine": "say",
+  "voice": "Thomas",
+  "rate": 150,
+  "bitrate": "32k",
+  "trim": true
+ },
  "ui.pattern-choice.etoile": {
   "input": "étoile",
   "engine": "say",
@@ -2945,14 +2969,6 @@
  },
  "ui.pattern-choice.jaune": {
   "input": "jaune",
-  "engine": "say",
-  "voice": "Thomas",
-  "rate": 150,
-  "bitrate": "32k",
-  "trim": true
- },
- "ui.pattern-choice.lune": {
-  "input": "lune",
   "engine": "say",
   "voice": "Thomas",
   "rate": 150,

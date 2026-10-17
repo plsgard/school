@@ -24,6 +24,16 @@ describe('expandCards', () => {
         const cards = expandCards(decks, { firstName: 'Lou' });
         assert.ok(cards.some(c => c.id === 'name/lou#name-spell'));
     });
+    test('expandCards_Words_WrittenSyllablesSpellTheWord', () => {
+        for (const w of decks[2].items) {
+            const written = w.syllW ?? w.syll;
+            assert.equal(written.length, w.syll.length, w.id);
+            assert.equal(written.join(''), w.text, w.id);
+        }
+    });
+    test('expandCards_Words_EmojiNeverClashesWithAControl', () => {
+        for (const w of decks[2].items) assert.ok(!['🏠', '🌙', '⭐', '🔊'].includes(w.emoji), `${w.id} ${w.emoji}`);
+    });
     test('expandCards_Always_IdsAreUnique', () => {
         const ids = expandCards(decks, { firstName: 'Lou' }).map(c => c.id);
         assert.equal(new Set(ids).size, ids.length);

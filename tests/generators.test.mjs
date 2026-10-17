@@ -303,4 +303,66 @@ describe('generate', () => {
             }
         }
     });
+    test('generate_Letter3Scripts_ShowsTheWrittenLetterAndSaysItsName', () => {
+        const ex = generate(byId('letters/l#letter-3scripts'), { cards, rng });
+        assert.equal(ex.prompt.text, 'Trouve toutes les lettres elle. Il y en a trois.');
+        assert.equal(ex.prompt.display, 'Trouve toutes les lettres L. Il y en a trois.');
+        assert.equal(ex.success.display, 'Bravo, tu as trouvé les trois lettres L\u00a0!');
+    });
+    test('generate_Trace_ShowsTheWrittenLetter', () => {
+        const ex = generate(byId('letters/t#trace'), { cards, rng });
+        assert.equal(ex.prompt.text, 'Trace la lettre té. Pars du point vert.');
+        assert.equal(ex.prompt.display, 'Trace la lettre T. Pars du point vert.');
+        assert.equal(ex.success.display, 'Bravo, tu as bien tracé la lettre T\u00a0!');
+    });
+    test('generate_SoundLetter_SuccessShowsTheWrittenLetter', () => {
+        const withWord = generate(byId('letters/l#sound-letter'), { cards, rng: () => 0.05 });
+        assert.equal(withWord.success.display, 'Oui\u00a0! C\'est la lettre L, comme au début de lapin\u00a0!');
+        const noWord = generate(byId('letters/e#sound-letter'), { cards, rng });
+        assert.equal(noWord.success.display, 'Oui\u00a0! La lettre E fait eee\u00a0!');
+    });
+    test('generate_SyllCount_ShowsWrittenSyllables', () => {
+        const ex = generate(byId('mots-p1/fusee#syll-count'), { cards, rng });
+        assert.equal(ex.success.text, 'Bravo\u00a0! Fu, zée\u00a0: deux syllabes.');
+        assert.equal(ex.success.display, 'Bravo\u00a0! Fu-sée\u00a0: deux syllabes.');
+        assert.equal(generate(byId('mots-p1/papillon#syll-count'), { cards, rng }).success.display, 'Bravo\u00a0! Pa-pi-llon\u00a0: trois syllabes.');
+    });
+    test('generate_SyllMatch_ShowsWrittenSyllables', () => {
+        const ex = generate(byId('mots-p1/ballon#syll-match'), { cards, rng });
+        assert.equal(ex.prompt.text, 'Écoute bien. Quel mot commence comme ba-lon\u00a0?');
+        assert.equal(ex.prompt.display, 'Écoute bien. Quel mot commence comme ba-llon\u00a0?');
+    });
+    test('generate_NameSpell_SuccessShowsLettersNotTheirNames', () => {
+        const ex = generate(find('name/lou#name-spell'), { cards, rng });
+        assert.equal(ex.success.text, 'Elle, o, u\u00a0: Lou\u00a0!');
+        assert.equal(ex.success.display, 'L, O, U\u00a0: Lou\u00a0!');
+    });
+    test('generate_EveryCue_DisplayOnlyWhenItDiffersAndNeverSpellsALetterName', () => {
+        const names = new Set(cards.filter(c => c.kind === 'letters').map(c => c.item.name).filter(n => n.length > 1));
+        for (const r of RNGS) {
+            for (const card of cards) {
+                const ex = generate(card, { cards, rng: () => r });
+                for (const c of [ex.prompt, ex.success]) {
+                    if ('display' in c) assert.notEqual(c.display, c.text, card.id);
+                    const shown = c.display ?? c.text;
+                    for (const n of names) assert.doesNotMatch(shown, new RegExp(`lettres? ${n}\\b`), `${card.id}: ${shown}`);
+                }
+            }
+        }
+    });
+    test('generate_Blend_IsASelectThenConfirmExercise', () => {
+        const ex = generate(byId('letters/f#blend'), { cards, rng });
+        assert.equal(ex.layout, 'select');
+        for (const c of ex.choices) assert.match(c.say.key, /^syl\./);
+    });
+    test('generatePattern_Always_NeverOffersTheMoon', () => {
+        for (const r of [...RNGS, 0.7, 0.8, 0.9]) {
+            const p = generatePattern(() => r);
+            assert.ok(!p.choices.some(c => c.emoji === '🌙'));
+            assert.ok(!p.stage.sequence.includes('🌙'));
+        }
+        const hearts = generatePattern(() => 0.9).choices.find(c => c.emoji === '❤️');
+        assert.deepEqual(hearts.say, { key: 'ui.pattern-choice.coeur', text: 'cœur' });
+    });
 });
+

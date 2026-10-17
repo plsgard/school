@@ -2,6 +2,9 @@
 // Pure: card → exercise. Distractors follow the Repères CP trap lists (visual/phonetic confusables).
 // Every cue key maps to exactly one text (Task 13 records one clip per key); spoken texts are
 // lowercase except sentence starts (TTS spells uppercase runs).
+// A cue may carry `display`: what the page shows when it differs from what is said (I6). Letters are said by name
+// ("elle") but shown written ("la lettre L"); syllables are said phonetically ("fu, zée") but shown written
+// ("fu-sée"). display is not part of the clip identity: one key, one spoken text.
 
 const VOWELS = ['a', 'e', 'i', 'o', 'u'];
 const DOTS = { 1: '●', 2: '● ●', 3: '● ● ●' };
@@ -13,14 +16,21 @@ const CLOSE_LETTERS = { f: 'v', v: 'f', s: 'z', z: 's', m: 'n', n: 'm', l: 'r', 
 // Digits a child confuses by shape: always shown together when one of them is the answer.
 const MIRROR_DIGITS = { 6: 9, 9: 6, 1: 7, 7: 1 };
 // Spoken name + ASCII id (the id is the clip key, so clip paths stay plain ASCII).
-const PATTERN_NAMES = { '🔴': ['rouge'], '🔵': ['bleu'], '🟢': ['vert'], '🟡': ['jaune'], '⭐': ['étoile', 'etoile'], '🌙': ['lune'], '🟣': ['violet'], '🟠': ['orange'], '⚫': ['noir'] };
+// No 🌙: it is the page's "come back tomorrow" icon (M2).
+const PATTERN_NAMES = { '🔴': ['rouge'], '🔵': ['bleu'], '🟢': ['vert'], '🟡': ['jaune'], '⭐': ['étoile', 'etoile'], '❤️': ['cœur', 'coeur'], '🟣': ['violet'], '🟠': ['orange'], '⚫': ['noir'] };
 const patternCue = (e) => { const [name, id = name] = PATTERN_NAMES[e]; return cue(`ui.pattern-choice.${id}`, name); };
 
 const shuffle = (arr, rng) => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const pick = (arr, rng) => arr[Math.floor(rng() * arr.length)];
 // French typography: a non-breaking space (U+00A0) before ! ? : ; so the mark never wraps to a line of its own.
 const frenchSpaces = (s) => s.replace(/ ([!?:;])/g, '\u00a0$1');
-const cue = (key, text) => ({ key, text: frenchSpaces(text) });
+const cue = (key, text, display) => {
+    const c = { key, text: frenchSpaces(text) };
+    if (display != null && frenchSpaces(display) !== c.text) c.display = frenchSpaces(display);
+    return c;
+};
+// Written syllables (decks: syllW when the written cut differs from the spoken one, e.g. fu-sée / fu, zée).
+const syllW = (w) => w.syll.map((s, i) => w.syllW?.[i] ?? s);
 // Capitalises the first letter of every sentence (start, and after . ! ?). "…" is not a sentence end.
 const sentences = (s) => s.replace(/(^|[.!?]\s+)(\p{Ll})/gu, (_, sep, ch) => sep + ch.toUpperCase());
 // "que" elides before a vowel-initial word (qu'un); "huit" has an h aspiré (que huit).
@@ -72,7 +82,8 @@ const GEN = {
             layout: 'tap', prompt: cue(`ui.syll-count.${w.id}`, `Frappe dans tes mains en disant ${w.text}. Combien de syllabes ?`),
             stage: { emoji: w.emoji, text: w.text },
             choices: [1, 2, 3].map(k => ({ id: String(k), label: DOTS[k], say: numCue(cards, k), correct: k === n })),
-            success: cue(`ui.syll-count-ok.${w.id}`, `Bravo ! ${w.syll.join(', ')} : ${n === 1 ? 'une syllabe' : `${numSay(cards, n)} syllabes`}.`),
+            success: cue(`ui.syll-count-ok.${w.id}`, `Bravo ! ${w.syll.join(', ')} : ${n === 1 ? 'une syllabe' : `${numSay(cards, n)} syllabes`}.`,
+                `Bravo ! ${syllW(w).join('-')} : ${n === 1 ? 'une syllabe' : `${numSay(cards, n)} syllabes`}.`),
         };
     },
     'syll-match'(card, { cards, rng }) {
@@ -82,10 +93,12 @@ const GEN = {
         const used = new Set([target.emoji, target.id, w.emoji, w.id]);
         const distractors = pickWithTrap(words.filter(x => x.syll[0] !== w.syll[0]), x => x.rhyme === w.rhyme, rng, used);
         return {
-            layout: 'tap', prompt: cue(`ui.syll-match.${w.id}`, `Écoute bien. Quel mot commence comme ${w.syll.join('-')} ?`),
+            layout: 'tap', prompt: cue(`ui.syll-match.${w.id}`, `Écoute bien. Quel mot commence comme ${w.syll.join('-')} ?`,
+                `Écoute bien. Quel mot commence comme ${syllW(w).join('-')} ?`),
             stage: { emoji: w.emoji, text: w.text },
             choices: shuffle([wordChoice(target, true), ...distractors.map(d => wordChoice(d, false))], rng),
-            success: cue(`ui.syll-match-ok.${w.id}.${target.id}`, `Oui ! ${w.text} et ${target.text} commencent pareil : ${w.syll[0]} !`),
+            success: cue(`ui.syll-match-ok.${w.id}.${target.id}`, `Oui ! ${w.text} et ${target.text} commencent pareil : ${w.syll[0]} !`,
+                `Oui ! ${w.text} et ${target.text} commencent pareil : ${syllW(w)[0]} !`),
         };
     },
     'rhyme'(card, { cards, rng }) {
@@ -135,8 +148,9 @@ const GEN = {
             stage: w ? { emoji: w.emoji, text: w.text } : { text: ph.display },
             choices: shuffle([letterChoice(l, true), letterChoice(conf, false), letterChoice(other, false)], rng),
             success: w
-                ? cue(`ui.sound-letter-ok.${l.id}.${w.id}`, `Oui ! C'est la lettre ${l.name}, comme au début de ${w.text} !`)
-                : cue(`ui.sound-letter-ok.${l.id}`, `Oui ! La lettre ${l.name} fait ${ph.spoken} !`),
+                ? cue(`ui.sound-letter-ok.${l.id}.${w.id}`, `Oui ! C'est la lettre ${l.name}, comme au début de ${w.text} !`,
+                    `Oui ! C'est la lettre ${l.cap}, comme au début de ${w.text} !`)
+                : cue(`ui.sound-letter-ok.${l.id}`, `Oui ! La lettre ${l.name} fait ${ph.spoken} !`, `Oui ! La lettre ${l.cap} fait ${ph.display} !`),
         };
     },
     'letter-3scripts'(card, { cards, rng }) {
@@ -150,9 +164,10 @@ const GEN = {
             ...confs.slice(0, 3).map((x, i) => mk(x, styles[i], false)),
         ];
         return {
-            layout: 'multitap', prompt: cue(`ui.letter-3scripts.${l.id}`, `Trouve toutes les lettres ${l.name}. Il y en a trois.`),
+            layout: 'multitap', prompt: cue(`ui.letter-3scripts.${l.id}`, `Trouve toutes les lettres ${l.name}. Il y en a trois.`,
+                `Trouve toutes les lettres ${l.cap}. Il y en a trois.`),
             choices: shuffle(choices, rng),
-            success: cue(`ui.letter-3scripts-ok.${l.id}`, `Bravo, tu as trouvé les trois lettres ${l.name} !`),
+            success: cue(`ui.letter-3scripts-ok.${l.id}`, `Bravo, tu as trouvé les trois lettres ${l.name} !`, `Bravo, tu as trouvé les trois lettres ${l.cap} !`),
         };
     },
     'blend'(card, { cards, rng }) {
@@ -167,7 +182,8 @@ const GEN = {
             { id: `${confC}${v}`, label: `${confC}${v}`, say: cue(`syl.${confC}${v}`, `${confC}${v}`), correct: false },
         ], rng);
         return {
-            layout: 'tap', prompt: cue(`ui.blend.${l.id}${v}`, `Colle les sons : ${c}… ${vv}… Qu'est-ce que ça fait ?`),
+            // R27: a tap plays the syllable and selects it, the green ✔ confirms (a non-reader cannot read "fa/fo/sa").
+            layout: 'select', prompt: cue(`ui.blend.${l.id}${v}`, `Colle les sons : ${c}… ${vv}… Qu'est-ce que ça fait ?`),
             stage: { html: `<span class="tile">${l.id}</span><span class="plus">+</span><span class="tile">${v}</span>` },
             choices,
             sounds: [c, vv, `${l.id}${v}`], // parent mode: the adult prompt spells the blend
@@ -178,9 +194,9 @@ const GEN = {
         const it = card.item;
         return {
             layout: 'trace',
-            prompt: cue(`ui.trace.${it.id}`, `Trace la lettre ${it.name}. Pars du point vert.`),
+            prompt: cue(`ui.trace.${it.id}`, `Trace la lettre ${it.name}. Pars du point vert.`, `Trace la lettre ${it.cap}. Pars du point vert.`),
             trace: { pts: it.trace, dot: it.dot, bar: it.bar, label: it.cursive, say: cue(`letter.${it.id}.name`, it.name) },
-            success: cue(`ui.trace-ok.${it.id}`, `Bravo, tu as bien tracé la lettre ${it.name} !`),
+            success: cue(`ui.trace-ok.${it.id}`, `Bravo, tu as bien tracé la lettre ${it.name} !`, `Bravo, tu as bien tracé la lettre ${it.cap} !`),
         };
     },
     'name-spell'(card, { cards, rng }) {
@@ -195,7 +211,8 @@ const GEN = {
             layout: 'slots', prompt: cue('ui.name-spell', 'Remets les lettres de ton prénom dans l\'ordre.'),
             answer: chars.join('').toUpperCase(),
             choices: shuffle(chars.map((ch, i) => ({ id: `${ch.toUpperCase()}${i}`, label: ch.toUpperCase(), say: says[i], correct: true })), rng),
-            success: cue(`ui.name-spell-ok.${card.item.id}`, `${says.map(s => s.text).join(', ')} : ${spoken} !`),
+            success: cue(`ui.name-spell-ok.${card.item.id}`, `${says.map(s => s.text).join(', ')} : ${spoken} !`,
+                `${chars.map(ch => ch.toUpperCase()).join(', ')} : ${spoken} !`),
         };
     },
     'count'(card, { cards, rng }) {
@@ -257,11 +274,12 @@ export function generate(card, { cards = [], rng = Math.random } = {}) {
     const gen = GEN[card.skill];
     if (!gen) throw new Error(`No generator for skill ${card.skill}`);
     const ex = gen(card, { cards, rng });
-    return { type: card.skill, cardId: card.id, ...ex, prompt: cue(ex.prompt.key, sentences(ex.prompt.text)), success: cue(ex.success.key, sentences(ex.success.text)) };
+    const finish = (c) => cue(c.key, sentences(c.text), c.display == null ? null : sentences(c.display));
+    return { type: card.skill, cardId: card.id, ...ex, prompt: finish(ex.prompt), success: finish(ex.success) };
 }
 
 export function generatePattern(rng = Math.random) {
-    const pair = pick([['🔴', '🔵'], ['🟢', '🟡'], ['⭐', '🌙']], rng);
+    const pair = pick([['🔴', '🔵'], ['🟢', '🟡'], ['⭐', '❤️']], rng);
     const motif = pick([[0, 1, 1], [0, 1], [0, 0, 1]], rng);
     const seq = Array.from({ length: 7 }, (_, i) => pair[motif[i % motif.length]]);
     const answer = seq.pop();
