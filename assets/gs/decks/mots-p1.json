@@ -1,0 +1,17 @@
+{ "id": "mots-p1", "kind": "words", "label": "Mots · période 1", "items": [
+ { "id": "lapin",   "text": "lapin",   "emoji": "🐰", "syll": ["la","pin"],  "initial": "l", "rhyme": "pin" },
+ { "id": "sapin",   "text": "sapin",   "emoji": "🌲", "syll": ["sa","pin"],  "initial": "s", "rhyme": "pin" },
+ { "id": "lavabo",  "text": "lavabo",  "emoji": "🚿", "syll": ["la","va","bo"], "initial": "l", "rhyme": "bo" },
+ { "id": "chapeau", "text": "chapeau", "emoji": "🎩", "syll": ["cha","peau"], "initial": "ch", "rhyme": "o" },
+ { "id": "bateau",  "text": "bateau",  "emoji": "⛵", "syll": ["ba","teau"], "initial": "b", "rhyme": "o" },
+ { "id": "moto",    "text": "moto",    "emoji": "🏍️", "syll": ["mo","to"],   "initial": "m", "rhyme": "o" },
+ { "id": "fusee",   "text": "fusée",   "emoji": "🚀", "syll": ["fu","sée"],  "initial": "f", "rhyme": "é" },
+ { "id": "souris",  "text": "souris",  "emoji": "🐭", "syll": ["sou","ris"], "initial": "s", "rhyme": "i" },
+ { "id": "radis",   "text": "radis",   "emoji": "🥕", "syll": ["ra","dis"],  "initial": "r", "rhyme": "i" },
+ { "id": "velo",    "text": "vélo",    "emoji": "🚲", "syll": ["vé","lo"],   "initial": "v", "rhyme": "o" },
+ { "id": "maison",  "text": "maison",  "emoji": "🏠", "syll": ["mai","son"], "initial": "m", "rhyme": "on" },
+ { "id": "ballon",  "text": "ballon",  "emoji": "🎈", "syll": ["ba","llon"], "initial": "b", "rhyme": "on" },
+ { "id": "banane",  "text": "banane",  "emoji": "🍌", "syll": ["ba","na","ne"], "initial": "b", "rhyme": "ane" },
+ { "id": "voiture", "text": "voiture", "emoji": "🚗", "syll": ["voi","ture"], "initial": "v", "rhyme": "ure" },
+ { "id": "chat",    "text": "chat",    "emoji": "🐱", "syll": ["chat"],      "initial": "ch", "rhyme": "a" }
+]}

@@ -1,0 +1,6 @@
+{ "id": "numbers", "kind": "numbers", "label": "Nombres de 0 à 10", "items": [
+ { "id": "0", "n": 0, "say": "zéro" }, { "id": "1", "n": 1, "say": "un" }, { "id": "2", "n": 2, "say": "deux" },
+ { "id": "3", "n": 3, "say": "trois" }, { "id": "4", "n": 4, "say": "quatre" }, { "id": "5", "n": 5, "say": "cinq" },
+ { "id": "6", "n": 6, "say": "six" }, { "id": "7", "n": 7, "say": "sept" }, { "id": "8", "n": 8, "say": "huit" },
+ { "id": "9", "n": 9, "say": "neuf" }, { "id": "10", "n": 10, "say": "dix" }
+]}
