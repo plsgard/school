@@ -15,7 +15,7 @@ const DEFAULTS = [
     { id: 'kid-gs', name: 'Enfant 1', avatar: '🦊', track: 'gs', placeholder: true },
     { id: 'default', name: 'Enfant 2', avatar: '🐼', track: 'en', placeholder: true },
 ];
-const TRACK_LABELS = { gs: 'Grande Section', en: '6ème' };
+const TRACK_LABELS = { gs: 'Grande Section', en: '6e' };
 const TARGET = { gs: 'gs.html' }; // other tracks: the math quizzes ("Autres jeux") until the 6ème track ships
 const MAX_NAME = 30;
 

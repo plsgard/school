@@ -38,13 +38,20 @@
 .gs-choice { font-family: Andika, system-ui, sans-serif; border: 3px solid #d7e2f0; background: #f4f8fd; border-radius: 22px; min-height: 56px; min-width: 56px; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 52px; font-weight: 700; color: inherit; touch-action: manipulation; padding: 4px; line-height: 1.25; overflow: hidden;
     -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
 .gs-choice:disabled { opacity: 1; color: inherit; }
+/* Syllable dots: sized so ● ● stays on one line and ● ● ● on two (1 + 2) inside a phone-width tile. */
+.gs-choice.dots { font-size: min(52px, 10.5vw); line-height: 1; }
 .gs-choice.digit { font-size: 32px; aspect-ratio: auto; height: 64px; border-radius: 16px; }
 /* Three letter scripts, as taught in French GS: capitals (bâton), script (round print), cursive (attachée). */
 .gs-choice.cap { font-family: Andika, system-ui, sans-serif; } /* Andika capital I has bars: never mistaken for l */
 .gs-choice.script { font-family: Andika, "Century Gothic", system-ui, sans-serif; font-weight: 400; }
 .gs-choice.cursive { font-family: "Playwrite FR Trad", cursive; font-weight: 400; font-size: 48px; line-height: 1; padding: 0 0 .5em; }
 /* Playwrite ink runs from 1.43em above the baseline (l, b, f) to 0.93em below (f, g, y): the .5em bottom padding
-   centres that 2.36em ink box in the tile, and the sizes keep 2.36em inside the smallest tile. */
+   centres that 2.36em ink box in the tile, and the sizes keep 2.36em inside the smallest tile.
+   P9: Playwrite's x-height is ~0.38em against Andika's ~0.5em, so at the same size a cursive e looks tiny next to a
+   script e. Cursive sizes are ~1.3x the script size, and a grid holding cursive tiles makes its tiles taller than wide
+   (3:4, 2:3 on phones) so f/k/l/g still fit whole. */
+.gs-choices:has(> .gs-choice.cursive) > .gs-choice { aspect-ratio: 3 / 4; }
+.gs-choice.cursive { font-size: min(68px, 14vw); }
 .gs-choice.ok { border-color: #4cb944; background: #e6f6e3; }
 .gs-choice.ko { border-color: #ef6f6c; background: #fde8e7; animation: gs-shake .35s; }
 @keyframes gs-shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
@@ -68,6 +75,7 @@
 .gs-feedback { text-align: center; font-weight: 600; font-size: 20px; min-height: 28px; color: #6b7a99; }
 .gs-muted { color: #6b7a99; text-align: center; }
 .gs-stars { font-size: 34px; text-align: center; letter-spacing: 2px; }
+#done h1 { text-align: center; } /* P13: centred like the rest of the done screen */
 body.gs.silent .gs-speak { display: none; }
 body.gs.silent .gs-consigne { background: #f4f8fd; border-radius: 14px; padding: 10px 12px; }
 body.gs.silent .gs-consigne span::before { content: "👩‍🏫 À lire\00a0:"; display: block; color: #6b7a99; font-size: 14px; }
@@ -77,15 +85,8 @@ body.gs.silent .gs-consigne span::before { content: "👩‍🏫 À lire\00a0:";
     .gs-choices.six { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
     .gs-seq { gap: 4px; font-size: 24px; }
     .gs-seq span { width: 32px; height: 40px; border-radius: 10px; }
-    .gs-choice.cursive { font-size: min(42px, 10.5vw); }
-}
-/* iPad portrait: a bit more room for everything. */
-@media (min-width: 700px) {
-    .gs-consigne { font-size: 26px; }
-    .gs-choice { font-size: 64px; }
-    .gs-choice.cursive { font-size: 68px; }
-    .gs-choice.digit { font-size: 38px; height: 80px; }
-    .gs-seq span { width: 52px; height: 52px; }
+    .gs-choices:has(> .gs-choice.cursive) > .gs-choice { aspect-ratio: 2 / 3; }
+    .gs-choice.cursive { font-size: min(64px, 16.5vw); }
 }
 /* Home button: quitting needs a long-press (fills up) or a second tap within 2 s (ring shows it is armed). */
 .gs-quit { position: relative; overflow: hidden; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
@@ -93,6 +94,7 @@ body.gs.silent .gs-consigne span::before { content: "👩‍🏫 À lire\00a0:";
 .gs-quit.holding::after { transform: scale(1); transition: transform .8s linear; }
 .gs-quit.armed { box-shadow: 0 0 0 4px #ffb703; }
 .gs-speak:disabled { opacity: .5; }
+.gs-moon-caption { margin: 8px 0 0; font-weight: 600; }
 .gs-moon { border: 0; background: #223252; color: #ffe08a; width: 140px; height: 140px; border-radius: 50%; font-size: 76px; margin: auto auto 0; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 0 #101a30; touch-action: manipulation; }
 .gs-preview { display: flex; justify-content: center; gap: 10px; font-size: 28px; }
 /* Parental gate: ⚙️ and 🦊 open on a long-press only; the button fills up while held. */
@@ -111,3 +113,39 @@ body.gs.silent .gs-consigne span::before { content: "👩‍🏫 À lire\00a0:";
 .gs-parent .gs-boxes b { display: block; font-size: 22px; }
 .gs-parent .btn { min-height: 44px; }
 @media (prefers-reduced-motion: reduce) { .gs-choice.ko, .gs-speak.pulse, .gs-ok-btn.pulse, .gs-cta.next.pulse { animation: none; } .gs-quit.holding::after, .hold-gate.holding::after { transition: none; } }
+/* iPad portrait (P10), last so it wins over every base rule above: the page fills the screen instead of sitting small in its top third. */
+@media (min-width: 700px) {
+    .gs-app { max-width: 640px; padding-top: 20px; }
+    .gs-screen { gap: 18px; }
+    .gs h1 { font-size: 40px; }
+    .gs-hero { font-size: 150px; }
+    #home .gs-hero { margin-top: auto; } /* hero + stars sit mid-screen, ▶ Jouer stays at the bottom */
+    .gs-icon { width: 68px; height: 68px; font-size: 32px; }
+    .gs-speak { width: 68px; height: 68px; font-size: 32px; }
+    .gs-cta { font-size: 30px; padding: 20px 36px; min-height: 72px; }
+    .gs-preview { font-size: 40px; }
+    .gs-moon { width: 180px; height: 180px; font-size: 100px; }
+    .gs-consigne { font-size: 28px; min-height: 68px; }
+    .gs-stage { font-size: 110px; }
+    .gs-stage .gs-sound { font-size: 96px; }
+    .gs-stage .tile { width: 96px; height: 96px; font-size: 60px; border-radius: 22px; }
+    .gs-stage .plus { font-size: 56px; }
+    .gs-collection { font-size: 60px; gap: 14px; padding: 18px; }
+    .gs-choices { gap: 16px; }
+    .gs-choice { font-size: 72px; border-radius: 28px; }
+    .gs-choice.cursive { font-size: 88px; }
+    .gs-choice.dots { font-size: 64px; }
+    .gs-choice.digit { font-size: 44px; height: 96px; }
+    .gs-choice .coll { font-size: 36px; }
+    .gs-choice .coll-digit { font-size: 46px; }
+    .gs-seq { font-size: 40px; }
+    .gs-seq span { width: 64px; height: 64px; }
+    .gs-dot { width: 76px; height: 76px; }
+    .gs-slots span { width: 76px; height: 76px; font-size: 40px; }
+    .gs-ok-btn { font-size: 40px; min-width: 160px; }
+    .gs-trace { max-width: 560px; }
+    .gs-feedback { font-size: 26px; min-height: 36px; }
+    .gs-stars { font-size: 48px; }
+    /* the play area (stage, choices, feedback) is centred in the space left under the consigne */
+    #exercise .gs-consigne, #exercise .gs-feedback { margin-bottom: auto; }
+}

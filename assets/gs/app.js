@@ -63,6 +63,9 @@ function renderHome() {
     $('play').hidden = rest;
     $('today').hidden = rest;
     $('moon').hidden = !rest;
+    // P12: no 🌟 next to the 🌙, one signal at a time. Guarded: a cached older gs.html lacks these ids.
+    if ($('moonCaption')) $('moonCaption').hidden = !rest;
+    if ($('homeHero')) $('homeHero').hidden = rest;
     $('avatar').textContent = profile.avatar || '🦊';
     const name = displayName(profile, settings);
     $('hello').textContent = name ? `Salut ${name}${NBSP}!` : `Salut${NBSP}!`;
@@ -94,7 +97,7 @@ async function runSession() {
     const exercises = slots.map(c => generate(c, { cards }));
     while (exercises.length < n) exercises.push(generatePattern()); // R13: always a full session
     // I3: warm the HTTP cache with this session's clips, so the first play of each is not a network round trip.
-    clips.preload(exercises.flatMap(ex => [ex.prompt, ex.success, ex.trace?.say, ...(ex.choices ?? []).map(c => c.say)]));
+    clips.preload(exercises.flatMap(ex => [ex.prompt, ex.success, ex.reveal, ex.trace?.say, ...(ex.choices ?? []).map(c => c.say)]));
     const items = [];
     const t0 = Date.now();
     show('exercise');
