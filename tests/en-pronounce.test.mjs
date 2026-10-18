@@ -84,6 +84,28 @@ describe('scoreSpeech', () => {
         assert.equal(r.ok, false);
         assert.equal(r.words.every(w => !w.heard), true);
     });
+    test('scoreSpeech_SentenceMode_WrongFormRejectedAtEveryLevel', () => {
+        const cases = [
+            [["She's got a cat.", 'She has got a cat.', 'She has a cat.'], 'she have got a cat'],
+            [["She's got a cat.", 'She has got a cat.', 'She has a cat.'], 'she is got a cat'],
+            [["He hasn't got a bike.", "He doesn't have a bike."], "he don't have a bike"],
+            [["We haven't got a garden.", "We don't have a garden."], 'we have got a garden'],
+            [['Does he have a dog?', 'Has he got a dog?'], 'does he has a dog'],
+        ];
+        for (const [e, h] of cases) for (const level of ['indulgent', 'normal', 'exigeant']) {
+            assert.equal(scoreSpeech(e, [h], level, { sentence: true }).ok, false, `${level}: ${h}`);
+        }
+    });
+    test('scoreSpeech_SentenceMode_RightFormAcceptedContractedOrFull', () => {
+        const e = ["She's got a cat.", 'She has got a cat.', 'She has a cat.'];
+        for (const h of ["she's got a cat", 'she has got a cat', 'she has a cat']) assert.equal(scoreSpeech(e, [h], 'exigeant', { sentence: true }).ok, true, h);
+        assert.equal(scoreSpeech(["We haven't got a garden."], ['we have not got a garden'], 'exigeant', { sentence: true }).ok, true);
+    });
+    test('scoreSpeech_JackOLanternSpellings_AllAccepted', () => {
+        for (const h of ["look at the Jack O'Lantern", 'look at the jackolanterns', 'look at the jack-o-lanterns']) {
+            assert.equal(scoreSpeech(["Look at the jack-o'-lanterns!"], [h], 'normal').ok, true, h);
+        }
+    });
     test('scoreSpeech_ContractionInAnswer_MarksWholeAnswer', () => {
         const r = scoreSpeech(["What's your name?"], ['what is your name'], 'exigeant');
         assert.equal(r.ok, true);

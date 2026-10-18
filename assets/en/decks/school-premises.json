@@ -1,0 +1,21 @@
+{
+  "id": "school-premises",
+  "kind": "vocab",
+  "label": "School premises · les lieux du collège",
+  "source": "Exercices LearningApps de la prof : School premises – Audio / Write.",
+  "items": [
+    { "id": "art-room", "en": ["art room"], "fr": "la salle d'arts plastiques", "img": "🎨" },
+    { "id": "assembly-hall", "en": ["assembly hall"], "fr": "la salle polyvalente" },
+    { "id": "canteen", "en": ["canteen", "cafeteria"], "fr": "la cantine", "img": "🍽️" },
+    { "id": "classroom", "en": ["classroom"], "fr": "la salle de classe" },
+    { "id": "media-room", "en": ["media room"], "fr": "le CDI" },
+    { "id": "gym", "en": ["gym", "sports hall"], "fr": "le gymnase", "img": "🤸" },
+    { "id": "library", "en": ["library"], "fr": "la bibliothèque", "img": "📚" },
+    { "id": "meeting-room", "en": ["meeting room"], "fr": "la salle de réunion" },
+    { "id": "music-room", "en": ["music room"], "fr": "la salle de musique", "img": "🎵" },
+    { "id": "playground", "en": ["playground", "school yard"], "fr": "la cour de récréation" },
+    { "id": "principals-office", "en": ["principal's office", "head teacher's office", "head's office"], "fr": "le bureau du principal" },
+    { "id": "science-lab", "en": ["science lab"], "fr": "le laboratoire de sciences", "img": "🔬" },
+    { "id": "staff-room", "en": ["staff room"], "fr": "la salle des professeurs" }
+  ]
+}

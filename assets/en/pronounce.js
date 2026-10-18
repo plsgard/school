@@ -29,8 +29,11 @@ const US_UK = { color: 'colour', colors: 'colours', favorite: 'favourite', favor
 export function normalise(text) {
     return String(text ?? '').toLowerCase()
         .replace(/[’‘`]/g, "'")
+        .replace(/\bjack\s*-?\s*o\s*'?\s*-?\s*lantern/g, 'jack o lantern') // jack-o'-lantern, Jack O'Lantern, jackolantern
         .replace(/[^a-z0-9' ]+/g, ' ')
         .split(/\s+/).filter(Boolean)
+        // "she's got" is "she has got", not "she is got": 's before got means has.
+        .map((w, i, ws) => (ws[i + 1] === 'got' && /^(he|she|it|who|what|that|there)'s$/.test(w) ? `${w.slice(0, -2)} has` : w))
         .map(w => CONTRACTIONS[w] ?? w)
         .map(w => (/^\d+$/.test(w) && Number(w) <= 20 ? NUMBERS[Number(w)] : w))
         .map(w => US_UK[w] ?? w)
@@ -103,8 +106,12 @@ function align(expected, heard, words) {
 // expected: accepted answers (strings); heard: recogniser alternatives (strings, best first).
 // A leading article is optional on both sides ("ruler" for "a ruler"): the word is what is being said.
 // → { ok, score, words: [{ text, heard }], heard } for the best (answer, alternative) pair.
-export function scoreSpeech(expected, heard, level = 'normal') {
-    const { ratio, words } = LEVELS[level] ?? LEVELS.normal;
+// sentence: true (grammar cards) — every word must be heard and words match at most phonetically: the one word that
+// matters (has/have, don't/doesn't) must not slip through an 80 % ratio or an accent tolerance.
+export function scoreSpeech(expected, heard, level = 'normal', { sentence = false } = {}) {
+    const base = LEVELS[level] ?? LEVELS.normal;
+    const ratio = sentence ? 1 : base.ratio;
+    const words = sentence && base.words === 'lenient' ? 'phonetic' : base.words;
     let best = null;
     for (const answer of [expected].flat()) {
         const full = normalise(answer);

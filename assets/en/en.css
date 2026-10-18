@@ -29,6 +29,8 @@ body.en { background: #f3f6fb; color: #1d2433; font-size: 18px; }
 .en-prompt { text-align: center; }
 .en-prompt .img { font-size: 72px; line-height: 1.1; }
 .en-prompt .fr { font-size: 26px; font-weight: 800; }
+.en-line { font-size: 24px; font-weight: 800; line-height: 1.3; }
+.en-line.prev { color: #5b6475; font-weight: 600; font-size: 20px; }
 .en-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .en-choice { min-height: 96px; border-radius: 14px; border: 2px solid #d6dbe6; background: #fff; color: #1d2433; font-size: 18px; font-weight: 700; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 8px; touch-action: manipulation; }
 .en-choice .img { font-size: 40px; line-height: 1; }

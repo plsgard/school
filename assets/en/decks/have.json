@@ -1,0 +1,24 @@
+{
+  "id": "have",
+  "kind": "grammar",
+  "label": "Have got / have · conjugaison",
+  "source": "Leçon : conjugaison de have (affirmative, négative, interrogative). Les deux formes : have got et have (avec do).",
+  "items": [
+    { "id": "i-have-got-a-dog", "en": ["I've got a dog.", "I have got a dog.", "I have a dog."], "fr": "J'ai un chien.", "gap": "I ___ a dog.", "answer": "have got", "options": ["have got", "has got", "haven't got"] },
+    { "id": "she-has-got-a-cat", "en": ["She's got a cat.", "She has got a cat.", "She has a cat."], "fr": "Elle a un chat.", "gap": "She ___ a cat.", "answer": "has got", "options": ["has got", "have got", "hasn't got"] },
+    { "id": "we-have-not-got-a-garden", "en": ["We haven't got a garden.", "We don't have a garden."], "fr": "Nous n'avons pas de jardin.", "gap": "We ___ a garden.", "answer": "haven't got", "options": ["haven't got", "hasn't got", "have got"] },
+    { "id": "he-has-not-got-a-bike", "en": ["He hasn't got a bike.", "He doesn't have a bike."], "fr": "Il n'a pas de vélo.", "gap": "He ___ a bike.", "answer": "hasn't got", "options": ["hasn't got", "haven't got", "has got"] },
+    { "id": "have-you-got-a-pet", "en": ["Have you got a pet?", "Do you have a pet?"], "fr": "As-tu un animal ?", "gap": "___ you got a pet?", "answer": "Have", "options": ["Have", "Has", "Do"] },
+    { "id": "has-she-got-a-sister", "en": ["Has she got a sister?", "Does she have a sister?"], "fr": "A-t-elle une sœur ?", "gap": "___ she got a sister?", "answer": "Has", "options": ["Has", "Have", "Does"] },
+    { "id": "yes-i-have", "en": ["Have you got a pet? Yes, I have."], "gap": "Have you got a pet? — Yes, I ___.", "answer": "have", "options": ["have", "do", "am"] },
+    { "id": "no-she-has-not", "en": ["Has she got a brother? No, she hasn't."], "gap": "Has she got a brother? — No, she ___.", "answer": "hasn't", "options": ["hasn't", "doesn't", "isn't"] },
+    { "id": "they-have-two-cats", "en": ["They have two cats.", "They've got two cats.", "They have got two cats."], "fr": "Ils ont deux chats.", "gap": "They ___ two cats.", "answer": "have", "options": ["have", "has", "are"] },
+    { "id": "he-has-a-big-house", "en": ["He has a big house.", "He's got a big house.", "He has got a big house."], "fr": "Il a une grande maison.", "gap": "He ___ a big house.", "answer": "has", "options": ["has", "have", "is"] },
+    { "id": "i-do-not-have-a-phone", "en": ["I don't have a phone.", "I haven't got a phone."], "fr": "Je n'ai pas de téléphone.", "gap": "I ___ have a phone.", "answer": "don't", "options": ["don't", "doesn't", "haven't"] },
+    { "id": "she-does-not-have-a-brother", "en": ["She doesn't have a brother.", "She hasn't got a brother."], "fr": "Elle n'a pas de frère.", "gap": "She ___ have a brother.", "answer": "doesn't", "options": ["doesn't", "don't", "hasn't"] },
+    { "id": "do-you-have-a-pen", "en": ["Do you have a pen?", "Have you got a pen?"], "fr": "As-tu un stylo ?", "gap": "___ you have a pen?", "answer": "Do", "options": ["Do", "Does", "Have"] },
+    { "id": "does-he-have-a-dog", "en": ["Does he have a dog?", "Has he got a dog?"], "fr": "A-t-il un chien ?", "gap": "___ he have a dog?", "answer": "Does", "options": ["Does", "Do", "Has"] },
+    { "id": "yes-i-do", "en": ["Do you have a pen? Yes, I do."], "gap": "Do you have a pen? — Yes, I ___.", "answer": "do", "options": ["do", "have", "am"] },
+    { "id": "no-he-does-not", "en": ["Does he have a dog? No, he doesn't."], "gap": "Does he have a dog? — No, he ___.", "answer": "doesn't", "options": ["doesn't", "hasn't", "don't"] }
+  ]
+}

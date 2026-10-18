@@ -1,6 +1,8 @@
 // assets/en/generators.js
 // Pure: card → exercise. listen-pick: hear the English, tap the matching picture / French meaning (4 choices).
 // say-it: see the picture and the French, say the English (scored by pronounce.js, or self-judged).
+// gap-pick: read a sentence with a gap (and its French), pick the missing form. line-repeat: hear a poem line,
+// repeat it. line-next: see the previous line (or the title), recite the next one from memory.
 const NBSP = ' ';
 
 function shuffle(arr, rng) {
@@ -35,12 +37,39 @@ export function generate(card, { cards, rng = Math.random }) {
     }
     if (card.skill === 'say-it') {
         return {
-            type: 'say-it', cardId: card.id,
+            type: 'say-it', cardId: card.id, sentence: card.kind === 'grammar',
             consigne: `Dis-le en anglais${NBSP}!`,
             say: model,
             img: item.img ?? '', fr: item.fr,
             expected: item.en,
             answer: { en: model, fr: item.fr, img: item.img ?? '' },
+        };
+    }
+    if (card.skill === 'gap-pick') {
+        // The chosen form, in full: the child picked "have got", the feedback must not read "I've got".
+        const filled = item.gap.replace('___', item.answer);
+        const spoken = item.en.find(e => e === filled.replace(' — ', ' ')) ?? model;
+        return {
+            type: 'gap-pick', cardId: card.id,
+            consigne: 'Complète la phrase.',
+            say: spoken, filled, fr: item.fr ?? '', gap: item.gap,
+            choices: shuffle(item.options.map(text => ({ text, correct: text === item.answer })), rng),
+            answer: { en: model, fr: item.fr ?? '', img: '' },
+        };
+    }
+    if (card.skill === 'line-repeat' || card.skill === 'line-next') {
+        const lines = card.deck.items;
+        const prev = lines[lines.indexOf(item) - 1] ?? null;
+        const repeat = card.skill === 'line-repeat';
+        return {
+            type: card.skill, cardId: card.id,
+            consigne: repeat ? 'Écoute et répète.' : prev ? 'Récite le vers suivant.' : 'Récite le premier vers.',
+            say: model, expected: item.en,
+            shown: repeat ? model : null,
+            prev: repeat ? null : prev?.en[0] ?? null,
+            title: card.deck.label.split(' · ')[0],
+            fr: item.fr ?? '',
+            answer: { en: model, fr: item.fr ?? '', img: '' },
         };
     }
     throw new Error(`unknown skill ${card.skill}`);

@@ -12,7 +12,7 @@ export const EN_CONSTRAINTS = {
     specialSlots: [],
     limitedKind: null,
     maxLimited: 0,
-    newPerDay: { vocab: 6 },
+    newPerDay: { text: 3, grammar: 3, vocab: 4 }, // per deck kind: a few poem lines, sentences and words a day
     newSlots: 1,
 };
 
@@ -36,7 +36,8 @@ export function nextCard({ srs, cards, played, today, rng = Math.random }) {
     const due = dueCards(srs, today).filter(id => !played.has(id)).map(id => byId.get(id)).filter(Boolean);
     // New candidates only: every card with a state (due or not) is excluded, so compose's padding/easy rules stay out.
     const known = cards.filter(c => srs.cards[c.id]).map(c => c.id);
-    const fresh = compose({ srs, cards, today, rng, constraints: EN_CONSTRAINTS, exclude: [...played, ...known] }).slots[0] ?? null;
+    // New items in deck order (a poem is learnt line by line): an rng just under 1 makes compose's shuffle the identity.
+    const fresh = compose({ srs, cards, today, rng: () => 0.999999, constraints: EN_CONSTRAINTS, exclude: [...played, ...known] }).slots[0] ?? null;
     const reviewTurn = played.size % 2 === 0;
     if (due.length && (reviewTurn || !fresh)) return due[0];
     if (fresh) return fresh;

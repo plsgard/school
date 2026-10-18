@@ -1,0 +1,23 @@
+{
+  "id": "actions-in-class",
+  "kind": "vocab",
+  "label": "Actions in class · consignes en classe",
+  "source": "Exercice LearningApps de la prof : Actions in class – audio.",
+  "items": [
+    { "id": "be-quiet", "en": ["be quiet"], "fr": "tais-toi", "img": "🤫" },
+    { "id": "close-the-door", "en": ["close the door"], "fr": "ferme la porte", "img": "🚪" },
+    { "id": "come-to-the-board", "en": ["come to the board"], "fr": "viens au tableau" },
+    { "id": "hurry-up", "en": ["hurry up"], "fr": "dépêche-toi" },
+    { "id": "listen", "en": ["listen"], "fr": "écoute", "img": "👂" },
+    { "id": "look", "en": ["look"], "fr": "regarde", "img": "👀" },
+    { "id": "open-your-book", "en": ["open your book"], "fr": "ouvre ton livre", "img": "📖" },
+    { "id": "put-up-your-hand", "en": ["put up your hand", "put your hand up"], "fr": "lève la main", "img": "✋" },
+    { "id": "read", "en": ["read"], "fr": "lis" },
+    { "id": "sit-down", "en": ["sit down"], "fr": "assieds-toi" },
+    { "id": "speak", "en": ["speak"], "fr": "parle", "img": "🗣️" },
+    { "id": "stand-up", "en": ["stand up"], "fr": "lève-toi" },
+    { "id": "take-out-your-books", "en": ["take out your books"], "fr": "sortez vos livres" },
+    { "id": "take-a-pen", "en": ["take a pen"], "fr": "prends un stylo" },
+    { "id": "write", "en": ["write"], "fr": "écris", "img": "✍️" }
+  ]
+}

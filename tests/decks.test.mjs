@@ -117,7 +117,7 @@ describe('expandCards', () => {
         assert.equal(new Set(allWords.map(w => w.emoji)).size, allWords.length);
         // Page controls, profile avatars, counting objects, pattern shapes and theme buttons: a word never looks like one.
         const reserved = [...OBJECTS.map(o => o.emoji), ...Object.keys(PATTERN_NAMES), ...THEMES.map(t => t.emoji),
-            '✔', '✔️', '🎉', '⚙️', '🏠', '🌙', '🔊', '🦊', '🐼'];
+            '✔', '✔️', '🎉', '⚙️', '🏠', '🌙', '🔊', '🦊', '🐼', '🦄', '🦁'];
         for (const w of allWords) assert.ok(!reserved.includes(w.emoji), `${w.id} ${w.emoji}`);
     });
     test('wordDecks_AllWords_WrittenStartIsTheInitialAndIdsAscii', () => {

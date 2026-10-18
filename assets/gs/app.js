@@ -27,14 +27,14 @@ const NBSP = '\u00a0'; // French typography: non-breaking space before ! ? :
 // Fixed UI cues spoken by the page live in cues.js (pure, so tools/cues.mjs can record them).
 const { letsGo: CUE_LETS_GO, comeBackTomorrow: CUE_TOMORROW, done: CUE_DONE } = PAGE_CUES;
 
-// I5: opened without a GS profile active (home-screen web app with empty storage, or after picking 🐼): play as the
+// I5: opened without a GS profile active (home-screen web app with empty storage, or after picking 🦁): play as the
 // first GS profile. The picker is never forced, so there is no redirect loop.
 let profiles = loadProfiles();
 persist(() => { profiles = ensureProfiles(); });
 const profileId = trackProfileId(profiles, getActiveProfileId(), 'gs');
 if (profileId !== getActiveProfileId()) persist(() => setActiveProfileId(profileId));
 const stored = profiles.find(p => p.id === profileId);
-const profile = stored ?? { id: profileId, name: '', avatar: '🦊' };
+const profile = stored ?? { id: profileId, name: '', avatar: '🦄' };
 // One name per child (see profiles.js): a named profile seeds the first name once.
 const settings = stored ? prefillFirstName(stored) : loadSettings(profileId);
 persist(() => pruneNameCards(profileId, settings.firstName)); // the first name may have changed on the picker
@@ -68,7 +68,7 @@ function renderHome() {
     // P12: no 🌟 next to the 🌙, one signal at a time. Guarded: a cached older gs.html lacks these ids.
     if ($('moonCaption')) $('moonCaption').hidden = !rest;
     if ($('homeHero')) $('homeHero').hidden = rest;
-    $('avatar').textContent = profile.avatar || '🦊';
+    $('avatar').textContent = profile.avatar || '🦄';
     const name = displayName(profile, settings);
     $('hello').textContent = name ? `Salut ${name}${NBSP}!` : `Salut${NBSP}!`;
     $('today').textContent = '⭐'.repeat(settings.sessionItems);
@@ -153,7 +153,7 @@ function showDone(items, { again = null } = {}) {
     show('done');
     const name = displayName(profile, settings);
     $('doneTitle').textContent = name ? `Bravo ${name}${NBSP}!` : `Bravo${NBSP}!`;
-    $('doneHero').textContent = `${profile.avatar || '🦊'}🎉`;
+    $('doneHero').textContent = `${profile.avatar || '🦄'}🎉`;
     $('stars').textContent = '⭐'.repeat(items.length); // stars only, no score shown to the child
     $('stars').setAttribute('aria-label', `${items.length} étoiles`);
     $('tomorrow').textContent = `À demain pour de nouveaux jeux${NBSP}!`;
@@ -273,8 +273,8 @@ function quit() { clearTimeout(promptTimer); speech.stop(); disposeExercise(); l
         armed = setTimeout(() => { armed = null; btn.classList.remove('armed'); }, 2000);
     });
 }
-// Parental gate: ⚙️ (parent corner) and 🦊 (profile picker) open only on a 1.5 s long-press that fills the button.
-// A child's tap does nothing and says nothing.
+// Parental gate: ⚙️ (parent corner) and 🦄 (profile picker) open only on a 1.5 s long-press that fills the button.
+// A child's tap opens nothing and says nothing (hold.js shows a short written "Maintiens appuyé" hint for the adult).
 function openParent() {
     show('parent');
     mountParent($('parent'), {

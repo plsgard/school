@@ -16,6 +16,7 @@ import { mountParent } from './parent.js';
 
 const NBSP = ' ';
 const TRACK = 'en';
+const UNITS = { vocab: 'mots', grammar: 'phrases', text: 'vers' };
 const $ = (id) => document.getElementById(id);
 const show = (id) => { for (const s of document.querySelectorAll('main > .en-screen')) s.hidden = s.id !== id; };
 const today = () => localDay(new Date());
@@ -43,7 +44,7 @@ persist(() => { profiles = ensureProfiles(); });
 const profileId = trackProfileId(profiles, getActiveProfileId(), TRACK);
 if (profileId !== getActiveProfileId()) persist(() => setActiveProfileId(profileId));
 const stored = profiles.find(p => p.id === profileId);
-const profile = stored ?? { id: profileId, name: '', avatar: '🐼' };
+const profile = stored ?? { id: profileId, name: '', avatar: '🦁' };
 const settings = stored ? prefillFirstName(stored) : loadSettings(profileId);
 const opts = () => enSettings(settings); // read on use: the parent corner changes settings without a reload
 
@@ -61,7 +62,7 @@ let micBlocked = false;
 const useRecognition = () => opts().mic === 'auto' && recognitionSupported() && !micBlocked;
 
 function renderHome() {
-    $('avatar').textContent = profile.avatar || '🐼';
+    $('avatar').textContent = profile.avatar || '🦁';
     const name = displayName(profile, settings);
     $('hello').textContent = name ? `Hello, ${name}!` : 'Hello!';
     const n = opts().enItems;
@@ -80,7 +81,7 @@ function renderHome() {
         const filled = ids.length ? Math.round(5 * known.reduce((a, id) => a + (srs.cards[id].box - 1) / 4, 0) / ids.length) : 0;
         return el('div', { class: 'en-deck' },
             el('b', {}, d.label),
-            el('div', { class: 'en-note' }, `${d.items.length}${NBSP}mots · ${known.length ? `${known.length}/${ids.length} cartes vues` : 'pas encore commencé'}`),
+            el('div', { class: 'en-note' }, `${d.items.length}${NBSP}${UNITS[d.kind] ?? 'mots'} · ${known.length ? `${known.length}/${ids.length} cartes vues` : 'pas encore commencé'}`),
             el('div', { class: 'en-boxes', 'aria-hidden': 'true' }, ...[0, 1, 2, 3, 4].map(i => el('span', { class: i < filled ? 'full' : '' }))));
     }));
 }
@@ -151,19 +152,66 @@ async function selfJudge(ex, t0) {
     return { correctFirstTry: ok, attempts: 1, ms: Date.now() - t0, selfJudged: true };
 }
 
+// What is shown above the mic: say-it a picture + French; line-repeat the line (+ French); line-next the previous line.
+function promptFor(ex) {
+    if (ex.type === 'say-it') {
+        return el('div', { class: 'en-prompt' },
+            ex.img ? el('div', { class: 'img', 'aria-hidden': 'true' }, ex.img) : null,
+            el('div', { class: 'fr' }, ex.fr));
+    }
+    if (ex.type === 'line-repeat') {
+        return el('div', { class: 'en-prompt' }, el('div', { class: 'en-line', lang: 'en' }, ex.shown), el('div', { class: 'en-note' }, ex.fr));
+    }
+    return el('div', { class: 'en-prompt' },
+        el('div', { class: 'en-note' }, `🎃 ${ex.title}`),
+        el('div', { class: 'en-line prev', lang: 'en' }, ex.prev ? `${ex.prev}` : '…'),
+        el('div', { class: 'en-line', 'aria-hidden': 'true' }, '…'));
+}
+
+async function playGapPick(ex) {
+    const t0 = Date.now();
+    let misses = 0;
+    const shownAt = Date.now();
+    $('stage').replaceChildren(el('div', { class: 'en-prompt' },
+        el('div', { class: 'en-line', lang: 'en' }, ex.gap),
+        ex.fr ? el('div', { class: 'en-note' }, ex.fr) : null));
+    return new Promise(resolve => {
+        const finish = async (ok) => {
+            for (const b of grid.querySelectorAll('button')) b.disabled = true;
+            grid.querySelector('[data-correct="1"]').classList.add('ok');
+            $('feedback').replaceChildren(el('strong', {}, ok ? '✅ Oui\u00a0!' : '👀 La bonne réponse\u00a0:'), el('div', { class: 'answer', lang: 'en' }, ex.filled));
+            await say(ex.say);
+            if (ok) await sleep(500); else await continueButton();
+            resolve({ correctFirstTry: ok && misses === 0, attempts: misses + 1, ms: Date.now() - t0 });
+        };
+        const grid = el('div', { class: 'en-choices' }, ...ex.choices.map(c => el('button', {
+            type: 'button', class: 'en-choice', lang: 'en', 'data-correct': c.correct ? '1' : '0',
+            onclick: (e) => {
+                if (Date.now() - shownAt < 400) return;
+                if (c.correct) { finish(true); return; }
+                misses++;
+                e.currentTarget.classList.add('ko'); e.currentTarget.disabled = true;
+                if (misses >= 2) finish(false); else $('feedback').replaceChildren(el('span', {}, 'Non, réessaie\u00a0!'));
+            },
+        }, c.text)));
+        $('stage').append(grid);
+    });
+}
+
 async function playSayIt(ex) {
     const t0 = Date.now();
     const { precision, tries } = opts();
-    $('stage').replaceChildren(el('div', { class: 'en-prompt' },
-        ex.img ? el('div', { class: 'img', 'aria-hidden': 'true' }, ex.img) : null,
-        el('div', { class: 'fr' }, ex.fr)));
+    const repeat = ex.type === 'line-repeat';
+    $('stage').replaceChildren(promptFor(ex));
+    if (repeat) await sleep(350).then(() => say(ex.say)); // listen first, then repeat
     if (!useRecognition()) return selfJudge(ex, t0);
 
     const mic = el('button', { type: 'button', class: 'en-speak mic', 'aria-label': 'Parler' }, '🎤');
-    const model = el('button', { type: 'button', class: 'en-small-btn', hidden: true, onclick: () => say(ex.say) }, '🔊 Écouter le modèle');
+    // The model is there from the start when repeating; otherwise only after a miss (it would give the answer).
+    const model = el('button', { type: 'button', class: 'en-small-btn', hidden: !repeat, onclick: () => say(ex.say) }, '🔊 Écouter le modèle');
     $('stage').append(mic, el('div', { class: 'en-row' }, model));
     const fb = $('feedback');
-    fb.replaceChildren(el('span', {}, 'Touche 🎤 et dis le mot en anglais.'));
+    fb.replaceChildren(el('span', {}, ex.type === 'say-it' ? 'Touche 🎤 et dis-le en anglais.' : 'Touche 🎤 et récite le vers.'));
     let attempts = 0;
     let silent = 0; // silences / network errors: not tries, but three in a row fall back to self-judging
     for (;;) {
@@ -190,7 +238,7 @@ async function playSayIt(ex) {
         }
         silent = 0;
         attempts++;
-        const result = scoreSpeech(ex.expected, heard.alternatives.map(a => a.transcript), precision);
+        const result = scoreSpeech(ex.expected, heard.alternatives.map(a => a.transcript), precision, { sentence: !!ex.sentence });
         if (result.ok) {
             mic.disabled = true;
             fb.replaceChildren(el('strong', {}, '✅ Bravo !'), wordsLine(result));
@@ -234,7 +282,8 @@ async function runSession() {
         $('progress').style.width = `${(100 * i) / n}%`;
         $('consigne').textContent = ex.consigne;
         $('feedback').replaceChildren();
-        const result = ex.type === 'listen-pick' ? await playListenPick(ex) : await playSayIt(ex);
+        const result = ex.type === 'listen-pick' ? await playListenPick(ex)
+            : ex.type === 'gap-pick' ? await playGapPick(ex) : await playSayIt(ex);
         if (!running) return;
         items.push({ cardId: card.id, type: ex.type, ...result });
         srs = recordResult(srs, card.id, result.correctFirstTry, day, EN_PROFILE);
@@ -255,11 +304,11 @@ function renderDone(items) {
     $('doneScore').textContent = `${right}${NBSP}/ ${items.length} du premier coup${s >= 2 ? ` · 🔥 ${s}${NBSP}jours d’affilée` : ''}`;
     const misses = [...new Map(items.filter(x => !x.correctFirstTry).map(x => {
         const c = cards.find(k => k.id === x.cardId);
-        return [c.item.id, c.item];
+        return [`${c.deckId}/${c.item.id}`, c.item];
     })).values()];
     $('rework').replaceChildren(...(misses.length ? [
         el('h2', { class: 'h5' }, 'À retravailler'),
-        el('ul', { class: 'en-done-list' }, ...misses.map(it => el('li', {}, el('span', {}, it.fr), el('b', { lang: 'en' }, it.en[0])))),
+        el('ul', { class: 'en-done-list' }, ...misses.map(it => el('li', {}, el('span', {}, it.fr ?? ''), el('b', { lang: 'en' }, it.en[0])))),
     ] : [el('p', { class: 'en-note' }, 'Tout juste du premier coup !')]));
     if (right === items.length) celebrate({ duration: 3000, pieces: 80 });
     say(right === items.length ? 'Perfect! Well done!' : 'Well done!');

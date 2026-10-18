@@ -14,11 +14,14 @@ import { holdToActivate } from './hold.js';
 // The two children's real first names, seeded as real names (no placeholder): gs.html prefills the GS first name from
 // it (greeting, name-spell game), and a parent can still rename either card.
 const DEFAULTS = [
-    { id: 'kid-gs', name: 'Apolline', avatar: '🦊', track: 'gs' },
-    { id: 'default', name: 'Louis', avatar: '🐼', track: 'en' },
+    { id: 'kid-gs', name: 'Apolline', avatar: '🦄', track: 'gs' },
+    { id: 'default', name: 'Louis', avatar: '🦁', track: 'en' },
 ];
 // Placeholders seeded by earlier versions: a profile still carrying one takes its real default name.
 const LEGACY_PLACEHOLDERS = { 'kid-gs': 'Enfant 1', default: 'Enfant 2' };
+// Avatars seeded by earlier versions: a profile still carrying one takes the current default avatar. Runs on every
+// load, which is fine while there is no avatar picker; a picker would need a one-shot flag instead.
+const LEGACY_AVATARS = { 'kid-gs': '🦊', default: '🐼' };
 const TRACK_LABELS = { gs: 'Grande Section', en: '6e' };
 const TARGET = { gs: 'gs.html', en: 'en.html' }; // the math quizzes stay under "Autres jeux" (en.html links there)
 const MAX_NAME = 30;
@@ -29,6 +32,7 @@ export function ensureProfiles() {
         let changed = false;
         for (const p of stored) {
             const real = DEFAULTS.find(d => d.id === p.id);
+            if (real && p.avatar === LEGACY_AVATARS[p.id]) { p.avatar = real.avatar; changed = true; }
             if (!real || !p.placeholder || p.name !== LEGACY_PLACEHOLDERS[p.id]) continue;
             p.name = real.name;
             delete p.placeholder;

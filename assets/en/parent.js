@@ -9,6 +9,7 @@ import { listen, recognitionSupported } from './listen.js';
 
 const NBSP = ' ';
 const WEEK_MS = 7 * 864e5;
+const SKILL_LABELS = { 'listen-pick': 'écouter', 'say-it': 'dire', 'gap-pick': 'compléter', 'line-repeat': 'répéter', 'line-next': 'réciter' };
 const NOVELTY = /^(Albert|Bad News|Bahh|Bells|Boing|Bubbles|Cellos|Good News|Jester|Junior|Organ|Superstar|Trinoids|Whisper|Wobble|Zarvox|Eddy|Flo|Grandma|Grandpa|Reed|Rocko|Sandy|Shelley)\b/;
 
 function h(tag, attrs = {}, ...children) {
@@ -65,7 +66,7 @@ export function mountParent(root, { profileId, settings, cards, decks, device, s
     const byItem = new Map(cards.map(c => [c.id, c]));
     const watch = Object.entries(srs.cards).filter(([, s]) => s.lapses >= 2)
         .sort(([, a], [, b]) => b.lapses - a.lapses).slice(0, 15)
-        .map(([id, s]) => { const c = byItem.get(id); return c ? `${c.item.en[0]} (${c.skill === 'say-it' ? 'dire' : 'écouter'}) · ${s.lapses}${NBSP}erreurs` : null; })
+        .map(([id, s]) => { const c = byItem.get(id); return c ? `${c.item.en[0]} (${SKILL_LABELS[c.skill] ?? c.skill}) · ${s.lapses}${NBSP}erreurs` : null; })
         .filter(Boolean);
     const counts = boxCounts(srs);
 
@@ -100,7 +101,7 @@ export function mountParent(root, { profileId, settings, cards, decks, device, s
         card('Progrès',
             h('p', { class: 'm-0' }, `Cette semaine${NBSP}: ${week.length}${NBSP}séance(s), ${played.length}${NBSP}cartes, ${firstTry}${NBSP}justes du premier coup.`),
             h('p', { class: 'en-note' }, `Boîtes de Leitner (révision tous les ${EN_PROFILE.intervals.join(' / ')}${NBSP}jours)${NBSP}: ${counts.join(' · ')}`),
-            h('p', { class: 'en-note' }, `Leçons${NBSP}: ${decks.map(d => `${d.label} (${d.items.length}${NBSP}mots)`).join(', ')}`),
+            h('p', { class: 'en-note' }, `Leçons${NBSP}: ${decks.map(d => `${d.label} (${d.items.length})`).join(', ')}`),
             h('h4', { class: 'h6 mt-2' }, 'À surveiller (2 erreurs ou plus)'),
             watch.length ? h('ul', { class: 'mb-0' }, ...watch.map(w => h('li', { lang: 'en' }, w))) : h('p', { class: 'en-note m-0' }, 'Rien pour l’instant.')),
     );

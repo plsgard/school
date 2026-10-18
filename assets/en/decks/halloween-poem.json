@@ -1,0 +1,17 @@
+{
+  "id": "halloween-poem",
+  "kind": "text",
+  "label": "A Halloween poem · à réciter",
+  "source": "Poème de la prof (audio Pronote « 3- A Halloween poem »), transcrit avec Whisper.",
+  "items": [
+    { "id": "l1", "en": ["Trick or treat, trick or treat,"], "fr": "Des bonbons ou un sort, des bonbons ou un sort," },
+    { "id": "l2", "en": ["Happy children in the street."], "fr": "Des enfants joyeux dans la rue." },
+    { "id": "l3", "en": ["Sad ghosts and angry monsters,"], "fr": "Des fantômes tristes et des monstres en colère," },
+    { "id": "l4", "en": ["Big black cats and grey spiders,"], "fr": "De gros chats noirs et des araignées grises," },
+    { "id": "l5", "en": ["Little witches and old skeletons,"], "fr": "De petites sorcières et de vieux squelettes," },
+    { "id": "l6", "en": ["Look at the jack-o'-lanterns!"], "fr": "Regardez les citrouilles d'Halloween !" },
+    { "id": "l7", "en": ["Ring! Ring! Give us some sweets!"], "fr": "Dring ! Dring ! Donnez-nous des bonbons !" },
+    { "id": "l8", "en": ["Trick or treat, trick or treat,"], "fr": "Des bonbons ou un sort, des bonbons ou un sort," },
+    { "id": "l9", "en": ["Good evening and happy Halloween!"], "fr": "Bonsoir et joyeux Halloween !" }
+  ]
+}

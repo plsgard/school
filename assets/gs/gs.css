@@ -124,7 +124,7 @@ body.gs.silent .gs-consigne span::before { content: "👩‍🏫 À lire\00a0:";
 #done .gs-again:active { box-shadow: 0 3px 0 #d79600; }
 #done .gs-again:not([hidden]) + .gs-cta { margin-top: 0; }
 @media (max-height: 700px) { #home .gs-hero { display: none; } #home .gs-preview { margin-top: auto; } }
-/* Parental gate: ⚙️ and 🦊 open on a long-press only; the button fills up while held. */
+/* Parental gate: ⚙️ and 🦄 open on a long-press only; the button fills up while held. */
 .hold-gate { position: relative; overflow: hidden; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
 .hold-gate::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: rgba(255, 183, 3, .55); transform: scale(0); pointer-events: none; }
 .hold-gate.holding::after { transform: scale(1); transition: transform var(--hold-ms, 1.5s) linear; }

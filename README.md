@@ -11,13 +11,13 @@ python3 -m http.server 8000
 # http://localhost:8000/
 ```
 
-- `index.html` — "Qui joue ?" profile picker: one big card per child. 🦊 (Grande Section) opens `gs.html`; 🐼 (6e) opens the "Autres jeux" list, which holds the math quizzes:
+- `index.html` — "Qui joue ?" profile picker: one big card per child. 🦄 (Grande Section) opens `gs.html`; 🦁 (6e) opens `en.html` (its home links to the math quizzes); the "Autres jeux" list, which holds the math quizzes:
   - `multiplication.html` — multiplication-table drill (operands 1–10);
   - `addition.html` — find the missing addend that sums to a chosen target.
 
-  Each quiz: pick the number of questions and a timer, answer, get scored, see the last 5 attempts. A perfect score triggers confetti. Math history is kept under the older child's profile even when the page is opened after picking 🦊.
+  Each quiz: pick the number of questions and a timer, answer, get scored, see the last 5 attempts. A perfect score triggers confetti. Math history is kept under the older child's profile even when the page is opened after picking 🦄.
 - `gs.html` — the Grande Section track: one short session a day (6 games by default) plus practice rounds by theme, see [Home and practice](#home-and-practice).
-- `en.html` — the 6e English track (🐼): listen-and-pick + say-it with pronunciation check, see [English track](#english-track-6e). Its home links to the math quizzes.
+- `en.html` — the 6e English track (🦁): listen-and-pick + say-it with pronunciation check, see [English track](#english-track-6e). Its home links to the math quizzes.
 
 To test on the iPad from the Mac: same Wi-Fi, then open `http://<mac-ip>:8000/gs.html`.
 
@@ -52,19 +52,19 @@ A right answer in practice on a card that is not due yet earns a star but does n
 
 ## Parent corner and gates
 
-Everything adult-facing hides behind a **long-press** (the button fills up while held, ~1.5 s); a child's tap does nothing:
+Everything adult-facing hides behind a **long-press** (the button fills up while held, ~1.5 s); a tap only shows a "Maintiens appuyé" hint:
 
 | Where | Hold | Opens |
 |---|---|---|
 | `gs.html` home | ⚙️ | "Coin des parents": first name, games per session (5–8), games per practice round ("Nombre de jeux par entraînement", 6–10), "Mode accompagné" (parent mode), audio source ("Clips enregistrés" / "Voix de l'appareil" / "Aucune voix (un adulte lit)") and device voice, today's session (one per day; "Autoriser une autre partie aujourd'hui" allows one more), Leitner boxes, decks, the week's results and cards to watch (≥ 2 errors) |
-| `gs.html` home | 🦊 | back to the profile picker |
+| `gs.html` home | 🦄 | back to the profile picker |
 | `index.html` | ✏️ | rename each child (one name per child: the card name and the game's first name stay in sync) |
 
 The week's results ("Cette semaine") have one line for the daily sessions and one for practice, for example "Entraînements : 8 parties (👂 1 · 🔤 1 · ✏️ 1 · 🔢 5) · 29 % du premier coup" (rounds per theme; preview games are not in the percentage), or "Aucun entraînement cette semaine.".
 
 During a session or a round, 🏠 quits on a 0.8 s hold or two taps within 2 s; a single stray tap does nothing. What was answered before quitting is kept.
 
-The profile picker is seeded with the children's names, Apolline (🦊, Grande Section) and Louis (🐼, 6e). A device that still has the old "Enfant 1" / "Enfant 2" placeholders gets the real names on its next visit; a name a parent changed is kept.
+The profile picker is seeded with the children's names, Apolline (🦄, Grande Section) and Louis (🦁, 6e). A device that still has the old "Enfant 1" / "Enfant 2" placeholders gets the real names on its next visit; a name a parent changed is kept.
 
 ## Grande Section track
 
@@ -83,7 +83,7 @@ The profile picker is seeded with the children's names, Apolline (🦊, Grande S
    ]}
    ```
    - `id`: ASCII, no accents, unique across all word decks (clip keys don't include the deck id); `text`: the written word.
-   - `emoji`: must be **unambiguous for a 5-year-old** (no emoji that could be another word — no 🚿 for "lavabo", no 🐔 poule/poulet); unique across all word decks; distractors are drawn from every word deck; never a page control or theme button (🏠 🌙 🔊 ⚙️ 🎉 ✔ and 👂 🔤 ✏️ 🔢), a profile avatar (🦊 🐼), a counted object (`OBJECTS` in `generators.js`) or a pattern symbol (`PATTERN_NAMES`, ⭐ included); `tests/decks.test.mjs` checks it. No good emoji → no word.
+   - `emoji`: must be **unambiguous for a 5-year-old** (no emoji that could be another word — no 🚿 for "lavabo", no 🐔 poule/poulet); unique across all word decks; distractors are drawn from every word deck; never a page control or theme button (🏠 🌙 🔊 ⚙️ 🎉 ✔ and 👂 🔤 ✏️ 🔢), a profile avatar (🦄 🦁), a counted object (`OBJECTS` in `generators.js`) or a pattern symbol (`PATTERN_NAMES`, ⭐ included); `tests/decks.test.mjs` checks it. No good emoji → no word.
    - `syll`: the **oral** syllables, as they are said (`fu, zée`, `pa, pi, yon`, `reu, quin`); they are spoken one by one (`syl.<word>.<i>` clips), so spell them for the voice. `syllW`: the **written** syllables, only when the written cut differs (`fu-sée`, `pa-pil-lon`, `re-quin`); shown on screen, and `(syllW ?? syll).join('')` must give `text`. A word with 2 syllables or more gets a `syll-initial` card ("Par quelle syllabe commence…"): its tiles show the written syllable and say the oral one.
    - `initial`: the first sound (`l`, `ch`, `b`…), which must also be how the word is **written** at the start: `sound-letter` stretches it in front of the rest of the spelling (`fffusée`), so a "cerise" with initial `s` or a "girafe" with initial `g` would break. It drives `sound-pick` (the right answer is another word with the same initial when there is one) and, when the letter is a continuant of `letters.json`, the letter's `sound-letter` example words — new stretched clips to check by ear (below).
    - `rhyme`: the final sound group (`in`, `o`, `on`…). A word gets a `rhyme` card only if another word of **the same deck** shares its rhyme, and a `syll-match` card only if another shares its first oral syllable.
@@ -146,7 +146,15 @@ Most at risk: the voiced continuants (`j`, `z`, `v`, `l`, `m`, `n`, `r`), where 
 
 ## English track (6e)
 
-`en.html` + `assets/en/`, on the same shared engine. One session = 12 cards by default; each word is first **heard** (listen → tap the picture / French meaning), then **said** (picture + French → say it in English, checked by speech recognition). New words: 6 a day; Leitner intervals 1 / 2 / 4 / 7 / 21 days. No daily cap.
+`en.html` + `assets/en/`, on the same shared engine. One session = 12 cards by default (due reviews and new cards alternate). Leitner intervals 1 / 2 / 4 / 7 / 21 days. No daily cap. Each deck kind has two staged skills (the second unlocks once the first is answered right):
+
+| Kind | First skill | Second skill | New items a day |
+|---|---|---|---|
+| `vocab` (words, classroom commands) | hear → tap the picture / French meaning | picture + French → **say** it | 4 |
+| `grammar` (sentences) | fill the gap (3 choices, French shown) | French → **say** the sentence | 3 |
+| `text` (poem, dialogue) | hear a line → **repeat** it | see the previous line → **recite** the next one | 3 (in order) |
+
+Shipped decks, from his teacher's material: *A Halloween poem* (Pronote audio, transcribed), *Have got / have* (both forms, affirmative / negative / questions / short answers), *School premises*, *Actions in class* and *My school bag* (her LearningApps exercises).
 
 - **Open it in Safari, not from the Home Screen.** Safari's speech recognition does not exist in Home Screen web apps (WebKit bug 225298), and needs Réglages › Général › Clavier › Dictée on. Without it the page switches to self-judging (say it aloud → hear the model → 👍 / 👎).
 - **Voice:** the device's English voice (en-GB preferred). The iPad's default British voice is basic: download a better one in Réglages › Accessibilité › Contenu énoncé › Voix › Anglais (UK) and pick it in the parent corner.
@@ -162,9 +170,11 @@ Most at risk: the voiced continuants (`j`, `z`, `v`, `l`, `m`, `n`, `r`), where 
    ```
    - `id`: ASCII kebab-case, unique in the deck; `en`: accepted answers, the first is the one spoken and shown (British spelling, as in class; US variants as extra answers); `fr`: the meaning shown in listen-pick and say-it; `img`: optional emoji, only when unambiguous, unique in the deck.
    - Words as written in his lesson, with the article the teacher uses (the article is optional when he speaks).
+   - `grammar` items: `en` (accepted sentences, the first is spoken), `fr` (the cue; items without one only get the gap game), `gap` (one `___`), `answer`, `options` (3, the answer included). The gap filled with the answer must be one of the `en` sentences (`—` between a question and its short answer is dropped).
+   - `text` decks: one item per line, `en: [line]`, `fr`; lines in order. A repeated line (refrain) is only recited, not repeated twice.
+   - LearningApps word lists: `https://learningapps.org/data?jsonp=1&id=<app id>` returns the app's data (`initparameters`, URL-encoded). Audio (mp3) is transcribed with Whisper (`python3 -m whisper <file> --model small --language en`); the teacher's recordings are not published, the device voice reads the lines.
 3. Review the JSON, run `node --test` (`tests/en-track.test.mjs` validates every deck), commit the deck + `index.js`.
 
-The shipped `my-school-bag` deck is an example built from the teacher's LearningApps "School supplies" exercise: replace it with his real units.
 
 ## Add a new math quiz
 

@@ -38,11 +38,23 @@ describe('ensureProfiles', () => {
     });
 });
 
+describe('ensureProfiles (avatars)', () => {
+    test('ensureProfiles_StoredLegacyAvatars_UpgradesToUnicornAndLion', () => {
+        s.saveProfiles([{ id: 'kid-gs', name: 'Apolline', avatar: '🦊', track: 'gs' }, { id: 'default', name: 'Louis', avatar: '🐼', track: 'en' }]);
+        assert.deepEqual(p.ensureProfiles().map(x => x.avatar), ['🦄', '🦁']);
+        assert.deepEqual(s.loadProfiles().map(x => x.avatar), ['🦄', '🦁']);
+    });
+    test('ensureProfiles_AvatarChosenByParent_KeepsIt', () => {
+        s.saveProfiles([{ id: 'kid-gs', name: 'Apolline', avatar: '🐱', track: 'gs' }]);
+        assert.equal(p.ensureProfiles()[0].avatar, '🐱');
+    });
+});
+
 describe('selectProfile', () => {
-    test('selectProfile_PandaWithHistoryUnderDefault_StillLoadsThatHistory', () => {
+    test('selectProfile_LionWithHistoryUnderDefault_StillLoadsThatHistory', () => {
         s.saveResult('addition', { score: 4, totalQuestions: 5 }, 'default'); // the older child's existing history
         const profiles = p.ensureProfiles();
-        const panda = profiles.find(x => x.avatar === '🐼');
+        const panda = profiles.find(x => x.avatar === '🦁');
         assert.equal(p.selectProfile(profiles, panda.id), 'en.html'); // the English track; the math list stays one link away
         assert.equal(s.getActiveProfileId(), 'default');
         assert.equal(s.loadHistory('addition')[0].score, 4);
