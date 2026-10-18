@@ -45,15 +45,20 @@ export function mountParent(root, { profileId, settings, cards, decks, device, s
     // Apple's novelty voices (Bahh, Zarvox…) are no model for a learner.
     const voices = device.listVoices().filter(v => !NOVELTY.test(v.name));
     const testOut = h('pre', { hidden: true });
-    const micTest = async (e) => {
+    // Mic tests: the second speaks first, like a session (the voice, then 🎤), to show whether recognition still
+    // hears after audio played (iOS WebKit bug 321436). Both print what the engine fired, for diagnosis.
+    const micTest = (speakFirst) => async (e) => {
         const btn = e.currentTarget; // null after the await
         btn.disabled = true;
         testOut.hidden = false;
+        if (speakFirst) { testOut.textContent = 'La voix parle, puis dites une phrase…'; await speech.speak({ text: 'Now say a sentence in English.' }); }
         testOut.textContent = 'Dites une phrase en anglais…';
         const r = await listen({ lang: 'en-GB' });
-        testOut.textContent = r.alternatives.length
-            ? r.alternatives.map((a, i) => `${i + 1}. «\u00a0${a.transcript}\u00a0» (confiance ${a.confidence.toFixed(2)})`).join('\n')
-            : `Rien reçu (erreur${NBSP}: ${r.error}).`;
+        const heard = r.alternatives.length
+            ? r.alternatives.map((a, i) => `${i + 1}. «\u00a0${a.transcript}\u00a0» (confiance ${Number(a.confidence ?? 0).toFixed(2)})`).join('\n')
+            : `Rien reçu (erreur\u00a0: ${r.error}).`;
+        const timeline = (r.events ?? []).map(ev => `${ev.t}\u00a0ms ${ev.type}${ev.detail ? ` ${ev.detail}` : ''}`).join('\n');
+        testOut.textContent = `${heard}\n\nÉvénements${NBSP}:\n${timeline || '(aucun)'}\n\n${navigator.userAgent}`;
         btn.disabled = false;
     };
 
@@ -82,7 +87,9 @@ export function mountParent(root, { profileId, settings, cards, decks, device, s
             h('p', { class: 'en-note' }, recognitionSupported()
                 ? 'Reconnaissance vocale disponible dans ce navigateur.'
                 : 'Pas de reconnaissance vocale ici (sur iPad\u00a0: ouvrir la page dans Safari, pas depuis l’écran d’accueil\u00a0; Dictée activée dans Réglages › Général › Clavier).'),
-            recognitionSupported() ? h('button', { type: 'button', class: 'en-small-btn', onclick: micTest }, '🎤 Tester le micro') : null,
+            recognitionSupported() ? h('div', { class: 'en-row justify-content-start' },
+                h('button', { type: 'button', class: 'en-small-btn', onclick: micTest(false) }, '🎤 Tester le micro'),
+                h('button', { type: 'button', class: 'en-small-btn', onclick: micTest(true) }, '🔊 puis 🎤 (comme en séance)')) : null,
             testOut),
         card('Séance',
             select('Cartes par séance', o.enItems, [6, 8, 10, 12, 15, 20].map(n => [n, `${n}${NBSP}cartes`]), v => save({ enItems: Number(v) })),
