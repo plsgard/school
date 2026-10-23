@@ -12,37 +12,53 @@ beforeEach(() => ls.clear());
 describe('ensureProfiles', () => {
     test('ensureProfiles_NothingStored_SeedsGsAndDefaultProfiles', () => {
         const profiles = p.ensureProfiles();
-        assert.deepEqual(profiles.map(x => [x.id, x.track]), [['kid-gs', 'gs'], ['default', 'en']]);
+        assert.deepEqual(profiles.map(x => [x.id, x.track]), [['kid-gs', 'gs'], ['kid-ce2', 'ce2'], ['default', 'en']]);
         assert.deepEqual(s.loadProfiles(), profiles);
     });
-    test('ensureProfiles_NothingStored_SeedsApollineAndLouisAsRealNames', () => {
+    test('ensureProfiles_NothingStored_SeedsApollineAugustinAndLouisAsRealNames', () => {
         const profiles = p.ensureProfiles();
-        assert.deepEqual(profiles.map(x => [x.id, x.name, x.placeholder ?? false]), [['kid-gs', 'Apolline', false], ['default', 'Louis', false]]);
+        assert.deepEqual(profiles.map(x => [x.id, x.name, x.placeholder ?? false]), [['kid-gs', 'Apolline', false], ['kid-ce2', 'Augustin', false], ['default', 'Louis', false]]);
     });
-    test('ensureProfiles_LegacySeededPlaceholders_TakeTheDefaultNames', () => {
+    test('ensureProfiles_LegacySeededPlaceholders_TakeTheDefaultNamesAndAugustinJoins', () => {
         s.saveProfiles([
             { id: 'kid-gs', name: 'Enfant 1', avatar: '🦊', track: 'gs', placeholder: true },
             { id: 'default', name: 'Enfant 2', avatar: '🐼', track: 'en', placeholder: true },
         ]);
         const profiles = p.ensureProfiles();
-        assert.deepEqual(profiles.map(x => [x.id, x.name, x.placeholder ?? false]), [['kid-gs', 'Apolline', false], ['default', 'Louis', false]]);
+        assert.deepEqual(profiles.map(x => [x.id, x.name, x.placeholder ?? false]), [['kid-gs', 'Apolline', false], ['kid-ce2', 'Augustin', false], ['default', 'Louis', false]]);
         assert.deepEqual(s.loadProfiles(), profiles);
     });
     test('ensureProfiles_ProfilesRenamedByAParent_KeepsTheirNames', () => {
         s.saveProfiles([{ id: 'kid-gs', name: 'Lou', avatar: '🦊', track: 'gs' }, { id: 'default', name: 'Enfant 2', avatar: '🐼', track: 'en' }]);
-        assert.deepEqual(p.ensureProfiles().map(x => x.name), ['Lou', 'Enfant 2']);
+        assert.deepEqual(p.ensureProfiles().map(x => x.name), ['Lou', 'Augustin', 'Enfant 2']);
     });
-    test('ensureProfiles_ProfilesStored_KeepsThem', () => {
+    test('ensureProfiles_ProfilesStored_KeepsThemAndAddsOnlyTheCe2Profile', () => {
         s.saveProfiles([{ id: 'lou', name: 'Lou', avatar: '🦊', track: 'gs' }]);
-        assert.deepEqual(p.ensureProfiles().map(x => x.id), ['lou']);
+        assert.deepEqual(p.ensureProfiles().map(x => x.id), ['lou', 'kid-ce2']);
+    });
+    test('ensureProfiles_StoredWithoutCe2_InsertsAugustinBeforeTheOlderChild', () => {
+        s.saveProfiles([{ id: 'kid-gs', name: 'Lina', avatar: '🦄', track: 'gs' }, { id: 'default', name: 'Louis', avatar: '🦁', track: 'en' }]);
+        const profiles = p.ensureProfiles();
+        assert.deepEqual(profiles.map(x => [x.id, x.name, x.avatar, x.track]),
+            [['kid-gs', 'Lina', '🦄', 'gs'], ['kid-ce2', 'Augustin', '🐱', 'ce2'], ['default', 'Louis', '🦁', 'en']]);
+        assert.deepEqual(s.loadProfiles(), profiles);
+    });
+    test('ensureProfiles_CalledTwice_NoDuplicate', () => {
+        s.saveProfiles([{ id: 'kid-gs', name: 'Apolline', avatar: '🦄', track: 'gs' }]);
+        p.ensureProfiles();
+        assert.deepEqual(p.ensureProfiles().map(x => x.id), ['kid-gs', 'kid-ce2']);
+    });
+    test('ensureProfiles_Ce2ProfileRenamed_KeepsIt', () => {
+        s.saveProfiles([{ id: 'kid-ce2', name: 'Gus', avatar: '🐱', track: 'ce2' }]);
+        assert.deepEqual(p.ensureProfiles().map(x => x.name), ['Gus']);
     });
 });
 
 describe('ensureProfiles (avatars)', () => {
     test('ensureProfiles_StoredLegacyAvatars_UpgradesToUnicornAndLion', () => {
         s.saveProfiles([{ id: 'kid-gs', name: 'Apolline', avatar: '🦊', track: 'gs' }, { id: 'default', name: 'Louis', avatar: '🐼', track: 'en' }]);
-        assert.deepEqual(p.ensureProfiles().map(x => x.avatar), ['🦄', '🦁']);
-        assert.deepEqual(s.loadProfiles().map(x => x.avatar), ['🦄', '🦁']);
+        assert.deepEqual(p.ensureProfiles().map(x => x.avatar), ['🦄', '🐱', '🦁']);
+        assert.deepEqual(s.loadProfiles().map(x => x.avatar), ['🦄', '🐱', '🦁']);
     });
     test('ensureProfiles_AvatarChosenByParent_KeepsIt', () => {
         s.saveProfiles([{ id: 'kid-gs', name: 'Apolline', avatar: '🐱', track: 'gs' }]);
@@ -58,6 +74,11 @@ describe('selectProfile', () => {
         assert.equal(p.selectProfile(profiles, panda.id), 'en.html'); // the English track; the math list stays one link away
         assert.equal(s.getActiveProfileId(), 'default');
         assert.equal(s.loadHistory('addition')[0].score, 4);
+    });
+    test('selectProfile_Ce2Profile_ActivatesItAndReturnsCe2Page', () => {
+        const profiles = p.ensureProfiles();
+        assert.equal(p.selectProfile(profiles, 'kid-ce2'), 'ce2.html');
+        assert.equal(s.getActiveProfileId(), 'kid-ce2');
     });
     test('selectProfile_GsProfile_ActivatesItAndReturnsGsPage', () => {
         const profiles = p.ensureProfiles();

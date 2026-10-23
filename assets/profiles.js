@@ -11,19 +11,23 @@
 import { loadProfiles, saveProfiles, setActiveProfileId, loadSettings, saveSettings } from './storage.js';
 import { holdToActivate } from './hold.js';
 
-// The two children's real first names, seeded as real names (no placeholder): gs.html prefills the GS first name from
-// it (greeting, name-spell game), and a parent can still rename either card.
+// The children's real first names, seeded as real names (no placeholder): gs.html prefills the GS first name from
+// it (greeting, name-spell game), and a parent can still rename any card. Youngest first.
 const DEFAULTS = [
     { id: 'kid-gs', name: 'Apolline', avatar: '🦄', track: 'gs' },
+    { id: 'kid-ce2', name: 'Augustin', avatar: '🐱', track: 'ce2' },
     { id: 'default', name: 'Louis', avatar: '🦁', track: 'en' },
 ];
+// Tracks added after the first seeding: a stored list without a profile on such a track gets its default profile,
+// inserted at its DEFAULTS rank (before the profiles of the tracks listed after it).
+const ADDED_TRACKS = ['ce2'];
 // Placeholders seeded by earlier versions: a profile still carrying one takes its real default name.
 const LEGACY_PLACEHOLDERS = { 'kid-gs': 'Enfant 1', default: 'Enfant 2' };
 // Avatars seeded by earlier versions: a profile still carrying one takes the current default avatar. Runs on every
 // load, which is fine while there is no avatar picker; a picker would need a one-shot flag instead.
 const LEGACY_AVATARS = { 'kid-gs': '🦊', default: '🐼' };
-const TRACK_LABELS = { gs: 'Grande Section', en: '6e' };
-const TARGET = { gs: 'gs.html', en: 'en.html' }; // the math quizzes stay under "Autres jeux" (en.html links there)
+const TRACK_LABELS = { gs: 'Grande Section', ce2: 'CE2', en: '6e' };
+const TARGET = { gs: 'gs.html', ce2: 'ce2.html', en: 'en.html' }; // the math quizzes stay under "Autres jeux" (en.html links there)
 const MAX_NAME = 30;
 
 export function ensureProfiles() {
@@ -36,6 +40,14 @@ export function ensureProfiles() {
             if (!real || !p.placeholder || p.name !== LEGACY_PLACEHOLDERS[p.id]) continue;
             p.name = real.name;
             delete p.placeholder;
+            changed = true;
+        }
+        for (const track of ADDED_TRACKS) {
+            if (stored.some(p => p.track === track)) continue;
+            const rank = DEFAULTS.findIndex(d => d.track === track);
+            const later = DEFAULTS.slice(rank + 1).map(d => d.track);
+            const at = stored.findIndex(p => later.includes(p.track));
+            stored.splice(at < 0 ? stored.length : at, 0, { ...DEFAULTS[rank] });
             changed = true;
         }
         if (changed) saveProfiles(stored);
