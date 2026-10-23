@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Soustractions · CE2</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/quiz.css">
+    <link rel="stylesheet" href="assets/ce2/ce2.css">
+</head>
+<body class="ce2">
+    <main class="ce2-app">
+        <section id="home" class="ce2-screen">
+            <header class="ce2-top">
+                <a class="ce2-icon" href="index.html" id="avatar" aria-label="Changer de profil (appui long)">🐱</a>
+                <a class="ce2-icon" href="#parent" id="parentBtn" aria-label="Coin des parents (appui long)">⚙️</a>
+            </header>
+            <div class="ce2-hero">
+                <h1 id="hello">Bonjour&nbsp;!</h1>
+                <p id="today"></p>
+                <button type="button" class="ce2-cta" id="play">▶ Commencer</button>
+            </div>
+            <div class="ce2-level" id="level"></div>
+            <div class="ce2-mode" role="group" aria-label="Mode">
+                <button type="button" data-mode="guided" aria-pressed="true">🧭 Guidé<small>colonne par colonne</small></button>
+                <button type="button" data-mode="solo" aria-pressed="false">💪 Tout seul<small>je vérifie à la fin</small></button>
+            </div>
+        </section>
+        <section id="exercise" class="ce2-screen" hidden>
+            <header class="ce2-top">
+                <span class="ce2-pill" id="counter"></span>
+                <span class="ce2-pill ce2-pill-level" id="levelPill"></span>
+                <button type="button" class="ce2-icon ce2-quit" id="quit" aria-label="Arrêter la séance (appui long ou deux fois)">🏠</button>
+            </header>
+            <div class="ce2-progress" aria-hidden="true"><i id="progress"></i></div>
+            <p class="ce2-consigne" id="consigne"></p>
+            <div class="ce2-board">
+                <div id="grid" class="ce2-op"></div>
+                <div class="ce2-feedback" id="feedback" role="status" aria-live="polite"></div>
+            </div>
+            <div id="keypad" class="ce2-keypad" aria-label="Clavier"></div>
+        </section>
+        <section id="done" class="ce2-screen" hidden>
+            <div class="ce2-hero">
+                <h1 id="doneTitle">Séance finie&nbsp;!</h1>
+                <p id="doneStars" class="ce2-stars" aria-live="polite"></p>
+                <p id="doneLevel"></p>
+            </div>
+            <button type="button" class="ce2-cta primary" id="again">▶ Encore une séance</button>
+            <a class="ce2-cta" href="ce2.html">🏠 Accueil</a>
+        </section>
+        <section id="parent" class="ce2-screen ce2-parent" hidden></section>
+    </main>
+    <div id="celebration" class="celebration visually-hidden"><div>🐱 Miaou, bravo&nbsp;! 🐾</div></div>
+    <div id="confetti" class="confetti"></div>
+    <script type="module" src="assets/ce2/app.js"></script>
+</body>
+</html>

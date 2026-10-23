@@ -25,13 +25,14 @@ export function solve(top, bottom) {
 
 export const borrowMask = (top, bottom) => solve(top, bottom).columns.map(c => (c.borrow ? '1' : '0')).join('');
 
-// What the teacher would say for column i, in the method's words.
-export function columnHint(col, i) {
+// What the teacher would say for column i, in the method's words. reveal: false keeps the digit to find (« 12 − 7 = … »).
+export function columnHint(col, i, { reveal = true } = {}) {
+    const end = reveal ? col.digit : '…';
     const parts = [];
     if (col.carryIn) parts.push(`N’oublie pas le 1 en bas${NBSP}: ${col.bottom ?? 0} + 1 = ${col.sub}.`);
     if (col.borrow) {
         parts.push(`${col.top} est plus petit que ${col.sub}${NBSP}: j’ajoute 10 en haut (${col.top + 10}) et 1 en bas, dans la colonne des ${COLUMN_NAMES[i + 1]}.`);
-        parts.push(`${col.top + 10} − ${col.sub} = ${col.digit}.`);
-    } else parts.push(`${col.top} − ${col.sub} = ${col.digit}.`);
-    return parts.join(' ');
+        parts.push(`${col.top + 10} − ${col.sub} = ${end}`);
+    } else parts.push(`${col.top} − ${col.sub} = ${end}`);
+    return parts.join(' ') + (reveal ? '.' : '');
 }

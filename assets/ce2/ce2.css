@@ -1,0 +1,82 @@
+/* CE2 subtraction track (ce2.html): a column subtraction on a grid, one cell per digit, an on-screen keypad and the
+   compensation marks (small 1 before the top digit = +10, small 1 under the next bottom digit = +1). Phone and iPad. */
+body.ce2 { background: #fdf6ee; color: #2b2118; font-size: 18px; }
+.ce2-app { max-width: 640px; margin: 0 auto; padding: 12px 16px 24px; min-height: 100dvh; }
+.ce2-screen { display: flex; flex-direction: column; gap: 14px; }
+.ce2-screen[hidden] { display: none; }
+.ce2-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.ce2-icon { font-size: 30px; width: 56px; height: 56px; flex: none; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: #fff; border: 1px solid #ead9c6; text-decoration: none; color: inherit; touch-action: manipulation; }
+.ce2-pill { background: #fff; border: 1px solid #ead9c6; border-radius: 999px; padding: 4px 12px; font-weight: 700; font-size: 15px; white-space: nowrap; }
+.ce2-pill-level { overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 0 1 auto; }
+.ce2-hero { background: #e07a1f; color: #fff; border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+.ce2-hero h1 { font-size: 30px; margin: 0; }
+.ce2-hero p { margin: 0; opacity: .95; }
+.ce2-cta { font: 800 22px system-ui, sans-serif; padding: 14px 18px; border-radius: 14px; border: 0; background: #fff; color: #b85d0c; width: 100%; text-align: center; text-decoration: none; touch-action: manipulation; }
+.ce2-cta.primary { background: #e07a1f; color: #fff; }
+.ce2-cta:disabled { opacity: .5; }
+.ce2-note { font-size: 14px; color: #6e5d4c; margin: 0; }
+.ce2-level { background: #fff; border: 1px solid #ead9c6; border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; }
+.ce2-dots { display: flex; gap: 6px; margin-top: 4px; }
+.ce2-dots span { width: 18px; height: 18px; border-radius: 50%; background: #f1e2d1; }
+.ce2-dots span.full { background: #e07a1f; }
+.ce2-mode { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ce2-mode button { border: 2px solid #ead9c6; background: #fff; border-radius: 14px; padding: 10px; font-weight: 800; font-size: 18px; color: inherit; touch-action: manipulation; }
+.ce2-mode button small { display: block; font-weight: 500; font-size: 13px; color: #6e5d4c; }
+.ce2-mode button[aria-pressed="true"] { border-color: #e07a1f; background: #fff1e2; }
+.ce2-progress { height: 6px; background: #f1e2d1; border-radius: 3px; overflow: hidden; }
+.ce2-progress i { display: block; height: 100%; background: #e07a1f; transition: width .3s; }
+.ce2-consigne { font-weight: 700; font-size: 18px; text-align: center; margin: 0; }
+.ce2-board { background: #fff; border: 1px solid #ead9c6; border-radius: 18px; padding: 14px 8px; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+
+/* The operation: --cols columns (sign + one per digit), right-aligned like the cahier. */
+.ce2-op { --cell: clamp(54px, 16vw, 76px); display: grid; grid-template-columns: repeat(var(--cols, 4), var(--cell)); justify-content: center; row-gap: 4px; font-variant-numeric: tabular-nums; }
+.ce2-op .sign { font-size: calc(var(--cell) * .6); font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.ce2-op .t, .ce2-op .b { position: relative; height: calc(var(--cell) * 1.05); display: flex; align-items: center; justify-content: center; font-size: calc(var(--cell) * .66); font-weight: 700; }
+.ce2-op .bar { grid-column: 1 / -1; height: 4px; background: #2b2118; border-radius: 2px; margin: 2px 0 4px; }
+.ce2-op .r { height: calc(var(--cell) * 1.05); margin: 0 3px; border: 2px dashed #d3bfa8; border-radius: 12px; background: #fffaf4; font-size: calc(var(--cell) * .66); font-weight: 800; color: #2b2118; padding: 0; touch-action: manipulation; }
+.ce2-op .r.active { border: 3px solid #e07a1f; background: #fff1e2; }
+.ce2-op .r.ok { border: 2px solid #1f9d55; background: #e3f6ea; color: #136c3a; }
+.ce2-op .r.ko { border: 2px solid #d0433b; background: #fbe7e5; animation: ce2-shake .3s; }
+.ce2-op .r.shown { border: 2px solid #2457d6; background: #e8eefc; color: #1c3f99; }
+.ce2-op .r:disabled { opacity: 1; }
+/* Marks: a tappable slot, faint when empty, a red « 1 » once written. Hit area larger than the drawing. */
+.ce2-op .mark { position: absolute; width: 34px; height: 34px; padding: 0; border: 0; background: none; display: flex; align-items: center; justify-content: center; touch-action: manipulation; font: 800 18px system-ui, sans-serif; color: #c0392b; }
+.ce2-op .mark::before { content: ""; position: absolute; width: 20px; height: 20px; border: 2px dotted #d3bfa8; border-radius: 50%; }
+.ce2-op .mark.on::before { border: 0; }
+.ce2-op .mark.on::after { content: "1"; position: relative; }
+.ce2-op .mark.pulse::before { border: 2px solid #e07a1f; animation: ce2-pulse .9s 3; }
+.ce2-op .mark.shown { color: #2457d6; }
+.ce2-op .mtop { top: 4px; left: 0; }
+.ce2-op .mbot { bottom: -8px; left: 0; }
+.ce2-op.locked .mark { pointer-events: none; }
+.ce2-op.locked .mark:not(.on)::before { border-color: transparent; }
+
+.ce2-feedback { min-height: 56px; text-align: center; display: flex; flex-direction: column; gap: 8px; align-items: center; font-size: 17px; width: 100%; padding: 0 6px; }
+.ce2-feedback .ok { color: #136c3a; font-weight: 800; }
+.ce2-feedback .steps { text-align: left; margin: 0; padding-left: 20px; font-size: 16px; }
+.ce2-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.ce2-small-btn { font-size: 17px; font-weight: 700; border-radius: 999px; border: 1.5px solid #e07a1f; background: #fff; color: #b85d0c; padding: 10px 16px; touch-action: manipulation; }
+.ce2-small-btn.primary { background: #e07a1f; color: #fff; }
+
+.ce2-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 360px; margin: 0 auto; }
+.ce2-keypad[hidden] { display: none; }
+.ce2-keypad button { height: 60px; border-radius: 14px; border: 1px solid #ead9c6; background: #fff; font: 800 26px system-ui, sans-serif; color: #2b2118; touch-action: manipulation; }
+.ce2-keypad button:active { background: #fff1e2; }
+.ce2-keypad button.check { background: #e07a1f; color: #fff; border: 0; font-size: 20px; }
+.ce2-keypad button:disabled { opacity: .35; }
+.ce2-keypad button.check:disabled { opacity: .4; }
+
+.ce2-stars { font-size: 30px; letter-spacing: 2px; }
+.ce2-parent { font-size: 16px; }
+.ce2-parent .card h3 { font-size: 18px; }
+.ce2-parent table { width: 100%; font-size: 15px; }
+.ce2-parent td, .ce2-parent th { padding: 3px 4px; border-bottom: 1px solid #f1e2d1; }
+
+.hold-gate { position: relative; overflow: hidden; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+.hold-gate::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: rgba(224, 122, 31, .5); transform: scale(0); pointer-events: none; }
+.hold-gate.holding::after { transform: scale(1); transition: transform var(--hold-ms, 1.5s) linear; }
+@keyframes ce2-shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+@keyframes ce2-pulse { 50% { transform: scale(1.35); } }
+@media (min-width: 700px) { .ce2-op { --cell: 84px; } .ce2-keypad[hidden] { display: none; }
+.ce2-keypad button { height: 68px; } }
+@media (prefers-reduced-motion: reduce) { .ce2-op .r.ko, .ce2-op .mark.pulse::before { animation: none; } .hold-gate.holding::after { transition: none; } }

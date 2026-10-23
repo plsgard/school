@@ -53,6 +53,11 @@ describe('columnHint', () => {
     test('columnHint_EmptyBottomPlace_CountsItAsZero', () => {
         assert.match(columnHint(solve(452, 78).columns[2], 2), /0 \+ 1 = 1/);
     });
+    test('columnHint_NoReveal_HidesTheDigit', () => {
+        const h = columnHint(units, 0, { reveal: false });
+        assert.match(h, /12 − 7 = …/);
+        assert.doesNotMatch(h, /= 5/);
+    });
     test('columnHint_AnyColumn_UsesNbspBeforePunctuation', () => {
         for (const [t, b] of [[52, 27], [405, 127], [1272, 384]]) {
             solve(t, b).columns.forEach((c, i) => assert.doesNotMatch(columnHint(c, i), / [:;!?]/));
