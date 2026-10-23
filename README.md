@@ -17,6 +17,7 @@ python3 -m http.server 8000
 
   Each quiz: pick the number of questions and a timer, answer, get scored, see the last 5 attempts. A perfect score triggers confetti. Math history is kept under the older child's profile even when the page is opened after picking 🦄.
 - `gs.html` — the Grande Section track: one short session a day (6 games by default) plus practice rounds by theme, see [Home and practice](#home-and-practice).
+- `ce2.html` — the CE2 subtraction track (🐱): column subtraction by compensation, generated problems on a level ladder, see [CE2 track](#ce2-track-soustraction-posée).
 - `en.html` — the 6e English track (🦁): listen-and-pick + say-it with pronunciation check, see [English track](#english-track-6e). Its home links to the math quizzes.
 
 To test on the iPad from the Mac: same Wi-Fi, then open `http://<mac-ip>:8000/gs.html`.
@@ -64,7 +65,7 @@ The week's results ("Cette semaine") have one line for the daily sessions and on
 
 During a session or a round, 🏠 quits on a 0.8 s hold or two taps within 2 s; a single stray tap does nothing. What was answered before quitting is kept.
 
-The profile picker is seeded with the children's names, Apolline (🦄, Grande Section) and Louis (🦁, 6e). A device that still has the old "Enfant 1" / "Enfant 2" placeholders gets the real names on its next visit; a name a parent changed is kept.
+The profile picker is seeded with the children's names, Apolline (🦄, Grande Section), Augustin (🐱, CE2) and Louis (🦁, 6e). A device that already had Apolline and Louis gets Augustin's card added between them on its next visit. A device that still has the old "Enfant 1" / "Enfant 2" placeholders gets the real names on its next visit; a name a parent changed is kept.
 
 ## Grande Section track
 
@@ -175,6 +176,17 @@ Shipped decks, from his teacher's material: *A Halloween poem* (Pronote audio, t
    - LearningApps word lists: `https://learningapps.org/data?jsonp=1&id=<app id>` returns the app's data (`initparameters`, URL-encoded). Audio (mp3) is transcribed with Whisper (`python3 -m whisper <file> --model small --language en`); the teacher's recordings are not published, the device voice reads the lines.
 3. Review the JSON, run `node --test` (`tests/en-track.test.mjs` validates every deck), commit the deck + `index.js`.
 
+
+## CE2 track (soustraction posée)
+
+`ce2.html` + `assets/ce2/`, for Augustin. It teaches the method of his class, **compensation** (« conservation des écarts »): when the top digit is too small, add 10 to it (a small 1 before it) and 1 under the next digit of the bottom number (a small 1 below it). Eduscol's CE2 note (août 2026) asks that the school keep one method from CE1 to CM2, so the tool never shows another one.
+
+- **Problems are generated** every time, never twice in a row, on an 8-level ladder: 2 chiffres sans retenue → retenue aux unités → 3 chiffres sans retenue → retenue aux unités → aux dizaines → deux retenues (bottom number sometimes shorter, 452 − 78) → 🔒 un zéro en haut (405 − 127, 600 − 258) → 🔒 4 chiffres. Each level fixes exactly which columns borrow; the result is always positive and keeps the top number's digit count.
+- **Progression:** 4 problems right on the first try in a row master the level and move up; 2 missed in a row move down one level. Mastered levels come back as review (up to 2 of a session's problems, Leitner 2 / 4 / 7 / 14 / 21 days).
+- **A session** is 8 problems (6–10) or 10 minutes, whichever comes first. ⭐ = right on the first try, ✔️ = right after one fix, ○ = solution shown. No score.
+- **Guidé:** each column is checked as soon as he types it; if the column needs the marks he is told to place them first (the two slots pulse). A wrong digit gets the column explained in the method without the answer. **Tout seul:** he fills everything, then « Vérifier » says which columns are wrong. In both modes a second mistake shows the worked solution, column by column, never praised.
+- **« Vérifie avec une addition »** (on by default): after a right answer, he can add the result and the bottom number to get the top number back, as CE2 teachers ask.
+- **Parent corner** (hold ⚙️): set the level by hand, **unlock level 7 (zéro en haut) once the class has done it**, then level 8 (4 chiffres, later in CE2), default mode, problems per session, proof on/off, results per level over the last 14 sessions, reset.
 
 ## Add a new math quiz
 

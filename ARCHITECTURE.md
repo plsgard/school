@@ -2,7 +2,7 @@
 
 ## Overview
 
-`school` is a static, zero-build web app for the owner's kids: timed math quizzes for the older child, and a spaced-repetition **learning track** for the younger one (Grande Section de maternelle: sounds, letters, syllables, tracing in capitals and cursive, numbers to 10), with one daily session plus unlimited themed practice rounds. It is hosted on **GitHub Pages directly off `main`** — pushing to `main` is the deploy. There is no build pipeline, no package manager, no CI and no backend. All persistence is browser-local via `localStorage`. Pure modules are covered by `node --test` (Node's built-in runner, no dependencies); DOM code is hand-tested.
+`school` is a static, zero-build web app for the owner's kids: timed math quizzes and an English track for the older child, a column-subtraction track for the middle one (CE2), and a spaced-repetition **learning track** for the youngest (Grande Section de maternelle: sounds, letters, syllables, tracing in capitals and cursive, numbers to 10), with one daily session plus unlimited themed practice rounds. It is hosted on **GitHub Pages directly off `main`** — pushing to `main` is the deploy. There is no build pipeline, no package manager, no CI and no backend. All persistence is browser-local via `localStorage`. Pure modules are covered by `node --test` (Node's built-in runner, no dependencies); DOM code is hand-tested.
 
 The site is a small set of plain HTML pages sharing ES modules served as static files.
 
@@ -12,6 +12,8 @@ The site is a small set of plain HTML pages sharing ES modules served as static 
 ├── multiplication.html        # multiplication-table quiz
 ├── addition.html              # complement-of-addition quiz
 ├── gs.html                    # Grande Section learning track (one page, four screens)
+├── ce2.html                   # CE2 column subtraction track
+├── en.html                    # 6e English track
 ├── assets/
 │   ├── quiz.css, quiz.js      # math quiz styles + engine (Settings → Quiz → Result → History)
 │   ├── storage.js             # versioned, namespaced localStorage layer (the only localStorage user)
@@ -39,6 +41,8 @@ The site is a small set of plain HTML pages sharing ES modules served as static 
 │   │   ├── gs.css
 │   │   └── decks/             # index.js (DECK_FILES, expandCards) + letters.json, numbers.json,
 │   │                          #   mots-p1.json (période 1), mots-gs.json (generic GS words)
+│   ├── ce2/                   # CE2 subtraction track: method.js (compensation solver), generators.js (levels +
+│   │                          #   generator), rules.js (ladder, session), app.js, parent.js, ce2.css
 │   └── audio/gs/              # pre-recorded mp3 clips + manifest.json + sources.json
 ├── tools/                     # gen-audio.mjs (clip recorder), cues.mjs (cue enumeration),
 │                              #   trace-sheet.mjs (trace model renderer), README.md
@@ -140,22 +144,22 @@ All keys live under the `school.v1.*` namespace and are read/written only throug
 
 | Key pattern | Type | Notes |
 |---|---|---|
-| `school.v1.profiles` | `[{ id, name, avatar, track: 'gs' \| 'en', placeholder? }]` | Seeded on first visit by `profiles.js` with the children's real names: `kid-gs` "Apolline" (🦄, `gs`) and `default` "Louis" (🦁, `en`), no `placeholder` flag. `ensureProfiles()` upgrades a profile stored by an earlier version that still has `placeholder: true` **and** its legacy seeded name ("Enfant 1" / "Enfant 2") to the real name and drops the flag; a profile a parent renamed is left alone. On first open, `gs.html` prefills the GS `firstName` from the profile name (`prefillFirstName`). The 6ème child keeps the id `default` so the math history already under `history.default.*` stays his. |
+| `school.v1.profiles` | `[{ id, name, avatar, track: 'gs' \| 'ce2' \| 'en', placeholder? }]` | Seeded on first visit by `profiles.js` with the children's real names: `kid-gs` "Apolline" (🦄, `gs`), `kid-ce2` "Augustin" (🐱, `ce2`) and `default` "Louis" (🦁, `en`), no `placeholder` flag. A stored list with no profile on a track of `ADDED_TRACKS` (`ce2`) gets that track's default profile inserted at its DEFAULTS rank (before the 6e card). `ensureProfiles()` upgrades a profile stored by an earlier version that still has `placeholder: true` **and** its legacy seeded name ("Enfant 1" / "Enfant 2") to the real name and drops the flag; a profile a parent renamed is left alone. On first open, `gs.html` prefills the GS `firstName` from the profile name (`prefillFirstName`). The 6ème child keeps the id `default` so the math history already under `history.default.*` stays his. |
 | `school.v1.activeProfileId` | string | Defaults to `"default"` if absent. Written by the picker, and by `gs.html` when it has to fall back to a GS profile. |
 | `school.v1.history.<profileId>.<quizId>` | `[{ score, totalQuestions, timerDuration, timeLeft, submittedAutomatically, date }]` | Math quizzes. Capped at 5 entries, newest first. Profile = `historyProfileId(profiles, activeId)`: the active profile only when its track is `'en'` (or no profiles exist yet), otherwise `'default'` — a math page opened after picking 🦄 keeps writing the older child's history. |
-| `school.v1.settings.<profileId>` | `{ sessionItems, practiceItems, parentMode, firstName, audio, voice, extraSessionOn?, enItems?, precision?, tries?, mic?, enVoice? }` | Defaults `{ sessionItems: 6, practiceItems: 6, parentMode: null, firstName: '', audio: 'clips', voice: '' }`, merged on read. `practiceItems`: games per practice round, read through `practiceItems(settings)` (`gs/rules.js`), which rounds and clamps it to 6–10. `parentMode: null` = never set by a parent (automatic, see Child UX rules); `true`/`false` = explicit. `audio`: `'clips' \| 'device' \| 'silent'`. `voice`: preferred device voice name. `extraSessionOn`: local day (`YYYY-MM-DD`) on which a parent allowed one more session. `firstName` feeds the greeting and the name-spell card. English track keys (defaults in `assets/en/rules.js` `EN_DEFAULTS`): `enItems` 12 (6–20), `precision` `'indulgent' \| 'normal' \| 'exigeant'`, `tries` 3 (1–5), `mic` `'auto' \| 'self'`, `enVoice` (device voice name). |
-| `school.v1.srs.<profileId>.<trackId>` | `{ cards: { [cardId]: { box, due, seen, lapses } }, introduced: { [day]: [itemKey] } }` | Leitner state. `cardId = <deckId>/<itemId>#<skill>` (e.g. `letters/a#trace-cap`, `letters/a#trace`, `mots-gs/robot#sound-final`, `numbers/7#trace`, `name/lea#name-spell`); `itemKey = <deckId>/<itemId>`. `due` and the `introduced` keys are local days. One state for both the daily session and practice rounds; `introduced` is the shared daily new-item budget. |
+| `school.v1.settings.<profileId>` | `{ sessionItems, practiceItems, parentMode, firstName, audio, voice, extraSessionOn?, enItems?, precision?, tries?, mic?, enVoice? }` | Defaults `{ sessionItems: 6, practiceItems: 6, parentMode: null, firstName: '', audio: 'clips', voice: '' }`, merged on read. `practiceItems`: games per practice round, read through `practiceItems(settings)` (`gs/rules.js`), which rounds and clamps it to 6–10. `parentMode: null` = never set by a parent (automatic, see Child UX rules); `true`/`false` = explicit. `audio`: `'clips' \| 'device' \| 'silent'`. `voice`: preferred device voice name. `extraSessionOn`: local day (`YYYY-MM-DD`) on which a parent allowed one more session. `firstName` feeds the greeting and the name-spell card. English track keys (defaults in `assets/en/rules.js` `EN_DEFAULTS`): `enItems` 12 (6–20), `precision` `'indulgent' \| 'normal' \| 'exigeant'`, `tries` 3 (1–5), `mic` `'auto' \| 'self'`, `enVoice` (device voice name). CE2 keys (read by `ce2Settings`, `assets/ce2/rules.js`): `ce2Items` 8 (6–10), `ce2Mode` `'guided' \| 'solo'`, `ce2Proof` (default true), `ce2Unlocked` (subset of `[7, 8]`). |
+| `school.v1.srs.<profileId>.<trackId>` | `{ cards: { [cardId]: { box, due, seen, lapses } }, introduced: { [day]: [itemKey] } }` | Leitner state. `cardId = <deckId>/<itemId>#<skill>` (e.g. `letters/a#trace-cap`, `letters/a#trace`, `mots-gs/robot#sound-final`, `numbers/7#trace`, `name/lea#name-spell`); `itemKey = <deckId>/<itemId>`. `due` and the `introduced` keys are local days. One state for both the daily session and practice rounds; `introduced` is the shared daily new-item budget. CE2 (`srs.<id>.ce2`): cards are mastered levels `L<n>`, plus `ladder: { level, streak, misses }`. |
 | `school.v1.sessions.<profileId>.<trackId>` | `[{ date, items: [{ cardId, type, correctFirstTry, attempts, ms }], durationMs }]` | **Daily sessions only.** Last 14 completed sessions, newest first. `date` is an ISO timestamp; the pattern filler game stores `cardId: null`. Drives the daily cap and the parent corner's daily week line. |
 | `school.v1.practice.<profileId>.<trackId>` | `[{ date, theme, items: [{ cardId, type, correctFirstTry, attempts, ms, preview? }], durationMs }]` | Completed practice rounds, newest first, capped at 30 (`appendPractice`). `theme` is a `THEMES` id; `preview: true` marks an item played for exposure and never recorded in the SRS. A round left with 🏠 is not appended (its answered cards are already in the SRS). Feeds the parent corner's practice line. **Separate on purpose:** `sessions` holds 14 entries and drives `dailyCapReached`; unlimited practice rounds stored there would evict today's daily session and give ▶ Jouer back. With two keys, practice can never touch the daily cap. |
 | `school.v1.level.<profileId>.<quizId>` | number | Future — math difficulty progression. |
 | `school.v1.achievements.<profileId>` | `[{ id, unlockedAt }]` | Future — badges. |
 | `school.v1.theme` | string | Future — themes. |
 
-`trackId` is `'gs'` or `'en'`. `migrateLegacyHistory()` runs once on quiz-engine init and copies any pre-namespaced `multiplicationHistory` / `additionHistory` arrays into `school.v1.history.default.<quizId>`, then removes the old keys. Idempotent.
+`trackId` is `'gs'`, `'ce2'` or `'en'`. CE2 sessions store `{ date, mode, items: [{ level, top, bottom, outcome: 'clean' \| 'fixed' \| 'missed', review }], durationMs }`. `migrateLegacyHistory()` runs once on quiz-engine init and copies any pre-namespaced `multiplicationHistory` / `additionHistory` arrays into `school.v1.history.default.<quizId>`, then removes the old keys. Idempotent.
 
 ## Learning tracks
 
-A track = a set of decks, generators and renderers on top of a shared, track-agnostic engine. Two tracks ship: Grande Section (`gs.html`, `'gs'`) and 6e English (`en.html`, `'en'`, see [English track](#english-track-6e)).
+A track = a set of decks, generators and renderers on top of a shared, track-agnostic engine. Three tracks ship: Grande Section (`gs.html`, `'gs'`), CE2 subtraction (`ce2.html`, `'ce2'`, see [CE2 track](#ce2-track-column-subtraction)) and 6e English (`en.html`, `'en'`, see [English track](#english-track-6e)).
 
 ### Modules
 
@@ -166,7 +170,7 @@ A track = a set of decks, generators and renderers on top of a shared, track-agn
 | core | `assets/core/progress.js` | Pure `recordResult(srs, cardId, correctFirstTry, today)`: `record` + daily-introduction bookkeeping. Pure `recordPractice(…)` (same arguments): the practice Leitner rule. |
 | core | `assets/core/speech.js` | `createSpeech` (one `speak(cue) → Promise` over ordered sources), `createClipSource`, `createDeviceSource`, `SILENT_SOURCE`, `rankVoice`. |
 | shared | `assets/storage.js` | All persistence (see schema), including `loadPractice` / `appendPractice`. |
-| shared | `assets/profiles.js` | `ensureProfiles` (seeds Apolline / Louis, upgrades legacy placeholders), `selectProfile` (track → page: `gs` → `gs.html`, `en` → `en.html`), `trackProfileId`, `renameProfile` / `setFirstName` (one name per child), `prefillFirstName`, `mountProfiles`. |
+| shared | `assets/profiles.js` | `ensureProfiles` (seeds Apolline / Augustin / Louis, upgrades legacy placeholders, adds the profile of a track added later), `selectProfile` (track → page: `gs` → `gs.html`, `ce2` → `ce2.html`, `en` → `en.html`), `trackProfileId`, `renameProfile` / `setFirstName` (one name per child), `prefillFirstName`, `mountProfiles`. |
 | shared | `assets/hold.js` | `holdToActivate(el, action, ms = 1500)`: long-press gate; a plain tap only shows a "Maintiens appuyé" hint under the element. |
 | shared | `assets/celebration.js` | Confetti on the done screen. |
 | gs | `assets/gs/app.js` | Page controller: profile resolution, audio wiring, home (▶ Jouer + the four theme buttons built from `THEMES`) / exercise / done screens, daily cap, quit button, gates. `runSession` (daily) and `runPractice(themeId)` both play through `play(exercises, onAnswered, { badge })`; `start(run)` is the one entry for ▶ Jouer, a theme button and 🔁 Encore (a second tap while a round starts is ignored, audio is unlocked in the tap, a crash goes back home); `showDone(items, { again })` is the daily or practice done screen. `lastRound` (in memory) feeds `recent`. |
@@ -587,6 +591,35 @@ flowchart LR
   S -->|ok| OK[✅ + model spoken] --> N[next card]
   S -->|miss, tries left| R[heard words green/grey, 🔊 model unlocked] --> T
   S -->|miss, last try| M[model spoken, On continue ▶] --> N
+```
+
+## CE2 track (column subtraction)
+
+`ce2.html` + `assets/ce2/`. A computation drill, not a deck: problems are generated, so the Leitner card model only fits the levels. The ladder decides what is practised; mastered levels become Leitner cards for spaced review. `core/session.js` is not used (it composes decks with new-card budgets); the session plan is one pure function in `ce2/rules.js`.
+
+| Module | Responsibility |
+|---|---|
+| `assets/ce2/method.js` | Pure compensation solver: `solve(top, bottom)` → columns units first `{ top, bottom (null = empty place), carryIn, sub, borrow, digit }`; `borrowMask`; `columnHint(col, i, { reveal })`, the French explanation in the method's words (`reveal: false` ends with « = … »). |
+| `assets/ce2/generators.js` | Pure `LEVELS` (id, label, example, digit counts, borrow `mask` units first, or `zeroTop` / `minBorrows`), `LOCKABLE` `[7, 8]`, `accepts(level, top, bottom)`, `generate(levelId, { rng, previous })` (rejection sampling: top > bottom, result keeps the top's digit count, exact mask, never the previous problem). |
+| `assets/ce2/rules.js` | Pure `ce2Settings`, `ladderOf` (a locked current level falls back below), `recordProblem` (ladder or review), `setLevel`, `composeSession` (null = current level, number = review), `shouldStop` (items or 10 min), `stars`, `localDay`, `CE2_PROFILE`. |
+| `assets/ce2/app.js` | Page controller: home (level, streak dots, mode), the grid (one cell per digit, mark slots), keypad, Guidé / Tout seul flows, worked solution, addition proof, done screen, 🏠 quit, gates. |
+| `assets/ce2/parent.js` | Parent corner: level, unlocks, mode, problems per session, proof, per-level results, reset. |
+
+**Ladder.** Outcome per problem: `clean` (no wrong digit) → streak + 1; streak = `MASTERY` (4) → `record(L<n>, true)` and move to the next unlocked level. `fixed` (right after one wrong check) → streak 0. `missed` (second wrong check, solution shown) → streak 0, misses + 1; misses = `PULLBACK` (2) → previous unlocked level. A `clean` resets misses; a `fixed` does not. Reviews (`L<n>` due, below the current level, at most 2, never the first problem) only move their card.
+
+**Marks.** A +10 slot before each top digit except the leading one (it never borrows: the result keeps its digit count) and a +1 slot under each bottom digit except the units (no column feeds them), also where the bottom number has no digit. Guidé refuses a digit while a needed mark is missing (no error counted), erases unneeded ones, and locks the marks of a validated column. Tout seul only grades digits; a wrong or missing mark gets one remark.
+
+```mermaid
+flowchart TD
+  K[digit key, column i] --> B{column needs a borrow?}
+  B -->|yes, marks missing| H1[hint: add 10 en haut et 1 en bas, slots pulse] --> K
+  B -->|no, marks present| H2[hint: pas besoin, marks erased] --> K
+  B -->|marks right| D{digit right?}
+  D -->|yes| N{last column?}
+  N -->|no| K2[column i+1] --> K
+  N -->|yes| OK[clean / fixed → proof offer → next]
+  D -->|no, first error| H3[columnHint without the answer] --> K
+  D -->|no, second error| S[worked solution, column by column] --> M[missed → next]
 ```
 
 ## Local development
