@@ -3,7 +3,7 @@
 //
 // Ladder (srs.ladder, beside the Leitner cards): MASTERY first-try successes in a row master the current level and
 // move up to the next unlocked one; PULLBACK misses in a row move down one. Outcomes of a problem:
-// 'clean' = right with no wrong digit, 'fixed' = right after one wrong digit (no star, streak reset, not a miss),
+// 'clean' = right with no wrong digit, 'fixed' = right after one wrong digit (no star, streak reset, misses reset),
 // 'missed' = second wrong check or the worked solution shown.
 // A mastered level becomes a Leitner card (`L<n>`, core/scheduler.record) so it comes back as review now and then.
 import { record, dueCards } from '../core/scheduler.js';
@@ -67,6 +67,7 @@ export function recordProblem(srs, { level, outcome, review }, today, unlocked) 
         }
     } else if (outcome === 'fixed') {
         streak = 0;
+        misses = 0; // a corrected problem is a correct answer: only misses in a row pull back
     } else {
         streak = 0;
         if (++misses >= PULLBACK) { current = below(current, unlocked); misses = 0; }

@@ -53,9 +53,9 @@ describe('ladder', () => {
         const srs = play(setLevel(empty(), 4), ['missed', 'clean', 'missed']);
         assert.deepEqual(ladderOf(srs, []), { level: 4, streak: 0, misses: 1 });
     });
-    test('recordProblem_FixedBetweenMisses_StillTwoInARow', () => {
+    test('recordProblem_FixedBetweenMisses_ResetsMisses', () => {
         const srs = play(setLevel(empty(), 4), ['missed', 'fixed', 'missed']);
-        assert.equal(ladderOf(srs, []).level, 3);
+        assert.deepEqual(ladderOf(srs, []), { level: 4, streak: 0, misses: 1 });
     });
     test('recordProblem_MissesAtLevelOne_StaysAtOne', () => {
         assert.equal(ladderOf(play(empty(), ['missed', 'missed', 'missed']), []).level, 1);
