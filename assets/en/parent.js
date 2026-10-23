@@ -91,7 +91,11 @@ export function mountParent(root, { profileId, settings, cards, decks, device, s
             recognitionSupported() ? h('div', { class: 'en-row justify-content-start' },
                 h('button', { type: 'button', class: 'en-small-btn', onclick: micTest(false) }, '🎤 Tester le micro'),
                 h('button', { type: 'button', class: 'en-small-btn', onclick: micTest(true) }, '🔊 puis 🎤 (comme en séance)')) : null,
-            testOut),
+            testOut,
+            h('h4', { class: 'h6 mt-3' }, 'Dernières écoutes pendant les exercices'),
+            settings.enMicLog?.length
+                ? h('pre', {}, settings.enMicLog.join('\n'))
+                : h('p', { class: 'en-note m-0' }, 'Aucune pour l\u2019instant.')),
         card('Séance',
             select('Cartes par séance', o.enItems, [6, 8, 10, 12, 15, 20].map(n => [n, `${n}${NBSP}cartes`]), v => save({ enItems: Number(v) })),
             select('Voix anglaise', o.enVoice, [['', 'Automatique (anglais britannique)'], ...voices.map(v => [v.name, `${v.name} (${v.lang})`])],

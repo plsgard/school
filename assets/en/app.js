@@ -1,7 +1,7 @@
 // assets/en/app.js
 // English track page (6e): home → session (listen-pick, say-it) → done, parent corner behind ⚙️ (long-press).
 // UI copy is French (he reads); spoken audio is English only (device en-GB voice).
-import { getActiveProfileId, setActiveProfileId, loadProfiles, loadSettings, loadSrs, saveSrs, loadSessions, appendSession } from '../storage.js';
+import { getActiveProfileId, setActiveProfileId, loadProfiles, loadSettings, saveSettings, loadSrs, saveSrs, loadSessions, appendSession } from '../storage.js';
 import { recordResult } from '../core/progress.js';
 import { createSpeech, createDeviceSource, SILENT_SOURCE } from '../core/speech.js';
 import { celebrate } from '../celebration.js';
@@ -10,7 +10,7 @@ import { displayName, ensureProfiles, trackProfileId, prefillFirstName } from '.
 import { loadDecks, expandCards } from './decks/index.js';
 import { generate } from './generators.js';
 import { scoreSpeech } from './pronounce.js';
-import { listen, abortListening, recognitionSupported, FATAL_ERRORS } from './listen.js';
+import { listen, abortListening, recognitionSupported, FATAL_ERRORS, micLogEntry, MIC_LOG_SIZE } from './listen.js';
 import { nextCard, enSettings, localDay, streak, EN_PROFILE } from './rules.js';
 import { mountParent } from './parent.js';
 
@@ -84,6 +84,12 @@ function renderHome() {
             el('div', { class: 'en-note' }, `${d.items.length}${NBSP}${UNITS[d.kind] ?? 'mots'} · ${known.length ? `${known.length}/${ids.length} cartes vues` : 'pas encore commencé'}`),
             el('div', { class: 'en-boxes', 'aria-hidden': 'true' }, ...[0, 1, 2, 3, 4].map(i => el('span', { class: i < filled ? 'full' : '' }))));
     }));
+}
+
+// The last in-session listens, for the parent corner (what the iPad really returned during exercises).
+function logListen(r) {
+    const log = [micLogEntry(r, new Date()), ...(settings.enMicLog ?? [])].slice(0, MIC_LOG_SIZE);
+    persist(() => Object.assign(settings, saveSettings(profileId, { enMicLog: log })));
 }
 
 // ---- exercises: each resolves with { correctFirstTry, attempts, ms } ----
@@ -215,11 +221,17 @@ async function playSayIt(ex) {
     let attempts = 0;
     let silent = 0; // silences / network errors: not tries, but three in a row fall back to self-judging
     for (;;) {
-        await new Promise(r => { mic.onclick = r; });
-        speech.stop();
-        mic.disabled = true; model.disabled = true; mic.classList.add('listening'); // the model must not be heard by the mic
-        fb.replaceChildren(el('span', {}, 'Je t’écoute…'));
-        const heard = await listen({ lang: 'en-GB' });
+        // listen() must start inside the tap itself: iPad Safari gives a recogniser started after the tap handler
+        // returned (a promise continuation) that runs but hears nothing. The parent corner's test always did this.
+        const heard = await new Promise(r => {
+            mic.onclick = () => {
+                speech.stop();
+                mic.disabled = true; model.disabled = true; mic.classList.add('listening'); // the model must not be heard by the mic
+                fb.replaceChildren(el('span', {}, 'Je t’écoute…'));
+                r(listen({ lang: 'en-GB' }));
+            };
+        });
+        logListen(heard);
         mic.disabled = false; model.disabled = false; mic.classList.remove('listening');
         if (heard.error && FATAL_ERRORS.has(heard.error)) {
             micBlocked = true;

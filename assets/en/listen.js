@@ -10,6 +10,16 @@ export const FATAL_ERRORS = new Set(['not-allowed', 'service-not-allowed', 'audi
 
 let current = null;
 
+export const MIC_LOG_SIZE = 5;
+
+// Pure: one listen() result → a short line for the parent corner ("14:02 · «a ruler» · start audiostart … end").
+export function micLogEntry(r, date) {
+    const p = (n) => String(n).padStart(2, '0');
+    const heard = r.alternatives?.length ? `«\u00a0${r.alternatives[0].transcript}\u00a0»` : `rien (${r.error ?? 'no-speech'})`;
+    const events = (r.events ?? []).map(e => e.type).join(' ') || 'aucun événement';
+    return `${p(date.getHours())}:${p(date.getMinutes())} · ${heard} · ${events}`;
+}
+
 export function abortListening() {
     try { current?.abort(); } catch { /* ignore */ }
     current = null;

@@ -5,6 +5,7 @@ import { DECK_FILES, expandCards } from '../assets/en/decks/index.js';
 import { generate } from '../assets/en/generators.js';
 import { nextCard, enSettings, streak, EN_PROFILE } from '../assets/en/rules.js';
 import { recordResult } from '../assets/core/progress.js';
+import { micLogEntry } from '../assets/en/listen.js';
 
 const decks = await Promise.all(DECK_FILES.map(async n => JSON.parse(await readFile(new URL(`../assets/en/decks/${n}.json`, import.meta.url), 'utf8'))));
 const cards = expandCards(decks);
@@ -159,5 +160,16 @@ describe('streak', () => {
         assert.equal(streak([at('2026-10-16'), at('2026-10-15'), at('2026-10-13')], day), 2);
         assert.equal(streak([at('2026-10-17'), at('2026-10-16')], day), 2);
         assert.equal(streak([at('2026-10-14')], day), 0);
+    });
+});
+
+describe('micLogEntry', () => {
+    const at = new Date(2026, 9, 23, 14, 2);
+    test('micLogEntry_Heard_ShowsTimeTranscriptAndEvents', () => {
+        const r = { alternatives: [{ transcript: 'a ruler', confidence: 0.9 }], events: [{ t: 3, type: 'start' }, { t: 900, type: 'end' }] };
+        assert.equal(micLogEntry(r, at), '14:02 · «\u00a0a ruler\u00a0» · start end');
+    });
+    test('micLogEntry_NothingHeardNoEvents_ShowsErrorAndNoEvent', () => {
+        assert.equal(micLogEntry({ alternatives: [], error: 'no-speech', events: [] }, at), '14:02 · rien (no-speech) · aucun événement');
     });
 });
