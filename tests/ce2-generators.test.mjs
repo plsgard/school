@@ -81,6 +81,23 @@ describe('generate', () => {
             assert.ok(cols.some(c => c.top === 0 && c.borrow), `${p.top} − ${p.bottom}`);
         }
     });
+    test('generate_EveryLevelButSeven_NeverAZeroNeedingTheTen', () => {
+        for (const l of LEVELS.filter(x => x.id !== 7)) {
+            for (const p of draws(l.id, 2000, 5)) {
+                assert.ok(!solve(p.top, p.bottom).columns.some(c => c.top === 0 && c.borrow), `${l.id}: ${p.top} − ${p.bottom}`);
+            }
+        }
+    });
+    test('generate_Level8WithZerosUnlocked_SometimesAZeroNeedingTheTen', () => {
+        const rng = seeded(9);
+        const seen = Array.from({ length: 500 }, () => generate(8, { rng, zeros: true }))
+            .some(p => solve(p.top, p.bottom).columns.some(c => c.top === 0 && c.borrow));
+        assert.ok(seen);
+    });
+    test('generate_Level6_ThreeDigitBottomAtLeastAThird', () => {
+        const share = draws(6, 1000).filter(p => String(p.bottom).length === 3).length / 1000;
+        assert.ok(share >= 0.33, String(share));
+    });
     test('generate_UnknownLevel_Throws', () => {
         assert.throws(() => generate(99), /unknown ce2 level/);
     });

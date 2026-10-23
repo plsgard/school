@@ -42,8 +42,7 @@ describe('columnHint', () => {
     const [units, tens] = solve(52, 27).columns;
     test('columnHint_Borrow_SaysAddTenOnTopAndOneBelow', () => {
         const h = columnHint(units, 0);
-        assert.match(h, /j’ajoute 10 en haut/);
-        assert.match(h, /colonne des dizaines/);
+        assert.match(h, /j’ajoute 10 en haut \(12\), et j’écris 1 en bas dans la colonne des dizaines/);
         assert.match(h, /12 − 7 = 5/);
     });
     test('columnHint_CarryIn_MentionsTheOneBelow', () => {

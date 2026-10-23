@@ -12,7 +12,7 @@ import { holdToActivate } from '../hold.js';
 import { displayName, ensureProfiles, trackProfileId, prefillFirstName } from '../profiles.js';
 import { solve, columnHint, digitsOf, COLUMN_NAMES } from './method.js';
 import { generate, levelById, LEVELS } from './generators.js';
-import { ce2Settings, ladderOf, recordProblem, composeSession, shouldStop, stars, localDay, MASTERY, cardId, isUnlocked } from './rules.js';
+import { ce2Settings, ladderOf, levelStatus, recordProblem, composeSession, shouldStop, stars, localDay, MASTERY, isUnlocked } from './rules.js';
 import { mountParent } from './parent.js';
 
 const NBSP = ' ';
@@ -55,13 +55,12 @@ const inColumns = (cols) => (cols.length > 1 ? 'dans les colonnes des ' : 'dans 
 
 // ---- home ----
 
+// Child-facing level numbers are ranks among the open levels (8 open, 7 locked → « Niveau 7 sur 7 »).
+const rankOf = (id) => LEVELS.filter(l => isUnlocked(l.id, opts().unlocked)).findIndex(l => l.id === id) + 1;
+
 function levelLine(srs) {
-    const { unlocked } = opts();
-    const { level, streak } = ladderOf(srs, unlocked);
-    const l = levelById(level);
-    const open = LEVELS.filter(x => isUnlocked(x.id, unlocked));
-    const top = open[open.length - 1].id === level && srs.cards[cardId(level)];
-    return { l, streak, of: open.length, top };
+    const st = levelStatus(srs, opts().unlocked);
+    return { ...st, l: levelById(st.level) };
 }
 
 function renderHome() {
@@ -70,9 +69,9 @@ function renderHome() {
     $('hello').textContent = name ? `Bonjour ${name}${NBSP}!` : `Bonjour${NBSP}!`;
     const o = opts();
     $('today').textContent = `Séance du jour${NBSP}: ${o.items}${NBSP}soustractions · 10${NBSP}minutes au plus`;
-    const { l, streak, of, top } = levelLine(loadSrs(profileId, TRACK));
+    const { l, rank, streak, of, top } = levelLine(loadSrs(profileId, TRACK));
     $('level').replaceChildren(
-        el('b', {}, `Niveau ${l.id} sur ${of}${NBSP}: ${l.label}`),
+        el('b', {}, `Niveau ${rank} sur ${of}${NBSP}: ${l.label}`),
         el('span', { class: 'ce2-note' }, `Par exemple${NBSP}: ${l.example}`),
         el('div', { class: 'ce2-dots', 'aria-hidden': 'true' }, ...Array.from({ length: MASTERY }, (_, i) => el('span', { class: i < streak ? 'full' : '' }))),
         el('span', { class: 'ce2-note' }, top
@@ -232,7 +231,7 @@ function playProblem(prob, mode) {
         if (c.borrow && !(hasTop && hasBottom)) {
             if (!hasTop) refs.mtop[active]?.classList.add('pulse');
             if (!hasBottom) refs.mbot[active + 1]?.classList.add('pulse');
-            feedback(el('span', {}, `${c.top} est plus petit que ${c.sub}${NBSP}: avant d’écrire, ajoute 10 en haut et 1 en bas, dans la colonne des ${COLUMN_NAMES[active + 1]}. Touche les petits ronds.`));
+            feedback(el('span', {}, `${c.top} est plus petit que ${c.sub}${NBSP}: avant d’écrire, ajoute 10 en haut, et écris 1 en bas dans la colonne des ${COLUMN_NAMES[active + 1]}. Touche les petits ronds.`));
             return;
         }
         if (!c.borrow && (hasTop || hasBottom)) {
@@ -356,11 +355,11 @@ async function runSession() {
     for (let i = 0; running && !shouldStop({ index: i, items: plan.length, startedAt: t0, now: Date.now() }); i++) {
         const review = plan[i] !== null;
         const level = review ? plan[i] : ladderOf(srs, o.unlocked).level;
-        const prob = generate(level, { previous });
+        const prob = generate(level, { previous, zeros: isUnlocked(7, o.unlocked) });
         previous = prob;
         $('counter').textContent = `${i + 1} / ${plan.length}`;
         $('progress').style.width = `${(100 * i) / plan.length}%`;
-        $('levelPill').textContent = review ? `Révision · niveau ${level}` : `Niveau ${level}`;
+        $('levelPill').textContent = review ? `Révision · niveau ${rankOf(level)}` : `Niveau ${rankOf(level)}`;
         feedback(banner ? el('strong', {}, banner) : null);
         banner = null;
         const outcome = await playProblem(prob, o.mode);
@@ -369,7 +368,7 @@ async function runSession() {
         srs = recordProblem(srs, { level, outcome, review }, day, o.unlocked);
         persist(() => saveSrs(profileId, TRACK, srs));
         const now = ladderOf(srs, o.unlocked).level;
-        if (!review && now > level) banner = `🐱 Niveau ${level} réussi${NBSP}! Nouveau niveau${NBSP}: ${levelById(now).label}.`;
+        if (!review && now > level) banner = `🐱 Niveau ${rankOf(level)} réussi${NBSP}! Nouveau niveau${NBSP}: ${levelById(now).label}.`;
     }
     running = false;
     if (!items.length) { show('home'); renderHome(); return; }
@@ -385,10 +384,10 @@ function renderDone(items, srs) {
     $('doneTitle').textContent = won ? `Bravo${name ? ` ${name}` : ''}${NBSP}!` : `Séance finie${name ? `, ${name}` : ''}${NBSP}!`;
     $('doneStars').textContent = outcomes.map(o => (o === 'clean' ? '⭐' : o === 'fixed' ? '✔️' : '○')).join(' ');
     $('doneStars').setAttribute('aria-label', `${won}${NBSP}étoile${won > 1 ? 's' : ''} sur ${items.length}`);
-    const { l, streak, top } = levelLine(srs);
+    const { l, rank, streak, top } = levelLine(srs);
     $('doneLevel').textContent = top
-        ? `Niveau ${l.id}${NBSP}: ${l.label}. Dernier niveau ouvert, continue comme ça.`
-        : `Niveau ${l.id}${NBSP}: ${l.label} · encore ${MASTERY - streak}${NBSP}réussite${MASTERY - streak > 1 ? 's' : ''} du premier coup.`;
+        ? `Niveau ${rank}${NBSP}: ${l.label}. Dernier niveau ouvert, continue comme ça.`
+        : `Niveau ${rank}${NBSP}: ${l.label} · encore ${MASTERY - streak}${NBSP}réussite${MASTERY - streak > 1 ? 's' : ''} du premier coup.`;
     if (won) celebrate({ duration: 3000, pieces: 80 });
 }
 

@@ -33,8 +33,13 @@ function writeJSON(key, value) {
     localStorage.setItem(key, JSON.stringify(value));
 }
 
+// Blocked storage (Safari "Block all cookies", private modes) throws on access: a page must still load.
 export function getActiveProfileId() {
-    return localStorage.getItem(`${NS}.activeProfileId`) ?? DEFAULT_PROFILE_ID;
+    try {
+        return localStorage.getItem(`${NS}.activeProfileId`) ?? DEFAULT_PROFILE_ID;
+    } catch {
+        return DEFAULT_PROFILE_ID;
+    }
 }
 
 // Profile whose math history a quiz page reads and writes (R28). The math quizzes belong to the older child: a page

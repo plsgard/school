@@ -31,7 +31,7 @@ export function columnHint(col, i, { reveal = true } = {}) {
     const parts = [];
     if (col.carryIn) parts.push(`N’oublie pas le 1 en bas${NBSP}: ${col.bottom ?? 0} + 1 = ${col.sub}.`);
     if (col.borrow) {
-        parts.push(`${col.top} est plus petit que ${col.sub}${NBSP}: j’ajoute 10 en haut (${col.top + 10}) et 1 en bas, dans la colonne des ${COLUMN_NAMES[i + 1]}.`);
+        parts.push(`${col.top} est plus petit que ${col.sub}${NBSP}: j’ajoute 10 en haut (${col.top + 10}), et j’écris 1 en bas dans la colonne des ${COLUMN_NAMES[i + 1]}.`);
         parts.push(`${col.top + 10} − ${col.sub} = ${end}`);
     } else parts.push(`${col.top} − ${col.sub} = ${end}`);
     return parts.join(' ') + (reveal ? '.' : '');

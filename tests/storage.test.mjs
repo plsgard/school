@@ -8,6 +8,14 @@ const s = await import('../assets/storage.js');
 
 beforeEach(() => ls.clear());
 
+describe('getActiveProfileId', () => {
+    test('getActiveProfileId_StorageAccessThrows_ReturnsDefault', () => {
+        const get = ls.getItem;
+        ls.getItem = () => { throw new Error('SecurityError'); };
+        try { assert.equal(s.getActiveProfileId(), 'default'); } finally { ls.getItem = get; }
+    });
+});
+
 describe('profiles', () => {
     test('loadProfiles_WhenEmpty_ReturnsEmptyArray', () => {
         assert.deepEqual(s.loadProfiles(), []);

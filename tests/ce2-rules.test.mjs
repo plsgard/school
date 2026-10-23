@@ -2,7 +2,7 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-    MASTERY, ce2Settings, ladderOf, recordProblem, setLevel, composeSession, shouldStop, stars, cardId, SESSION_MS,
+    MASTERY, levelStatus, ce2Settings, ladderOf, recordProblem, setLevel, composeSession, shouldStop, stars, cardId, SESSION_MS,
 } from '../assets/ce2/rules.js';
 
 const day = '2026-10-23';
@@ -85,6 +85,19 @@ describe('ladder', () => {
         const copy = structuredClone(srs);
         play(srs, ['clean', 'missed']);
         assert.deepEqual(srs, copy);
+    });
+    test('ladderOf_CorruptStoredLevel_StartsAtOne', () => {
+        for (const level of [0, 9, NaN, '3', null]) {
+            assert.equal(ladderOf({ cards: {}, ladder: { level, streak: 2, misses: 0 } }, [7, 8]).level, 1, String(level));
+        }
+    });
+    test('levelStatus_Level8With7Locked_RankIsSeventhOfSeven', () => {
+        assert.deepEqual(levelStatus(setLevel(empty(), 8), [8]), { level: 8, rank: 7, of: 7, streak: 0, top: false });
+    });
+    test('levelStatus_TopOpenLevelMastered_FlagsTop', () => {
+        const srs = play(setLevel(empty(), 6), Array(MASTERY).fill('clean'));
+        assert.equal(levelStatus(srs, []).top, true);
+        assert.equal(levelStatus(setLevel(empty(), 6), []).top, false);
     });
     test('ladderOf_CurrentLevelLocked_FallsBackBelow', () => {
         assert.equal(ladderOf(setLevel(empty(), 7), []).level, 6);

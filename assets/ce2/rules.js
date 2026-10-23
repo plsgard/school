@@ -7,7 +7,7 @@
 // 'missed' = second wrong check or the worked solution shown.
 // A mastered level becomes a Leitner card (`L<n>`, core/scheduler.record) so it comes back as review now and then.
 import { record, dueCards } from '../core/scheduler.js';
-import { LEVELS, LOCKABLE } from './generators.js';
+import { LEVELS, LOCKABLE, levelById } from './generators.js';
 
 export const MASTERY = 4;
 export const PULLBACK = 2;
@@ -35,10 +35,20 @@ const above = (level, unlocked) => LEVELS.find(l => l.id > level && isUnlocked(l
 const below = (level, unlocked) => [...LEVELS].reverse().find(l => l.id < level && isUnlocked(l.id, unlocked))?.id ?? level;
 
 // The current level never sits on a locked one (a parent may lock it again): it falls back to the closest unlocked below.
+// A stored level that is no level (corrupt, or from a future ladder) restarts at 1 rather than blocking every session.
 export function ladderOf(srs, unlocked) {
     const ladder = { level: 1, streak: 0, misses: 0, ...srs.ladder };
+    if (!levelById(ladder.level)) return { level: 1, streak: 0, misses: 0 };
     if (!isUnlocked(ladder.level, unlocked)) return { level: below(ladder.level, unlocked), streak: 0, misses: 0 };
     return ladder;
+}
+
+// For the home and done screens: rank among the open levels (« Niveau 7 sur 7 » when 8 is open and 7 locked), and
+// whether the current level is the last open one and already mastered.
+export function levelStatus(srs, unlocked) {
+    const { level, streak } = ladderOf(srs, unlocked);
+    const open = LEVELS.filter(l => isUnlocked(l.id, unlocked)).map(l => l.id);
+    return { level, rank: open.indexOf(level) + 1, of: open.length, streak, top: open[open.length - 1] === level && !!srs.cards[cardId(level)] };
 }
 
 export const setLevel = (srs, level) => ({ ...srs, ladder: { level, streak: 0, misses: 0 } });
