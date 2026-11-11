@@ -98,8 +98,8 @@ items of the group), `exam` a valid date.
 | 3 Write | types it from the cue | type · look–cover–write (shown 3 s, hidden, typed) |
 | 4 Transfer | types it from audio only (dictation with the device voice) | hear-and-write |
 
-- `spell` items go 1 → 2 → 3 (level 4 only when the device has an English voice). `write` items go 2 (word tiles) → 3 → 4;
-  they start once the words they are made of have been met.
+- `spell` items go 1 → 2 → 3. `write` items go 2 (word tiles) → 3 → 4 (level 4 only when the device has an English
+  voice; otherwise 3 is their top); they start once the words they are made of have been met.
 - A new item starts at level 1 (`spell`) or 2 (`write`).
 
 Two phases per card:
@@ -218,6 +218,9 @@ File and module names, loader mechanics, thresholds and budgets, exact French co
 - The first lesson has 16 ordinals, not 31, and accepts only the handout's date form.
 - Opening and closing exercises are replays of past successes and are not recorded.
 
-## 13. Open with the parent
+- While the test is within 7 days, a card he can write but has not yet mastered comes back every day in the lesson
+  session (not only when its Leitner box says so).
 
-- The date of the test (sets `exam`: countdown, and no daily cap on new items in the last 7 days).
+## 13. Answered by the parent
+
+- Design approved 2026-11-11. The test is Friday 2026-11-13 (`exam`).
