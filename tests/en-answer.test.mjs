@@ -30,7 +30,16 @@ describe('checkAnswer', () => {
         assert.deepEqual(checkAnswer(['Thursday'], 'Tursday', BOTH), { outcome: 'almost', reasons: ['spelling'] });
     });
     test('checkAnswer_ShortAnswerOneOff_AlmostSpelling', () => {
-        assert.deepEqual(checkAnswer(['3rd'], '3nd', BOTH), { outcome: 'almost', reasons: ['spelling'] });
+        assert.deepEqual(checkAnswer(['May'], 'Mey', BOTH), { outcome: 'almost', reasons: ['spelling'] });
+    });
+    test('checkAnswer_WrongOrMissingOrdinalSuffix_WrongNotNearMiss', () => {
+        assert.equal(checkAnswer(['Thursday, February 3rd'], 'Thursday, February 3nd', BOTH).outcome, 'wrong');
+        assert.equal(checkAnswer(['Thursday, February 3rd'], 'Thursday, February 3', BOTH).outcome, 'wrong');
+        assert.equal(checkAnswer(['3rd'], '3nd', BOTH).outcome, 'wrong');
+        assert.equal(checkAnswer(['Thursday, February 3rd'], 'Thursday, Febuary 3rd', BOTH).outcome, 'almost');
+    });
+    test('checkAnswer_CommaWithoutSpace_Right', () => {
+        assert.equal(checkAnswer(['Wednesday, April 12th'], 'Wednesday,April 12th', BOTH).outcome, 'right');
     });
     test('checkAnswer_StrictSpelling_NoNearMiss', () => {
         assert.equal(checkAnswer(['3rd'], '3nd', { case: true, punct: false, spelling: true }).outcome, 'wrong');

@@ -155,6 +155,15 @@ describe('nextStep', () => {
         const far = play(state, { total: 6, only, exam: '2026-12-25' }).steps.filter(s => s.record);
         assert.deepEqual(far, []);
     });
+    test('nextStep_ExamSoon_SlotBeforeTheLastConfirmsAnItemKnownOnAnotherDay', () => {
+        const state = empty();
+        state.learn.cards[id('days', 'monday')] = known('spell', ['2026-11-10']);
+        state.srs.cards[id('days', 'monday')] = { box: 2, due: '2026-11-12', seen: 1, lapses: 0 };
+        const { steps } = play(state, { total: 8 });
+        assert.deepEqual([steps[6].card.item.id, steps[6].level, steps[6].record], ['monday', 3, true]);
+        const far = play(state, { total: 8, exam: null }).steps;
+        assert.notEqual(far[6].card.item.id, 'monday');
+    });
     test('nextStep_AllMastered_OnlyUnrecordedReplaysNeverThrows', () => {
         const state = empty();
         const only = cards.filter(c => c.deckId === 'what-day-is-it-days');
@@ -211,6 +220,19 @@ describe('applyStep', () => {
         const out = applyStep({ ...s, step: step(3), result: 'right', ms: 60000, typed: '', today: TODAY });
         assert.deepEqual(out.srs.cards[id('days', 'monday')], { box: 2, due: '2026-11-13', seen: 1, lapses: 0 });
         assert.equal(out.learning, false);
+    });
+    test('applyStep_RightOnLookCoverWriteAtTop_NoLeitnerStateAndStillLearning', () => {
+        const s = empty();
+        s.learn.cards[id('days', 'monday')] = { ...initial('spell'), lvl: 3, miss: 1, alt: true };
+        const out = applyStep({ ...s, step: step(3, 'cover'), result: 'right', ms: 60000, typed: '', today: TODAY });
+        assert.equal(out.srs.cards[id('days', 'monday')], undefined);
+        assert.equal(out.learning, true);
+    });
+    test('applyStep_GrammarCard_DoesNotSpendTheDailyNewItemBudget', () => {
+        const card = cards.find(c => c.kind === 'grammar');
+        const out = applyStep({ ...empty(), step: { card, level: null, format: null, record: true }, result: 'right', ms: 1, typed: '', today: TODAY });
+        assert.equal(out.srs.cards[card.id].box, 2);
+        assert.deepEqual(out.srs.introduced, {});
     });
     test('applyStep_RightAtTopNotDue_BoxUnchangedButDayCounted', () => {
         const s = empty();

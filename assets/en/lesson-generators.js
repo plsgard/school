@@ -85,7 +85,9 @@ export function generateLesson(card, { format, cards, rng = Math.random, now = n
         type: format, cardId: card.id, kind,
         cue: format === 'hear' ? null : item.cue,
         hint: card.deck.consigne ?? '',
-        consigne: format === 'type' && card.deck.consigne ? card.deck.consigne : CONSIGNES[format],
+        consigne: format === 'type' && card.deck.consigne ? card.deck.consigne
+            : format === 'fill' ? (kind === 'write' ? 'Complète, et écris la phrase en entier.' : 'Complète, et écris le mot en entier.')
+            : CONSIGNES[format],
         accepted: item.en, model,
         strict: strictFor(kind, item),
         confusables: others,

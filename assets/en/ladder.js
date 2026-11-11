@@ -13,6 +13,9 @@ export const FORMATS = {
 export const FAST_MS = { 1: 4000, 2: 9000, 3: 12000 };
 // A format is preferred over the table's order only once both have this many answers.
 const MIN_SAMPLES = 8;
+// Formats that show the answer first: a success there proves nothing about writing from memory. They only come
+// after a miss, never first, and never count as climbing, as known or as mastered.
+export const SUPPORT_FORMATS = ['cover'];
 
 export const startLevel = (kind) => (kind === 'write' ? 2 : 1);
 // Dictation needs an English voice on the device.
@@ -30,7 +33,7 @@ export function pickFormat(kind, state, formatStats = {}) {
     const [a, b] = formats;
     const sa = formatStats[a], sb = formatStats[b];
     const enough = (sa?.n ?? 0) >= MIN_SAMPLES && (sb?.n ?? 0) >= MIN_SAMPLES;
-    const first = enough && sb.ok / sb.n > sa.ok / sa.n ? b : a;
+    const first = enough && !SUPPORT_FORMATS.includes(b) && sb.ok / sb.n > sa.ok / sa.n ? b : a;
     return state.alt ? (first === a ? b : a) : first;
 }
 
@@ -44,12 +47,18 @@ export function applyAnswer(learn, cardId, kind, { result, ms, format, typed, to
         const s = formats[prev.fmt] ?? { n: 0, ok: 0 };
         formats[prev.fmt] = { n: s.n + 1, ok: s.ok + (result === 'right' ? 1 : 0) };
     }
-    if (result === 'right') {
+    if (result === 'right' && SUPPORT_FORMATS.includes(format)) {
+        // Right after seeing the answer: back to the plain format next time; the pending miss still stands, so a
+        // second miss there goes down a level.
+        next.alt = false;
+    } else if (result === 'right') {
         next.passed = Math.max(prev.passed ?? 0, lvl);
         next.miss = 0;
         next.alt = false;
         if (lvl >= top) { if (!next.topDays.includes(today)) next.topDays.push(today); }
         else next.lvl = Math.min(top, lvl + (ms < (FAST_MS[lvl] ?? 0) ? 2 : 1));
+    } else if (result === 'retry') {
+        next.last = typed || prev.last || null;
     } else if (result === 'miss') {
         next.last = typed || prev.last || null;
         if (lvl >= top && next.topDays.length > 0) { next.lvl = Math.max(startLevel(kind), top - 1); next.miss = 0; next.alt = false; }

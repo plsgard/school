@@ -6,6 +6,7 @@ const PUNCT = /[,.!?]/g;
 export const tidy = (s) => String(s ?? '').replace(/[’‘]/g, "'").replace(/\s+/g, ' ').trim();
 // Punctuation dropped, then spaces tidied again ("Monday , May" and "Monday, May" are the same miss).
 const noPunct = (s) => tidy(s.replace(PUNCT, ' '));
+const ordinals = (s) => (s.match(/\d+(st|nd|rd|th)\b/gi) ?? []).join(' ').toLowerCase();
 const glued = (s) => s.replace(/\s+([,.!?])/g, '$1');
 
 export function strictFor(kind, item) {
@@ -27,7 +28,8 @@ function distance(a, b) {
 const RANK = { right: 2, almost: 1, wrong: 0 };
 
 function checkOne(model, typed, strict) {
-    const m = tidy(model), t = tidy(typed);
+    // A comma typed without its space ("Monday,May 3rd") is the comma he was asked for.
+    const m = tidy(model), t = tidy(String(typed ?? '').replace(/,(?=\S)/g, ', '));
     if (!t) return { outcome: 'wrong', reasons: [] };
     if (m === t) return { outcome: 'right', reasons: [] };
     const loose = (s) => noPunct(s).toLowerCase();
@@ -40,6 +42,8 @@ function checkOne(model, typed, strict) {
     }
     // strict.spelling: no near miss (a suffix lesson: "3nd" is the mistake itself, not a typo of "3rd").
     const max = loose(m).length <= 5 ? 1 : 2;
+    // A wrong or missing ordinal suffix ("3nd", "3") is the lesson's mistake, not a typo.
+    if (ordinals(m) && ordinals(m) !== ordinals(t)) return { outcome: 'wrong', reasons: [] };
     if (!strict.spelling && distance(loose(m), loose(t)) <= max) return { outcome: 'almost', reasons: ['spelling'] };
     return { outcome: 'wrong', reasons: [] };
 }

@@ -73,6 +73,19 @@ describe('applyAnswer', () => {
         l = answer(l, { result: 'retry', format: 'cover' });
         assert.deepEqual(l.formats.cover, { n: 1, ok: 0 });
     });
+    test('applyAnswer_RightOnLookCoverWrite_NeitherClimbsNorCountsAsKnown', () => {
+        const s = answer(withState({ lvl: 3, miss: 1, alt: true }), { result: 'right', format: 'cover' }).cards[ID];
+        assert.deepEqual([s.lvl, s.passed, s.topDays, s.miss, s.alt], [3, 0, [], 1, false]);
+    });
+    test('applyAnswer_MissOnTypeAfterARightCover_DropsALevel', () => {
+        let l = answer(withState({ lvl: 3 }), { result: 'miss', format: 'type' });
+        l = answer(l, { result: 'right', format: 'cover' });
+        l = answer(l, { result: 'miss', format: 'type' });
+        assert.equal(l.cards[ID].lvl, 2);
+    });
+    test('applyAnswer_Retry_KeepsWhatWasTypedFirst', () => {
+        assert.equal(answer(withState({ lvl: 3 }), { result: 'retry', typed: 'thursday' }).cards[ID].last, 'thursday');
+    });
     test('applyAnswer_Input_IsNotMutated', () => {
         const before = withState({ lvl: 2 });
         const copy = structuredClone(before);
@@ -89,6 +102,9 @@ describe('pickFormat', () => {
     });
     test('pickFormat_EnoughSamples_PrefersBetterFormat', () => {
         assert.equal(pickFormat('spell', { lvl: 2 }, { tiles: { n: 8, ok: 7 }, fill: { n: 8, ok: 2 } }), 'tiles');
+    });
+    test('pickFormat_LookCoverWriteBetterStats_StillNeverFirst', () => {
+        assert.equal(pickFormat('spell', { lvl: 3 }, { type: { n: 20, ok: 2 }, cover: { n: 20, ok: 19 } }), 'type');
     });
     test('pickFormat_AltFlag_OtherFormatOrPick2', () => {
         assert.equal(pickFormat('spell', { lvl: 2, alt: true }, {}), 'tiles');

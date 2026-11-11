@@ -6,6 +6,8 @@
 import { LEARN_KINDS, initial, topLevel, levelOf, pickFormat, isMastered, isKnown, applyAnswer } from './ladder.js';
 import { resolveItem } from './today.js';
 import { recordResult } from '../core/progress.js';
+import { record } from '../core/scheduler.js';
+import { SUPPORT_FORMATS } from './ladder.js';
 import { EN_PROFILE } from './rules.js';
 
 const DAY_MS = 864e5;
@@ -77,6 +79,17 @@ export function nextStep({ cards, srs, learn, today, exam = null, hasVoice = tru
     const fresh = newCount < cap
         ? cards.filter(c => ok(c) && (isLearn(c) ? !st(c) && available(c, { cards, learn, now }) : !srs.cards[c.id]))
         : [];
+    // Reviews: what the scheduler says is due; in the last week before the test, also what he can write but has
+    // not confirmed on a second day.
+    const due = (c) => (srs.cards[c.id]?.due ?? '9999') <= today;
+    const confirm = (c) => soon && isLearn(c) && !isMastered(st(c)) && st(c).topDays.at(-1) !== today;
+    const reviews = cards.filter(c => ok(c) && !owedIds.has(c.id) && (isLearn(c)
+        ? st(c) && !inLearning(st(c), c.kind, top(c)) && (due(c) || confirm(c))
+        : srs.cards[c.id] && due(c)));
+    // The slot before the closing one is kept for confirming, before the test, an item written from memory on
+    // another day: learning and new items would otherwise fill every slot until the test.
+    if (index === total - 2) { const c = reviews.find(confirm); if (c) return step(c); }
+
     // Every third slot (after the opening ones) goes to a phrase when one can be played, ahead of what is owed.
     if (index > 2 && index % 3 === 2) {
         const phrase = [...dueOwed, ...learning, ...fresh].find(c => c.kind === 'write');
@@ -86,12 +99,6 @@ export function nextStep({ cards, srs, learn, today, exam = null, hasVoice = tru
     if (learning.length) return step(learning[0]);
     if (fresh.length) return step(fresh[0], { isNew: true });
 
-    // Reviews: what the scheduler says is due; in the last week before the test, also what he can write but has
-    // not confirmed on a second day.
-    const due = (c) => (srs.cards[c.id]?.due ?? '9999') <= today;
-    const reviews = cards.filter(c => ok(c) && !owedIds.has(c.id) && (isLearn(c)
-        ? st(c) && !inLearning(st(c), c.kind, top(c)) && (due(c) || (soon && !isMastered(st(c)) && st(c).topDays.at(-1) !== today))
-        : srs.cards[c.id] && due(c)));
     if (reviews.length) return step(reviews[0]);
 
     const early = owed.slice().sort((a, b) => a.notBefore - b.notBefore).map(o => byId.get(o.cardId)).filter(c => c && ok(c));
@@ -112,13 +119,15 @@ export function applyStep({ learn, srs, step, result, ms, typed, today, hasVoice
     const { card } = step;
     if (!step.record) return { learn, srs, learning: false };
     if (!LEARN_KINDS.includes(card.kind)) {
-        return { learn, srs: recordResult(srs, card.id, result === 'right', today, profile), learning: false };
+        // `record`, not `recordResult`: a lesson session must not spend the daily session's new-item budget.
+        return { learn, srs: record(srs, card.id, result === 'right', today, profile), learning: false };
     }
     const top = topLevel(card.kind, hasVoice);
     const nextLearn = applyAnswer(learn, card.id, card.kind, { result, ms, format: step.format, typed, today, top });
     let nextSrs = srs;
     const known = srs.cards[card.id];
-    if (step.level >= top && result === 'right' && (!known || known.due <= today)) nextSrs = recordResult(srs, card.id, true, today, profile);
+    const fromMemory = !SUPPORT_FORMATS.includes(step.format);
+    if (step.level >= top && fromMemory && result === 'right' && (!known || known.due <= today)) nextSrs = recordResult(srs, card.id, true, today, profile);
     else if (result === 'miss' && known) nextSrs = recordResult(srs, card.id, false, today, profile);
     return { learn: nextLearn, srs: nextSrs, learning: inLearning(nextLearn.cards[card.id], card.kind, top) };
 }

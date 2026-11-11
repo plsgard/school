@@ -218,6 +218,8 @@ File and module names, loader mechanics, thresholds and budgets, exact French co
 - The first lesson has 16 ordinals, not 31, and accepts only the handout's date form.
 - Opening and closing exercises are replays of past successes and are not recorded.
 
+- Look–cover–write shows the answer first: a success there never climbs a level nor counts as known (review finding).
+- A wrong or missing ordinal suffix in a date is wrong, not "presque".
 - While the test is within 7 days, a card he can write but has not yet mastered comes back every day in the lesson
   session (not only when its Leitner box says so).
 

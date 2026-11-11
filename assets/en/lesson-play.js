@@ -136,7 +136,7 @@ function playTiles(ex, ui) {
 async function playTyped(ex, ui) {
     const { el } = ui;
     const input = textInput(ui, 'Ta réponse en anglais');
-    const send = el('button', { type: 'button', class: 'en-cta primary' }, 'Valider');
+    const send = el('button', { type: 'submit', class: 'en-cta primary' }, 'Valider');
     const replay = ex.type === 'hear' ? el('button', { type: 'button', class: 'en-speak', 'aria-label': 'Réécouter', onclick: () => ui.say(ex.say) }, '🔊') : null;
     const form = el('form', { class: 'en-typed', novalidate: true }, input, send);
 
@@ -158,15 +158,16 @@ async function playTyped(ex, ui) {
     const t0 = Date.now();
     let ms = 0;
     let tries = 0;
+    let first = ''; // what he typed first: kept for the parent's report even when the second try is right
     const answer = await new Promise(resolve => {
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             const typed = input.value;
             if (!typed.trim()) return;
-            if (!tries) ms = Date.now() - t0;
+            if (!tries) { ms = Date.now() - t0; first = typed; }
             tries++;
             const r = checkAnswer(ex.accepted, typed, ex.strict, ex.confusables);
-            if (r.outcome === 'right') { resolve({ result: tries === 1 ? 'right' : 'retry', typed: '' }); return; }
+            if (r.outcome === 'right') { resolve({ result: tries === 1 ? 'right' : 'retry', typed: tries === 1 ? '' : first }); return; }
             if (r.outcome === 'almost' && tries === 1) {
                 ui.feedback.replaceChildren(el('span', {}, almostMessage(r.reasons)));
                 input.focus({ preventScroll: true });

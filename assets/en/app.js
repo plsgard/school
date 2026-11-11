@@ -16,7 +16,7 @@ import { listen, abortListening, recognitionSupported, FATAL_ERRORS, micLogEntry
 import { nextCard, enSettings, localDay, streak, EN_PROFILE } from './rules.js';
 import { mountParent } from './parent.js';
 import { LEARN_KINDS, FORMATS, topLevel, isKnown, isMastered } from './ladder.js';
-import { nextStep, afterAnswer, applyStep } from './lesson-session.js';
+import { nextStep, afterAnswer, applyStep, inLearning } from './lesson-session.js';
 import { generateLesson } from './lesson-generators.js';
 import { playLesson } from './lesson-play.js';
 import { resolveItem } from './today.js';
@@ -371,8 +371,13 @@ async function runSession() {
     const t0 = Date.now();
     show('exercise');
     for (let i = 0; i < n && running; i++) {
-        // A lesson's written items join the daily session only once learnt (they then have a Leitner state).
-        const card = nextCard({ srs, cards: cards.filter(c => !isLearn(c) || srs.cards[c.id]), played, today: day });
+        // A lesson's cards join the daily session only once met in a lesson session (they then have a Leitner
+        // state), and a written item only while it is not back on the ladder: new lesson items never take the
+        // place of the other decks' new cards.
+        const ladder = loadLearn(sessionProfileId, TRACK);
+        const daily = cards.filter(c => !c.deck.lesson || (srs.cards[c.id]
+            && !(isLearn(c) && inLearning(ladder.cards[c.id], c.kind, topLevel(c.kind, hasVoice())))));
+        const card = nextCard({ srs, cards: daily, played, today: day });
         if (!card) break;
         played.add(card.id);
         $('counter').textContent = `${i + 1} / ${n}`;

@@ -43,7 +43,7 @@
       "id": "suffix",
       "kind": "spell",
       "label": "1st, 2nd, 3rd…",
-      "consigne": "Écris le nombre ordinal en chiffres (1st, 2nd…).",
+      "consigne": "Écris le nombre ordinal en chiffres (4th, 5th…).",
       "strict": { "spelling": true },
       "items": [
         { "id": "n1", "cue": "1", "en": ["1st"], "slips": ["1nd", "1rd", "1th"] },
@@ -113,7 +113,7 @@
         { "id": "today-is", "en": ["Today is Tuesday, November 10th."], "gap": "Today ___ Tuesday, November 10th.", "answer": "is", "options": ["is", "are", "has"] },
         { "id": "days-in-a-week", "en": ["There are 7 days in a week."], "gap": "There are 7 days in a ___.", "answer": "week", "options": ["week", "month", "year"] },
         { "id": "months-in-a-year", "en": ["There are 12 months in a year."], "gap": "There are 12 ___ in a year.", "answer": "months", "options": ["months", "days", "weeks"] },
-        { "id": "when-birthday", "en": ["When is your birthday?"], "gap": "___ is your birthday?", "answer": "When", "options": ["When", "What", "Who"] },
+        { "id": "when-birthday", "en": ["When is your birthday?"], "gap": "___ is your birthday?", "answer": "When", "options": ["When", "Where", "Who"] },
         { "id": "birthday-on", "en": ["My birthday is on June 10th."], "gap": "My birthday is ___ June 10th.", "answer": "on", "options": ["on", "in", "at"] }
       ]
     },
