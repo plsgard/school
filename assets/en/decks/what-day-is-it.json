@@ -1,0 +1,135 @@
+{
+  "id": "what-day-is-it",
+  "label": "What day is it? · les jours, les mois, la date",
+  "source": "Cahier d'anglais de Louis, photos du 11 novembre 2026 : tableaux Days / Months / nombres ordinaux 1st–31st, encadré « Let's say the date! », phrases modèles et exercice de traduction de dates.",
+  "exam": "2026-11-13",
+  "groups": [
+    {
+      "id": "days",
+      "kind": "spell",
+      "label": "Les jours",
+      "consigne": "Écris ce jour en anglais.",
+      "items": [
+        { "id": "monday", "cue": "lundi", "en": ["Monday"], "slips": ["Munday", "Mondey", "monday"] },
+        { "id": "tuesday", "cue": "mardi", "en": ["Tuesday"], "slips": ["Tuestay", "Thuesday", "Tusday"] },
+        { "id": "wednesday", "cue": "mercredi", "en": ["Wednesday"], "slips": ["Wensday", "Wednsday", "Wenesday"] },
+        { "id": "thursday", "cue": "jeudi", "en": ["Thursday"], "slips": ["Tursday", "Thurday", "Thirsday"] },
+        { "id": "friday", "cue": "vendredi", "en": ["Friday"], "slips": ["Fryday", "Firday", "friday"] },
+        { "id": "saturday", "cue": "samedi", "en": ["Saturday"], "slips": ["Saterday", "Satuday", "Satturday"] },
+        { "id": "sunday", "cue": "dimanche", "en": ["Sunday"], "slips": ["Sonday", "Sundy", "sunday"] }
+      ]
+    },
+    {
+      "id": "months",
+      "kind": "spell",
+      "label": "Les mois",
+      "consigne": "Écris ce mois en anglais.",
+      "items": [
+        { "id": "january", "cue": "janvier", "en": ["January"], "slips": ["Janury", "Januar", "january"] },
+        { "id": "february", "cue": "février", "en": ["February"], "slips": ["Febuary", "Febrary", "Februar"] },
+        { "id": "march", "cue": "mars", "en": ["March"], "slips": ["Mars", "Marsh", "march"] },
+        { "id": "april", "cue": "avril", "en": ["April"], "slips": ["Avril", "Aprill", "april"] },
+        { "id": "may", "cue": "mai", "en": ["May"], "slips": ["Mai", "Mey", "may"] },
+        { "id": "june", "cue": "juin", "en": ["June"], "slips": ["Juin", "Jun", "june"] },
+        { "id": "july", "cue": "juillet", "en": ["July"], "slips": ["Juli", "Julay", "Juillet"] },
+        { "id": "august", "cue": "août", "en": ["August"], "slips": ["Agust", "Augst", "Auguste"] },
+        { "id": "september", "cue": "septembre", "en": ["September"], "slips": ["Septembre", "Setember", "september"] },
+        { "id": "october", "cue": "octobre", "en": ["October"], "slips": ["Octobre", "Ocotber", "october"] },
+        { "id": "november", "cue": "novembre", "en": ["November"], "slips": ["Novembre", "Novenber", "november"] },
+        { "id": "december", "cue": "décembre", "en": ["December"], "slips": ["Décembre", "Desember", "december"] }
+      ]
+    },
+    {
+      "id": "suffix",
+      "kind": "spell",
+      "label": "1st, 2nd, 3rd…",
+      "consigne": "Écris le nombre ordinal en chiffres (1st, 2nd…).",
+      "strict": { "spelling": true },
+      "items": [
+        { "id": "n1", "cue": "1", "en": ["1st"], "slips": ["1nd", "1rd", "1th"] },
+        { "id": "n2", "cue": "2", "en": ["2nd"], "slips": ["2st", "2rd", "2th"] },
+        { "id": "n3", "cue": "3", "en": ["3rd"], "slips": ["3nd", "3st", "3th"] },
+        { "id": "n11", "cue": "11", "en": ["11th"], "slips": ["11st", "11nd", "11rd"] },
+        { "id": "n12", "cue": "12", "en": ["12th"], "slips": ["12nd", "12st", "12rd"] },
+        { "id": "n13", "cue": "13", "en": ["13th"], "slips": ["13rd", "13st", "13nd"] },
+        { "id": "n21", "cue": "21", "en": ["21st"], "slips": ["21th", "21nd", "21rd"] },
+        { "id": "n22", "cue": "22", "en": ["22nd"], "slips": ["22th", "22st", "22rd"] }
+      ]
+    },
+    {
+      "id": "ordinals",
+      "kind": "spell",
+      "label": "The first, the second…",
+      "consigne": "Écris-le en toutes lettres (the …).",
+      "strict": { "case": false },
+      "items": [
+        { "id": "o1", "cue": "1st", "en": ["the first", "first"], "slips": ["the oneth", "the firt", "the frist"] },
+        { "id": "o2", "cue": "2nd", "en": ["the second", "second"], "slips": ["the secund", "the twoth", "the segond"] },
+        { "id": "o3", "cue": "3rd", "en": ["the third", "third"], "slips": ["the thrid", "the threeth", "the thirth"] },
+        { "id": "o4", "cue": "4th", "en": ["the fourth", "fourth"], "slips": ["the forth", "the fourt", "the fouth"] },
+        { "id": "o5", "cue": "5th", "en": ["the fifth", "fifth"], "slips": ["the fiveth", "the fith", "the fivth"] },
+        { "id": "o8", "cue": "8th", "en": ["the eighth", "eighth"], "slips": ["the eightth", "the eigth", "the eith"] },
+        { "id": "o9", "cue": "9th", "en": ["the ninth", "ninth"], "slips": ["the nineth", "the nint", "the ninthe"] },
+        { "id": "o11", "cue": "11th", "en": ["the eleventh", "eleventh"], "slips": ["the elevent", "the oneteenth", "the elleventh"] },
+        { "id": "o12", "cue": "12th", "en": ["the twelfth", "twelfth"], "slips": ["the twelveth", "the twelfh", "the twelth"] },
+        { "id": "o13", "cue": "13th", "en": ["the thirteenth", "thirteenth"], "slips": ["the thirtenth", "the threeteenth", "the thirteen"] },
+        { "id": "o20", "cue": "20th", "en": ["the twentieth", "twentieth"], "slips": ["the twentyth", "the twentith", "the twenteeth"] },
+        { "id": "o21", "cue": "21st", "en": ["the twenty-first", "twenty-first", "the twenty first"], "slips": ["the twenty-oneth", "the twentieth-first", "the twenty-firt"] },
+        { "id": "o22", "cue": "22nd", "en": ["the twenty-second", "twenty-second", "the twenty second"], "slips": ["the twenty-twoth", "the twenty-secund", "the twentieth-second"] },
+        { "id": "o23", "cue": "23rd", "en": ["the twenty-third", "twenty-third", "the twenty third"], "slips": ["the twenty-threeth", "the twenty-thrid", "the twentieth-third"] },
+        { "id": "o30", "cue": "30th", "en": ["the thirtieth", "thirtieth"], "slips": ["the thirtyth", "the thirtith", "the thirteeth"] },
+        { "id": "o31", "cue": "31st", "en": ["the thirty-first", "thirty-first", "the thirty first"], "slips": ["the thirty-oneth", "the thirtieth-first", "the thirty-firt"] }
+      ]
+    },
+    {
+      "id": "dates",
+      "kind": "write",
+      "label": "Écrire la date",
+      "consigne": "Écris la date en anglais.",
+      "items": [
+        { "id": "mon-sep-7", "cue": "Lundi 7 septembre", "en": ["Monday, September 7th"], "hear": "Monday, September the seventh" },
+        { "id": "tue-nov-10", "cue": "Mardi 10 novembre", "en": ["Tuesday, November 10th"], "hear": "Tuesday, November the tenth" },
+        { "id": "wed-apr-12", "cue": "Mercredi 12 avril", "en": ["Wednesday, April 12th"], "hear": "Wednesday, April the twelfth" },
+        { "id": "sun-jul-21", "cue": "Dimanche 21 juillet", "en": ["Sunday, July 21st"], "hear": "Sunday, July the twenty-first" },
+        { "id": "thu-feb-3", "cue": "Jeudi 3 février", "en": ["Thursday, February 3rd"], "hear": "Thursday, February the third" },
+        { "id": "fri-jan-1", "cue": "Vendredi 1er janvier", "en": ["Friday, January 1st"], "hear": "Friday, January the first" },
+        { "id": "sat-mar-2", "cue": "Samedi 2 mars", "en": ["Saturday, March 2nd"], "hear": "Saturday, March the second" },
+        { "id": "mon-may-22", "cue": "Lundi 22 mai", "en": ["Monday, May 22nd"], "hear": "Monday, May the twenty-second" },
+        { "id": "tue-oct-31", "cue": "Mardi 31 octobre", "en": ["Tuesday, October 31st"], "hear": "Tuesday, October the thirty-first" },
+        { "id": "fri-nov-13", "cue": "Vendredi 13 novembre", "en": ["Friday, November 13th"], "hear": "Friday, November the thirteenth" },
+        { "id": "sat-dec-25", "cue": "Samedi 25 décembre", "en": ["Saturday, December 25th"], "hear": "Saturday, December the twenty-fifth" },
+        { "id": "sun-aug-30", "cue": "Dimanche 30 août", "en": ["Sunday, August 30th"], "hear": "Sunday, August the thirtieth" },
+        { "id": "thu-jun-5", "cue": "Jeudi 5 juin", "en": ["Thursday, June 5th"], "hear": "Thursday, June the fifth" },
+        { "id": "wed-apr-23", "cue": "Mercredi 23 avril", "en": ["Wednesday, April 23rd"], "hear": "Wednesday, April the twenty-third" },
+        { "id": "wed-feb-20", "cue": "Mercredi 20 février", "en": ["Wednesday, February 20th"], "hear": "Wednesday, February the twentieth" }
+      ]
+    },
+    {
+      "id": "sentences",
+      "kind": "grammar",
+      "label": "Les phrases de la leçon",
+      "items": [
+        { "id": "what-day", "en": ["What day is it today?"], "gap": "___ day is it today?", "answer": "What", "options": ["What", "When", "Who"] },
+        { "id": "today-is", "en": ["Today is Tuesday, November 10th."], "gap": "Today ___ Tuesday, November 10th.", "answer": "is", "options": ["is", "are", "has"] },
+        { "id": "days-in-a-week", "en": ["There are 7 days in a week."], "gap": "There are 7 days in a ___.", "answer": "week", "options": ["week", "month", "year"] },
+        { "id": "months-in-a-year", "en": ["There are 12 months in a year."], "gap": "There are 12 ___ in a year.", "answer": "months", "options": ["months", "days", "weeks"] },
+        { "id": "when-birthday", "en": ["When is your birthday?"], "gap": "___ is your birthday?", "answer": "When", "options": ["When", "What", "Who"] },
+        { "id": "birthday-on", "en": ["My birthday is on June 10th."], "gap": "My birthday is ___ June 10th.", "answer": "on", "options": ["on", "in", "at"] }
+      ]
+    },
+    {
+      "id": "phrases",
+      "kind": "write",
+      "label": "Écrire les phrases",
+      "consigne": "Écris la phrase en anglais.",
+      "items": [
+        { "id": "today", "dynamic": "today", "cue": "What day is it today?" },
+        { "id": "what-day", "cue": "Quel jour sommes-nous aujourd’hui ?", "en": ["What day is it today?"] },
+        { "id": "when-birthday", "cue": "Quand est ton anniversaire ?", "en": ["When is your birthday?"] },
+        { "id": "birthday-on", "cue": "Mon anniversaire est le 10 juin.", "en": ["My birthday is on June 10th."], "hear": "My birthday is on June the tenth." },
+        { "id": "days-in-a-week", "cue": "Il y a 7 jours dans une semaine.", "en": ["There are 7 days in a week.", "There are seven days in a week."] },
+        { "id": "months-in-a-year", "cue": "Il y a 12 mois dans une année.", "en": ["There are 12 months in a year.", "There are twelve months in a year."] }
+      ]
+    }
+  ]
+}

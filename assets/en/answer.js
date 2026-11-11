@@ -38,8 +38,9 @@ function checkOne(model, typed, strict) {
         if (strict.punct && glued(m).toLowerCase() !== glued(t).toLowerCase()) reasons.push('punct');
         return reasons.length ? { outcome: 'almost', reasons } : { outcome: 'right', reasons: [] };
     }
+    // strict.spelling: no near miss (a suffix lesson: "3nd" is the mistake itself, not a typo of "3rd").
     const max = loose(m).length <= 5 ? 1 : 2;
-    if (distance(loose(m), loose(t)) <= max) return { outcome: 'almost', reasons: ['spelling'] };
+    if (!strict.spelling && distance(loose(m), loose(t)) <= max) return { outcome: 'almost', reasons: ['spelling'] };
     return { outcome: 'wrong', reasons: [] };
 }
 

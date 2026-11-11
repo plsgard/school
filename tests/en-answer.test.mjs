@@ -32,6 +32,9 @@ describe('checkAnswer', () => {
     test('checkAnswer_ShortAnswerOneOff_AlmostSpelling', () => {
         assert.deepEqual(checkAnswer(['3rd'], '3nd', BOTH), { outcome: 'almost', reasons: ['spelling'] });
     });
+    test('checkAnswer_StrictSpelling_NoNearMiss', () => {
+        assert.equal(checkAnswer(['3rd'], '3nd', { case: true, punct: false, spelling: true }).outcome, 'wrong');
+    });
     test('checkAnswer_ShortAnswerTwoOff_Wrong', () => {
         assert.equal(checkAnswer(['May'], 'Mai5', BOTH).outcome, 'wrong');
     });
