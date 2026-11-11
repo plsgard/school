@@ -1,7 +1,9 @@
 // assets/en/app.js
 // English track page (6e): home → session (listen-pick, say-it) → done, parent corner behind ⚙️ (long-press).
+// A lesson made from photos of the notebook has its own session ("Réviser cette leçon"): written exercises on a
+// ladder (ladder.js), composed by lesson-session.js. The daily session only reviews what was learnt there.
 // UI copy is French (he reads); spoken audio is English only (device en-GB voice).
-import { getActiveProfileId, setActiveProfileId, loadProfiles, loadSettings, saveSettings, loadSrs, saveSrs, loadSessions, appendSession } from '../storage.js';
+import { getActiveProfileId, setActiveProfileId, loadProfiles, loadSettings, saveSettings, loadSrs, saveSrs, loadLearn, saveLearn, loadSessions, appendSession } from '../storage.js';
 import { recordResult } from '../core/progress.js';
 import { createSpeech, createDeviceSource, SILENT_SOURCE } from '../core/speech.js';
 import { celebrate } from '../celebration.js';
@@ -13,6 +15,11 @@ import { scoreSpeech } from './pronounce.js';
 import { listen, abortListening, recognitionSupported, FATAL_ERRORS, micLogEntry, MIC_LOG_SIZE } from './listen.js';
 import { nextCard, enSettings, localDay, streak, EN_PROFILE } from './rules.js';
 import { mountParent } from './parent.js';
+import { LEARN_KINDS, FORMATS, topLevel, isKnown, isMastered } from './ladder.js';
+import { nextStep, afterAnswer, applyStep } from './lesson-session.js';
+import { generateLesson } from './lesson-generators.js';
+import { playLesson } from './lesson-play.js';
+import { resolveItem } from './today.js';
 
 const NBSP = ' ';
 const TRACK = 'en';
@@ -50,11 +57,17 @@ const opts = () => enSettings(settings); // read on use: the parent corner chang
 
 const decks = await loadDecks();
 const cards = expandCards(decks);
+// Lessons made from photos: their decks carry `lesson`; the others are the stand-alone decks.
+const lessons = [...new Map(decks.filter(d => d.lesson).map(d => [d.lesson.id, d.lesson])).values()];
+const isLearn = (c) => LEARN_KINDS.includes(c.kind);
 
 const device = createDeviceSource({ lang: 'en', locale: 'en-GB', preferredVoice: opts().enVoice,
     preferred: ['Daniel', 'Serena', 'Kate', 'Oliver', 'Arthur', 'Martha', 'Stephanie', 'Jamie', 'Google UK English'] });
 const speech = createSpeech({ sources: [device, SILENT_SOURCE], order: ['device', 'silent'] });
 const say = (text) => speech.speak({ text });
+// Dictation (the top level of a phrase) needs an English voice on this device.
+const hasVoice = () => device.listVoices().length > 0;
+const lessonUi = () => ({ stage: $('stage'), feedback: $('feedback'), say, el, sleep });
 
 // Recognition is used only when the parent allows it and the browser has it; a refused mic switches the
 // rest of the session to self-judging.
@@ -75,7 +88,8 @@ function renderHome() {
     $('micWarn').hidden = !warn;
     $('micWarn').textContent = '🎤 Ici, le micro ne peut pas vérifier ta prononciation (ouvre la page dans Safari, pas depuis l’écran d’accueil). Tu diras les mots à voix haute et tu t’évalueras toi-même.';
     const srs = loadSrs(profileId, TRACK);
-    $('decks').replaceChildren(...decks.map(d => {
+    const learn = loadLearn(profileId, TRACK);
+    $('decks').replaceChildren(...lessons.map(l => lessonCard(l, learn)), ...decks.filter(d => !d.lesson).map(d => {
         const ids = cards.filter(c => c.deckId === d.id).map(c => c.id);
         const known = ids.filter(id => srs.cards[id]);
         const filled = ids.length ? Math.round(5 * known.reduce((a, id) => a + (srs.cards[id].box - 1) / 4, 0) / ids.length) : 0;
@@ -84,6 +98,30 @@ function renderHome() {
             el('div', { class: 'en-note' }, `${d.items.length}${NBSP}${UNITS[d.kind] ?? 'mots'} · ${known.length ? `${known.length}/${ids.length} cartes vues` : 'pas encore commencé'}`),
             el('div', { class: 'en-boxes', 'aria-hidden': 'true' }, ...[0, 1, 2, 3, 4].map(i => el('span', { class: i < filled ? 'full' : '' }))));
     }));
+}
+
+function examLine(exam) {
+    if (!exam) return null;
+    const days = Math.round((Date.parse(`${exam}T00:00:00Z`) - Date.parse(`${today()}T00:00:00Z`)) / 864e5);
+    if (days < 0) return null;
+    return days === 0 ? `Contrôle aujourd’hui${NBSP}!` : days === 1 ? `Contrôle demain${NBSP}!` : `Contrôle dans ${days}${NBSP}jours`;
+}
+
+// One card per lesson: what he can already write from memory, the test countdown and the lesson's own session.
+function lessonCard(lesson, learn) {
+    const items = cards.filter(c => c.deck.lesson?.id === lesson.id && isLearn(c));
+    const known = items.filter(c => isKnown(learn.cards[c.id])).length;
+    const mastered = items.filter(c => isMastered(learn.cards[c.id])).length;
+    const filled = items.length ? Math.round((5 * known) / items.length) : 0;
+    const exam = examLine(lesson.exam);
+    return el('div', { class: 'en-deck en-lesson' },
+        el('b', {}, lesson.label),
+        exam ? el('div', { class: 'en-exam' }, `📅 ${exam}`) : null,
+        el('div', { class: 'en-note' }, known
+            ? `${known}/${items.length} écrits de mémoire${mastered ? ` · ${mastered} acquis` : ''}`
+            : `${items.length}${NBSP}mots et phrases · pas encore commencé`),
+        el('div', { class: 'en-boxes', 'aria-hidden': 'true' }, ...[0, 1, 2, 3, 4].map(i => el('span', { class: i < filled ? 'full' : '' }))),
+        el('button', { type: 'button', class: 'en-cta primary en-lesson-play', onclick: () => start(lesson.id) }, '▶ Réviser cette leçon'));
 }
 
 // The last in-session listens, for the parent corner (what the iPad really returned during exercises).
@@ -275,6 +313,53 @@ async function playSayIt(ex) {
 
 let running = false;
 
+const playExisting = (ex) => (ex.type === 'listen-pick' ? playListenPick(ex) : ex.type === 'gap-pick' ? playGapPick(ex) : playSayIt(ex));
+
+// "Réviser cette leçon": the lesson's own session (lesson-session.js decides each exercise).
+async function runLessonSession(lessonId) {
+    running = true;
+    const sessionProfileId = profileId;
+    const lesson = lessons.find(l => l.id === lessonId);
+    const lessonCards = cards.filter(c => c.deck.lesson?.id === lessonId);
+    const total = opts().enItems;
+    const day = today();
+    const voice = hasVoice();
+    let srs = loadSrs(sessionProfileId, TRACK);
+    let learn = loadLearn(sessionProfileId, TRACK);
+    let owed = [];
+    let newCount = 0;
+    const history = [];
+    const items = [];
+    const t0 = Date.now();
+    show('exercise');
+    for (let index = 0; index < total && running; index++) {
+        const step = nextStep({ cards: lessonCards, srs, learn, today: day, exam: lesson.exam, hasVoice: voice, history, owed, index, total, newCount });
+        if (!step) break;
+        if (step.isNew) newCount++;
+        const { card } = step;
+        const ex = isLearn(card) ? generateLesson(card, { format: step.format, cards }) : generate(card, { cards });
+        $('counter').textContent = `${index + 1} / ${total}`;
+        $('progress').style.width = `${(100 * index) / total}%`;
+        $('consigne').textContent = ex.consigne;
+        $('feedback').replaceChildren();
+        let answer;
+        if (isLearn(card)) answer = await playLesson(ex, lessonUi());
+        else { const r = await playExisting(ex); answer = { result: r.correctFirstTry ? 'right' : 'miss', ms: r.ms, typed: '' }; }
+        if (!running) return;
+        history.push({ cardId: card.id, recorded: step.record });
+        items.push({ cardId: card.id, type: ex.type, correctFirstTry: answer.result === 'right', result: answer.result, attempts: 1, ms: answer.ms, typed: answer.typed, recorded: step.record });
+        if (!step.record) continue;
+        const out = applyStep({ learn, srs, step, ...answer, today: day, hasVoice: voice });
+        ({ learn, srs } = out);
+        owed = afterAnswer({ owed, cardId: card.id, index, learning: out.learning });
+        persist(() => { saveLearn(sessionProfileId, TRACK, learn); saveSrs(sessionProfileId, TRACK, srs); });
+    }
+    running = false;
+    if (!items.length) { show('home'); renderHome(); return; }
+    persist(() => appendSession(sessionProfileId, TRACK, { date: new Date().toISOString(), items, durationMs: Date.now() - t0, lesson: lessonId }));
+    renderDone(items);
+}
+
 async function runSession() {
     running = true;
     const sessionProfileId = profileId;
@@ -286,16 +371,30 @@ async function runSession() {
     const t0 = Date.now();
     show('exercise');
     for (let i = 0; i < n && running; i++) {
-        const card = nextCard({ srs, cards, played, today: day });
+        // A lesson's written items join the daily session only once learnt (they then have a Leitner state).
+        const card = nextCard({ srs, cards: cards.filter(c => !isLearn(c) || srs.cards[c.id]), played, today: day });
         if (!card) break;
         played.add(card.id);
-        const ex = generate(card, { cards });
         $('counter').textContent = `${i + 1} / ${n}`;
         $('progress').style.width = `${(100 * i) / n}%`;
-        $('consigne').textContent = ex.consigne;
         $('feedback').replaceChildren();
-        const result = ex.type === 'listen-pick' ? await playListenPick(ex)
-            : ex.type === 'gap-pick' ? await playGapPick(ex) : await playSayIt(ex);
+        if (isLearn(card)) {
+            // Reviewed in its top-level format; the ladder state follows (a miss sends it back to the lesson session).
+            const level = topLevel(card.kind, hasVoice());
+            const step = { card, level, format: FORMATS[card.kind][level][0], record: true };
+            const ex = generateLesson(card, { format: step.format, cards });
+            $('consigne').textContent = ex.consigne;
+            const answer = await playLesson(ex, lessonUi());
+            if (!running) return;
+            const out = applyStep({ learn: loadLearn(sessionProfileId, TRACK), srs, step, ...answer, today: day, hasVoice: hasVoice() });
+            srs = out.srs;
+            items.push({ cardId: card.id, type: ex.type, correctFirstTry: answer.result === 'right', result: answer.result, attempts: 1, ms: answer.ms, typed: answer.typed });
+            persist(() => { saveLearn(sessionProfileId, TRACK, out.learn); saveSrs(sessionProfileId, TRACK, srs); });
+            continue;
+        }
+        const ex = generate(card, { cards });
+        $('consigne').textContent = ex.consigne;
+        const result = await playExisting(ex);
         if (!running) return;
         items.push({ cardId: card.id, type: ex.type, ...result });
         srs = recordResult(srs, card.id, result.correctFirstTry, day, EN_PROFILE);
@@ -314,27 +413,32 @@ function renderDone(items) {
     $('doneTitle').textContent = name ? `Well done, ${name}!` : 'Well done!';
     const s = streak(loadSessions(profileId, TRACK), today());
     $('doneScore').textContent = `${right}${NBSP}/ ${items.length} du premier coup${s >= 2 ? ` · 🔥 ${s}${NBSP}jours d’affilée` : ''}`;
-    const misses = [...new Map(items.filter(x => !x.correctFirstTry).map(x => {
+    // A lesson item put right on the second try ("presque") is not a miss.
+    const misses = [...new Map(items.filter(x => (x.result ? x.result === 'miss' : !x.correctFirstTry)).map(x => {
         const c = cards.find(k => k.id === x.cardId);
-        return [`${c.deckId}/${c.item.id}`, c.item];
+        return [`${c.deckId}/${c.item.id}`, resolveItem(c.item)];
     })).values()];
     $('rework').replaceChildren(...(misses.length ? [
         el('h2', { class: 'h5' }, 'À retravailler'),
-        el('ul', { class: 'en-done-list' }, ...misses.map(it => el('li', {}, el('span', {}, it.fr ?? ''), el('b', { lang: 'en' }, it.en[0])))),
+        el('ul', { class: 'en-done-list' }, ...misses.map(it => el('li', {}, el('span', {}, it.fr ?? it.cue ?? ''), el('b', { lang: 'en' }, it.en[0])))),
     ] : [el('p', { class: 'en-note' }, 'Tout juste du premier coup !')]));
     if (right === items.length) celebrate({ duration: 3000, pieces: 80 });
     say(right === items.length ? 'Perfect! Well done!' : 'Well done!');
 }
 
-function start() {
+// lessonId: a lesson session; none: the daily session. "Encore une séance" repeats the kind just played.
+let lastLesson = null;
+function start(lessonId = null) {
+    if (running) return;
+    lastLesson = lessonId;
     $('play').disabled = true;
     // iOS: the first utterance must start inside the tap.
     try { globalThis.speechSynthesis?.speak(new SpeechSynthesisUtterance('')); } catch { /* ignore */ }
-    runSession().catch(err => { console.error(err); running = false; show('home'); renderHome(); })
+    (lessonId ? runLessonSession(lessonId) : runSession()).catch(err => { console.error(err); running = false; show('home'); renderHome(); })
         .finally(() => { $('play').disabled = false; });
 }
-$('play').addEventListener('click', start);
-$('again').addEventListener('click', start);
+$('play').addEventListener('click', () => start());
+$('again').addEventListener('click', () => start(lastLesson));
 
 // 🏠 quits on a 0.8 s hold or two taps within 2 s.
 function quit() { running = false; abortListening(); speech.stop(); location.href = 'en.html'; }

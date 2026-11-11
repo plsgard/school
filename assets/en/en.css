@@ -54,6 +54,23 @@ body.en { background: #f3f6fb; color: #1d2433; font-size: 18px; }
 .hold-gate { position: relative; overflow: hidden; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
 .hold-gate::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: rgba(255, 183, 3, .55); transform: scale(0); pointer-events: none; }
 .hold-gate.holding::after { transform: scale(1); transition: transform var(--hold-ms, 1.5s) linear; }
+.en-lesson { border-color: #2457d6; border-width: 2px; display: flex; flex-direction: column; gap: 4px; }
+.en-exam { font-weight: 800; color: #b3261e; }
+.en-lesson-play { font-size: 18px; padding: 10px 14px; margin-top: 8px; }
+.en-typed { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+.en-input { font-size: 24px; font-weight: 700; text-align: center; padding: 12px; border: 2px solid #9aa5ba; border-radius: 14px; }
+.en-input:focus { border-color: #2457d6; box-shadow: 0 0 0 3px rgba(36, 87, 214, .2); }
+.en-input.ko { border-color: #d0433b; animation: en-shake .3s; }
+.en-pattern { font: 800 30px ui-monospace, Menlo, monospace; letter-spacing: .18em; text-align: center; word-break: break-word; }
+.en-cover { text-align: center; font-size: 30px; }
+.en-built { min-height: 64px; border: 2px dashed #9aa5ba; border-radius: 14px; padding: 8px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: center; font-size: 24px; font-weight: 800; }
+.en-prefix { white-space: pre; }
+.en-tiles { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; min-height: 56px; }
+.en-tile { min-width: 48px; min-height: 48px; padding: 6px 12px; border-radius: 12px; border: 2px solid #2457d6; background: #fff; color: #1d2433; font-size: 22px; font-weight: 800; touch-action: manipulation; }
+.en-tile.placed { background: #e6edfb; }
+.en-tile:disabled { opacity: .25; }
+.en-feedback mark { background: #ffe08a; padding: 0 2px; border-radius: 4px; }
+.en-feedback .en-typed { max-width: 420px; }
 @keyframes en-pulse { 50% { transform: scale(1.08); box-shadow: 0 0 0 10px rgba(208, 67, 59, .2); } }
 @keyframes en-shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
-@media (prefers-reduced-motion: reduce) { .en-speak.listening, .en-choice.ko { animation: none; } .hold-gate.holding::after { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .en-speak.listening, .en-choice.ko, .en-input.ko { animation: none; } .hold-gate.holding::after { transition: none; } }
