@@ -2,14 +2,16 @@
 // Parent corner of the English track (long-press ⚙️): pronunciation precision, tries, mic mode, cards per session,
 // voice, a mic test showing what the device really hears, Leitner boxes and the words to watch.
 // DOM nodes only: every text goes through textContent.
-import { saveSettings, loadSrs, loadSessions } from '../storage.js';
+import { saveSettings, loadSrs, loadLearn, loadSessions } from '../storage.js';
 import { boxCounts } from '../core/scheduler.js';
 import { enSettings, EN_PROFILE } from './rules.js';
 import { listen, recognitionSupported } from './listen.js';
+import { lessonReport, reportText, LEVELS } from './lesson-report.js';
+import { localDay } from './rules.js';
 
 const NBSP = ' ';
 const WEEK_MS = 7 * 864e5;
-const SKILL_LABELS = { 'listen-pick': 'écouter', 'say-it': 'dire', 'gap-pick': 'compléter', 'line-repeat': 'répéter', 'line-next': 'réciter' };
+const SKILL_LABELS = { write: 'écrire', 'listen-pick': 'écouter', 'say-it': 'dire', 'gap-pick': 'compléter', 'line-repeat': 'répéter', 'line-next': 'réciter' };
 const NOVELTY = /^(Albert|Bad News|Bahh|Bells|Boing|Bubbles|Cellos|Good News|Jester|Junior|Organ|Superstar|Trinoids|Whisper|Wobble|Zarvox|Eddy|Flo|Grandma|Grandpa|Reed|Rocko|Sandy|Shelley)\b/;
 
 function h(tag, attrs = {}, ...children) {
@@ -66,13 +68,40 @@ export function mountParent(root, { profileId, settings, cards, decks, device, s
     const byItem = new Map(cards.map(c => [c.id, c]));
     const watch = Object.entries(srs.cards).filter(([, s]) => s.lapses >= 2)
         .sort(([, a], [, b]) => b.lapses - a.lapses).slice(0, 15)
-        .map(([id, s]) => { const c = byItem.get(id); return c ? `${c.item.en[0]} (${SKILL_LABELS[c.skill] ?? c.skill}) · ${s.lapses}${NBSP}erreurs` : null; })
+        .map(([id, s]) => { const c = byItem.get(id); return c?.item.en ? `${c.item.en[0]} (${SKILL_LABELS[c.skill] ?? c.skill}) · ${s.lapses}${NBSP}erreurs` : null; })
         .filter(Boolean);
     const counts = boxCounts(srs);
+
+    // Lessons made from photos: where he stands on the written ladder, and a text to paste into a Claude session.
+    const learn = loadLearn(profileId, 'en');
+    const hasVoice = device.listVoices().length > 0;
+    const lessons = [...new Map(decks.filter(d => d.lesson).map(d => [d.lesson.id, d.lesson])).values()];
+    const lessonCards = lessons.map(lesson => {
+        const r = lessonReport({ lesson, cards, learn, hasVoice });
+        const copied = h('span', { class: 'en-note', role: 'status' });
+        const out = h('textarea', { class: 'form-control mt-2', rows: 8, readOnly: true, hidden: true });
+        const copy = async () => {
+            const text = reportText(r, localDay(new Date()));
+            out.value = text; out.hidden = false; out.select();
+            try { await navigator.clipboard.writeText(text); copied.textContent = '✅ Copié. Collez-le dans une session Claude.'; }
+            catch { copied.textContent = 'Sélectionnez le texte ci-dessous et copiez-le.'; }
+        };
+        return card(`Leçon${NBSP}: ${r.label}`,
+            h('p', { class: 'm-0' }, `${r.known}/${r.total} écrits de mémoire, dont ${r.mastered} acquis (réussis deux jours différents).`),
+            h('p', { class: 'en-note' }, `Pas encore vus${NBSP}: ${r.byLevel.new} · ${[1, 2, 3, 4].map(l => `${LEVELS[l]}${NBSP}: ${r.byLevel[l]}`).join(' · ')}`),
+            h('h4', { class: 'h6 mt-2' }, 'À surveiller (ce qu’il a écrit en dernier)'),
+            r.watch.length
+                ? h('ul', { class: 'mb-2' }, ...r.watch.slice(0, 20).map(w => h('li', {}, h('b', { lang: 'en' }, w.model), ` ← «${NBSP}${w.typed}${NBSP}» (${LEVELS[w.level]})`)))
+                : h('p', { class: 'en-note' }, 'Rien pour l’instant.'),
+            h('div', { class: 'en-row justify-content-start' },
+                h('button', { type: 'button', class: 'en-small-btn', onclick: copy }, '📋 Copier le bilan'), copied),
+            out);
+    });
 
     root.replaceChildren(
         h('header', { class: 'en-top' }, h('h1', { class: 'h3 m-0' }, 'Coin des parents'),
             h('button', { type: 'button', class: 'en-small-btn', onclick: onBack }, '✔ Fermer')),
+        ...lessonCards,
         card('Prononciation',
             select('Précision demandée', o.precision, [
                 ['indulgent', 'Indulgente\u00a0: l’accent français passe (th → s, h muet), 60 % des mots d’une phrase'],
