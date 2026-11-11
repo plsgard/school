@@ -118,6 +118,16 @@ export function saveSrs(profileId, trackId, srs) {
     writeJSON(`${NS}.srs.${profileId}.${trackId}`, srs);
 }
 
+// Written-ladder state of lesson items (en/ladder.js): { cards: { cardId: { lvl, miss, alt, passed, fmt, last,
+// topDays } }, formats: { format: { n, ok } } }. Kept apart from srs so the shared scheduler never sees it.
+export function loadLearn(profileId, trackId) {
+    return { cards: {}, formats: {}, ...readJSON(`${NS}.learn.${profileId}.${trackId}`, {}) };
+}
+
+export function saveLearn(profileId, trackId, learn) {
+    writeJSON(`${NS}.learn.${profileId}.${trackId}`, learn);
+}
+
 export function loadSessions(profileId, trackId) {
     return readJSON(`${NS}.sessions.${profileId}.${trackId}`, []);
 }

@@ -101,3 +101,14 @@ describe('historyProfileId', () => {
     });
 });
 
+
+describe('learn', () => {
+    test('loadLearn_Empty_DefaultShape', () => {
+        assert.deepEqual(s.loadLearn('louis', 'en'), { cards: {}, formats: {} });
+    });
+    test('saveLearn_ThenLoad_RoundTrips', () => {
+        s.saveLearn('louis', 'en', { cards: { 'a/b#write': { lvl: 2 } }, formats: { fill: { n: 1, ok: 1 } } });
+        assert.equal(s.loadLearn('louis', 'en').cards['a/b#write'].lvl, 2);
+        assert.deepEqual(s.loadLearn('other', 'en').cards, {});
+    });
+});
