@@ -161,6 +161,31 @@ Shipped decks, from his teacher's material: *A Halloween poem* (Pronote audio, t
 - **Voice:** the device's English voice (en-GB preferred). The iPad's default British voice is basic: download a better one in Réglages › Accessibilité › Contenu énoncé › Voix › Anglais (UK) and pick it in the parent corner.
 - **Parent corner** (hold ⚙️): pronunciation precision (Indulgente / Normale / Exigeante), tries before moving on (never blocks: after the last try the model plays and the card comes back sooner), mic mode, cards per session, voice, "🎤 Tester le micro" (shows what the device heard, with alternatives and confidence), Leitner boxes and words to watch.
 
+### Photos → lesson (revise for a test)
+
+For a lesson he must know in writing (a test is coming). Works from a Claude Code session on the laptop or from the Claude app on the iPad / iPhone (a cloud session on this repository).
+
+1. Send the photos of the notebook or handout in the session, say which child and, if known, the date of the test. On the laptop, HEIC photos are converted with `sips -s format jpeg <in> --out <out>` into a scratch folder or `inbox/`. **Photos are never committed.**
+2. Claude answers with what the lesson contains and **the mistakes it sees in the notebook** (a copied word may be wrong). The lesson file holds the correct English; the child's slips only appear as `slips` (look-alike distractors).
+3. Claude writes `assets/en/decks/<id>.json`, adds `<id>` first in `LESSON_FILES` (`assets/en/decks/index.js`), runs `node --test` (`tests/en-lessons.test.mjs` validates every lesson) and pushes to `main`. Asking for the lesson is the go-ahead to push.
+   ```json
+   { "id": "what-day-is-it", "label": "What day is it? · les jours, les mois, la date",
+     "source": "what was photographed", "exam": "2026-11-13",
+     "groups": [
+       { "id": "days", "kind": "spell", "label": "Les jours", "consigne": "Écris ce jour en anglais.",
+         "items": [{ "id": "thursday", "cue": "jeudi", "en": ["Thursday"], "slips": ["Tursday", "Thurday", "Thirsday"] }] },
+       { "id": "dates", "kind": "write", "label": "Écrire la date", "consigne": "Écris la date en anglais.",
+         "items": [{ "id": "wed-apr-12", "cue": "Mercredi 12 avril", "en": ["Wednesday, April 12th"], "hear": "Wednesday, April the twelfth" }] }
+     ] }
+   ```
+   - `kind`: `spell` (a word or short form) or `write` (a phrase or sentence); a group may also be `vocab`, `grammar` or `text` as below (a `grammar` item without `fr` only gets the gap game, no microphone).
+   - `cue`: what is shown (French, a number…). `en`: accepted answers, the model first. `slips`: plausible wrong forms, at least 3 for a `spell` item with those of its group; put the child's real mistakes first. `hear`: what the voice says when it differs from what is written.
+   - `strict` (item or group): `case` and `punct` decide whether a capital or a comma matters (defaults: `write` both, `spell` capitals only); `spelling: true` refuses near misses (a suffix group: "3nd" is the mistake itself).
+   - `"dynamic": "today"`: one item whose answer is today's date.
+   - Item ids are stable: changing one loses the progress on that item. Adding items and slips is free.
+4. He plays **▶ Réviser cette leçon** on the home screen. Each item climbs: pick the right spelling → complete it → write it from memory → write it from audio (phrases). A known item gets there in two answers; a missed one comes back in another format, then one level lower. A missing capital or comma is "Presque !" with one more try.
+5. Parent corner → the lesson's card → **📋 Copier le bilan**: paste that text into a Claude session to get more items on what is still hard.
+
 ### Lesson → deck
 
 1. Put photos of his English pages (cahier, textbook, worksheets) and Pronote exports (screenshots of LearningApps exercises, PDFs, mp3) in `inbox/` at the repo root. `inbox/` is git-excluded: never commit it.

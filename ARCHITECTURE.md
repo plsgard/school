@@ -149,6 +149,7 @@ All keys live under the `school.v1.*` namespace and are read/written only throug
 | `school.v1.history.<profileId>.<quizId>` | `[{ score, totalQuestions, timerDuration, timeLeft, submittedAutomatically, date }]` | Math quizzes. Capped at 5 entries, newest first. Profile = `historyProfileId(profiles, activeId)`: the active profile only when its track is `'en'` (or no profiles exist yet), otherwise `'default'` — a math page opened after picking 🦄 keeps writing the older child's history. |
 | `school.v1.settings.<profileId>` | `{ sessionItems, practiceItems, parentMode, firstName, audio, voice, extraSessionOn?, enItems?, precision?, tries?, mic?, enVoice? }` | Defaults `{ sessionItems: 6, practiceItems: 6, parentMode: null, firstName: '', audio: 'clips', voice: '' }`, merged on read. `practiceItems`: games per practice round, read through `practiceItems(settings)` (`gs/rules.js`), which rounds and clamps it to 6–10. `parentMode: null` = never set by a parent (automatic, see Child UX rules); `true`/`false` = explicit. `audio`: `'clips' \| 'device' \| 'silent'`. `voice`: preferred device voice name. `extraSessionOn`: local day (`YYYY-MM-DD`) on which a parent allowed one more session. `firstName` feeds the greeting and the name-spell card. English track keys (defaults in `assets/en/rules.js` `EN_DEFAULTS`): `enItems` 12 (6–20), `precision` `'indulgent' \| 'normal' \| 'exigeant'`, `tries` 3 (1–5), `mic` `'auto' \| 'self'`, `enVoice` (device voice name), `enMicLog` (the last 5 in-session listens, one line each, shown in the parent corner). CE2 keys (read by `ce2Settings`, `assets/ce2/rules.js`): `ce2Items` 8 (6–10), `ce2Mode` `'guided' \| 'solo'`, `ce2Proof` (default true), `ce2Unlocked` (subset of `[7, 8]`). |
 | `school.v1.srs.<profileId>.<trackId>` | `{ cards: { [cardId]: { box, due, seen, lapses } }, introduced: { [day]: [itemKey] } }` | Leitner state. `cardId = <deckId>/<itemId>#<skill>` (e.g. `letters/a#trace-cap`, `letters/a#trace`, `mots-gs/robot#sound-final`, `numbers/7#trace`, `name/lea#name-spell`); `itemKey = <deckId>/<itemId>`. `due` and the `introduced` keys are local days. One state for both the daily session and practice rounds; `introduced` is the shared daily new-item budget. CE2 (`srs.<id>.ce2`): cards are mastered levels `L<n>`, plus `ladder: { level, streak, misses }`. |
+| `school.v1.learn.<profileId>.<trackId>` | `{ cards: { [cardId]: { lvl, miss, alt, passed, fmt, last, topDays } }, formats: { [format]: { n, ok } } }` | English track only: written-ladder state of lesson items (`assets/en/ladder.js`). `lvl` 1–4, `miss`/`alt` the pending first miss, `passed` the highest level passed first try, `fmt` the last format played, `last` the last wrong answer typed, `topDays` the local days with a first-try success at the top level (2 = mastered). `formats` counts, per exercise format, how often it was followed by a right answer. Kept apart from `srs` so the shared scheduler never sees it. |
 | `school.v1.sessions.<profileId>.<trackId>` | `[{ date, items: [{ cardId, type, correctFirstTry, attempts, ms }], durationMs }]` | **Daily sessions only.** Last 14 completed sessions, newest first. `date` is an ISO timestamp; the pattern filler game stores `cardId: null`. Drives the daily cap and the parent corner's daily week line. |
 | `school.v1.practice.<profileId>.<trackId>` | `[{ date, theme, items: [{ cardId, type, correctFirstTry, attempts, ms, preview? }], durationMs }]` | Completed practice rounds, newest first, capped at 30 (`appendPractice`). `theme` is a `THEMES` id; `preview: true` marks an item played for exposure and never recorded in the SRS. A round left with 🏠 is not appended (its answered cards are already in the SRS). Feeds the parent corner's practice line. **Separate on purpose:** `sessions` holds 14 entries and drives `dailyCapReached`; unlimited practice rounds stored there would evict today's daily session and give ▶ Jouer back. With two keys, practice can never touch the daily cap. |
 | `school.v1.level.<profileId>.<quizId>` | number | Future — math difficulty progression. |
@@ -562,8 +563,8 @@ Every spoken text is a **cue** `{ key, text, display? }`. **One key → one text
 
 | Module | Responsibility |
 |---|---|
-| `assets/en/app.js` | Page controller: profile (`trackProfileId(…, 'en')`), home (decks, 🔥 streak), session, done screen (score, words to rework), 🏠 quit, gates. |
-| `assets/en/parent.js` | Parent corner: precision, tries, mic mode, cards per session, voice, mic test, Leitner boxes, words to watch. |
+| `assets/en/app.js` | Page controller: profile (`trackProfileId(…, 'en')`), home (lesson cards, decks, 🔥 streak), daily session, lesson session, done screen (score, words to rework), 🏠 quit, gates. |
+| `assets/en/parent.js` | Parent corner: per-lesson progress and "Copier le bilan", precision, tries, mic mode, cards per session, voice, mic test, Leitner boxes, words to watch. |
 | `assets/en/decks/index.js` | `DECK_FILES` (teaching order), `loadDecks`, `skillsFor(deck, item)`, `expandCards`. `vocab`: `listen-pick`, `say-it`; `grammar`: `gap-pick`, `say-it` (items with `fr`); `text`: `line-repeat` (not for a repeated line), `line-next`. |
 | `assets/en/generators.js` | Pure `generate(card, { cards, rng })` → `listen-pick` (4 choices, emoji + French, distractors from the same deck), `say-it` (expected = every accepted answer), `gap-pick` (3 options), `line-repeat` (line shown, model played first), `line-next` (previous line shown, or the title for the first). |
 | `assets/en/pronounce.js` | Pure scorer: `normalise` (case, punctuation, contractions, digits ≤ 20, US → UK spelling), `phoneticKey` (sound spelling, vowel runs kept; lenient merges th/t/d/s/z and drops h), `scoreSpeech(expected[], heard[], level)`. |
@@ -594,6 +595,52 @@ flowchart LR
   S -->|miss, tries left| R[heard words green/grey, 🔊 model unlocked] --> T
   S -->|miss, last try| M[model spoken, On continue ▶] --> N
 ```
+
+### Lessons from photos (written ladder)
+
+A lesson is one file made by a Claude session from photos of the notebook (README "Photos → lesson"). It holds several **groups**; `flattenLesson` turns each into a deck `<lessonId>-<groupId>` carrying `lesson: { id, label, exam, source }`. Groups may be of the existing kinds or of two written kinds with **one card per item** (skill `write`): `spell` (a word or short form) and `write` (a phrase). Design: `docs/superpowers/specs/2026-11-11-lessons-from-photos-design.md`.
+
+| Module | Responsibility |
+|---|---|
+| `assets/en/decks/index.js` | `LESSON_FILES`, `flattenLesson`; `loadDecks` returns lesson decks first, then `DECK_FILES`. A group's `strict` is its items' default. |
+| `assets/en/answer.js` | Pure `checkAnswer(accepted, typed, strict, confusables)` → `right` / `almost` (+ reasons `case`, `punct`, `spelling`) / `wrong`. Another item's answer is never a near miss; `strict.spelling` disables near misses. |
+| `assets/en/ladder.js` | Pure ladder: levels, `FORMATS`, `FAST_MS`, `pickFormat`, `applyAnswer`, `isKnown`, `isMastered`. |
+| `assets/en/lesson-generators.js` | Pure `generateLesson(card, { format })` → `pick`, `pick2`, `fill`, `tiles`, `type`, `cover`, `hear` exercises. |
+| `assets/en/lesson-session.js` | Pure composer `nextStep` (one exercise at a time), `afterAnswer`, `applyStep` (ladder + Leitner), `available`, `examSoon`. |
+| `assets/en/lesson-play.js` | DOM renderers of the written exercises; resolves `{ result: 'right' \| 'retry' \| 'miss', ms, typed }`. |
+| `assets/en/lesson-report.js` | Pure `lessonReport` / `reportText` for the parent corner and "Copier le bilan". |
+| `assets/en/today.js` | Today's date in the lesson's written and spoken forms (the `dynamic: "today"` item). |
+
+**Levels.** 1 recognise (`pick`, 4 look-alikes) → 2 complete (`fill` missing letters, `tiles`) → 3 write (`type`, `cover` = look–cover–write) → 4 transfer (`hear`, dictation). `spell` runs 1→3, `write` 2→4 (3 without an English device voice). A phrase waits until each of its words that is a `spell` item of the lesson has been met.
+
+```mermaid
+stateDiagram-v2
+  [*] --> Learning: new item (level 1 spell / 2 write)
+  Learning --> Learning: right first try → +1 level (fast → +2)
+  Learning --> Learning: "presque" then right → same level
+  Learning --> Learning: 1st miss → same level, other format\n2nd miss in a row → −1 level
+  Learning --> Known: right first try at the top level\n(creates the Leitner state)
+  Known --> Mastered: right at the top level on a 2nd day
+  Known --> Learning: miss → top − 1, box demoted
+  Mastered --> Learning: miss → top − 1, box demoted
+```
+
+**Which format first.** At a level with two formats the table's order applies until both have 8 answers in `learn.formats`; then the one more often followed by a right answer goes first. A pending first miss (`alt`) flips to the other one (`pick2`, two choices, at level 1).
+
+**Lesson session** ("▶ Réviser cette leçon", as many a day as he wants, length = `enItems` exercises). Slots 0, 1 and the last replay a past success at the level passed, **unrecorded**. In between: every third slot (from the sixth) a phrase when one can be played; then items owed from this session (an answered item still learning comes back 4 exercises later, at most 3 recorded plays per session); learning items, lowest level first; new items in file order (capped at half the session, no cap while the test is within 7 days); due reviews (in the last week: also what he can write but has not confirmed on a second day). The **daily session is unchanged**: it only receives a lesson's written cards once they have a Leitner state, in their top-level format.
+
+```mermaid
+flowchart LR
+  P[Photos in a Claude session] --> R[Claude lists content + notebook mistakes]
+  R --> F[assets/en/decks/&lt;lesson&gt;.json + LESSON_FILES]
+  F --> T[node --test] --> M[push main = deploy]
+  M --> H[Home: lesson card, test countdown]
+  H --> S[Lesson session: ladder]
+  S --> B[Parent corner: Copier le bilan]
+  B -->|pasted into a session| R
+```
+
+**Checking a typed answer.** Exact → right. Only capitals and/or punctuation differ on a strict item → "presque" naming the reason, one more try. One or two letters off (one for answers of 5 characters or fewer) → "presque". Right on that second try = `retry`: the item stays at its level. Inputs disable autocorrect, autocapitalise, autocomplete and spell-check (iOS would write the answer).
 
 ## CE2 track (column subtraction)
 

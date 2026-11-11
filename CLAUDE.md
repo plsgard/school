@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A static, zero-build web app the owner built for his own kids: timed math quizzes and an **English track** (`en.html`, matched to his class lessons, speech-checked pronunciation) for the older child (6e), a **CE2 column-subtraction track** (`ce2.html`: generated problems on a level ladder, taught and checked in the class's method, compensation) for the middle one, and a spaced-repetition **Grande Section learning track** (`gs.html`: sounds, letters, syllables, tracing in capitals and cursive, numbers to 10; one daily session plus unlimited themed practice rounds) for a 5-year-old who cannot read yet. Hosted on **GitHub Pages directly off `main`** — pushing to `main` is the deploy. There is no CI, no build, no package manager, no backend; persistence is `localStorage`. Pure modules have `node:test` tests.
+A static, zero-build web app the owner built for his own kids: timed math quizzes and an **English track** (`en.html`, matched to his class lessons: speech-checked pronunciation, and **lessons made from photos of his notebook**, revised in writing on a level ladder before a test) for the older child (6e), a **CE2 column-subtraction track** (`ce2.html`: generated problems on a level ladder, taught and checked in the class's method, compensation) for the middle one, and a spaced-repetition **Grande Section learning track** (`gs.html`: sounds, letters, syllables, tracing in capitals and cursive, numbers to 10; one daily session plus unlimited themed practice rounds) for a 5-year-old who cannot read yet. Hosted on **GitHub Pages directly off `main`** — pushing to `main` is the deploy. There is no CI, no build, no package manager, no backend; persistence is `localStorage`. Pure modules have `node:test` tests.
 
 The audience is young learners — keep UI copy simple, validation friendly, and avoid clever abstractions that make the source harder to tweak on the fly. On the GS track every instruction must work for a non-reader (spoken, with pictures), and every French text must be correct French (typography included: non-breaking space before `! ? : ;`).
 
@@ -18,7 +18,7 @@ See [`README.md`](README.md) for run/deploy/test basics, the iPad setup, deck au
 ├── multiplication.html, addition.html   # math quiz pages
 ├── gs.html                          # Grande Section track
 ├── ce2.html                         # CE2 track (column subtraction by compensation, level ladder)
-├── en.html                          # 6e English track (listen-pick, say-it + pronunciation check)
+├── en.html                          # 6e English track (listen-pick, say-it + pronunciation check, lessons from photos)
 ├── assets/
 │   ├── quiz.js, quiz.css            # math quiz engine (Settings → Quiz → Result → History) + shared styles
 │   ├── storage.js                   # versioned, namespaced localStorage layer (the only localStorage user)
@@ -32,6 +32,10 @@ See [`README.md`](README.md) for run/deploy/test basics, the iPad setup, deck au
 │   │                                #   mots-p1.json (période 1), mots-gs.json (generic GS words)
 │   ├── ce2/                         # CE2 track: method.js (compensation solver), generators.js (levels), rules.js
 │   │                                #   (ladder, session), app.js, parent.js, ce2.css
+│   ├── en/                          # English track: app.js, parent.js, rules.js, generators.js, pronounce.js, listen.js;
+│   │   │                            #   lessons from photos: answer.js, ladder.js, lesson-session.js,
+│   │   │                            #   lesson-generators.js, lesson-play.js, lesson-report.js, today.js
+│   │   └── decks/                   # index.js (LESSON_FILES, DECK_FILES) + one JSON per lesson / deck
 │   └── audio/gs/                    # recorded mp3 clips + manifest.json + sources.json (generated)
 ├── tools/                           # gen-audio.mjs, cues.mjs (clip recording), trace-sheet.mjs (trace model renders), README.md
 ├── tests/                           # *.test.mjs (node:test), helpers/
@@ -46,7 +50,7 @@ A quiz page is a thin shell: standardised markup + a `<script type="module">` th
 
 - **Run `node --test` before every commit and push** (repo root, no argument: `node --test tests/` fails on Node 22.7). Tests cover pure modules only; hand-test the DOM in a browser via `python3 -m http.server 8000` (modules and deck `fetch` need a real origin).
 - **`main` is production.** Push to `main` = deploy; a broken push = broken live site for the kids. Verify locally before pushing.
-- **Release order:** this track's branch is built on `refactor/shared-engine` (shared `storage.js`, `celebration.js`, `quiz.css` as ES modules). That refactor must land on `main` before, or together with, the GS track.
+- **"Here are photos of a lesson" → follow [README.md](README.md#photos--lesson-revise-for-a-test).** One lesson file, no code change: read the photos, tell the parent what the lesson contains and which mistakes the notebook has, write `assets/en/decks/<id>.json` with the *correct* English (the child's slips go in `slips` only), add it to `LESSON_FILES`, `node --test`, push. Never commit the photos (`inbox/` and scratch folders only). Never rename an existing item id (progress on the iPad is keyed by it).
 - **Storage goes through `assets/storage.js` only.** Don't call `localStorage` directly from a page; that's how the schema stays migratable.
 - **Don't introduce a build step, framework, or package manager** without a concrete reason. The "push to deploy" simplicity is load-bearing (that includes no `package.json` just to silence a Node warning).
 - **Bootstrap 5.3 from CDN with SRI hashes pinned.** If you bump the version, recompute the SRI hashes (`curl … | openssl dgst -sha384 -binary | openssl base64 -A`) — don't drop the `integrity` attribute.
@@ -59,5 +63,6 @@ A quiz page is a thin shell: standardised markup + a `<script type="module">` th
 - Math quizzes: settings validation uses `alert()` with kid-friendly copy. Wrong answers are flagged with `❌` (non-color cue) plus the `.wrong-answer` class; the success line uses `✅`. Don't list every question in the result — only the misses.
 - GS track: no score shown to the child (stars only); a revealed answer is never praised; nothing advances while audio plays; adult controls stay behind a long-press. Data text goes through `textContent`, never `innerHTML`.
 - Result/timer regions carry `role="status"` / `role="timer"` for screen readers; keep them when editing markup.
+- English lessons from photos: one card per item, the ladder level picks the exercise format (`assets/en/ladder.js`); typed inputs keep `autocorrect`, `autocapitalize`, `autocomplete` and `spellcheck` off; a miss always ends on the model answer and never blocks; the new exercises never need the microphone.
 - CE2 track: the subtraction method is the class's (compensation); never show another one. Hints never give the digit before the worked solution; stars, not scores.
 - Tests follow `<Method>_<Condition>_<Expectation>` names, mostly one test file per module. Running `node --test` from the main checkout also picks up `.claude/worktrees/*/tests`.
