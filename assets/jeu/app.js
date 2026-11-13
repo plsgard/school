@@ -276,7 +276,9 @@ function villageTap(p) {
     const gate = R.PORTALS.find(g => dist(tileCenter(g.x, g.y), w) < 72);
     village.target = gate ? tileCenter(gate.x, gate.y) : { x: clamp(w.x, HERO_R, WORLD.w - HERO_R), y: clamp(w.y, HERO_R, WORLD.h - HERO_R) };
     village.stuck = 0;
-    if (gate) village.gateLock = null;
+    // Tapping the gate he stands on opens it again; tapping another one must first let him walk there (the lock of
+    // the current gate is dropped by leaving its tile).
+    if (gate && gate.biome === village.gateLock) village.gateLock = null;
 }
 
 function build(tx, ty) {
@@ -538,6 +540,13 @@ function startRun(biomeId) {
     nextQuestion();
 }
 
+// A review comes from another land (rules.js composeExpedition): it is announced, so a sum at the Volcan des
+// Verbes does not look like a mistake.
+function showProgress() {
+    const a = arena;
+    $('runProgress').textContent = `${a.biome.emoji} ${a.idx + 1} / ${a.plan.length}${a.plan[a.idx].review ? ' · 🔁 Révision' : ''}`;
+}
+
 function nextQuestion() {
     const a = arena;
     if (a.idx >= a.plan.length) { endRun(true); return; }
@@ -547,7 +556,7 @@ function nextQuestion() {
     a.q = q;
     a.firstTry = true;
     a.phase = 'play';
-    $('runProgress').textContent = `${a.biome.emoji} ${a.idx + 1} / ${a.plan.length}`;
+    showProgress();
     $('prompt').textContent = q.prompt;
     $('model').hidden = true;
     $('clock').hidden = !q.clock;
@@ -607,7 +616,7 @@ function resolveHit(c) {
                 state = R.recordAnswer(state, item.skill, false).state;
                 save();
                 a.plan.push({ ...item, retry: true, q: { ...a.q, choices: shuffle(Math.random, a.q.choices) } });
-                $('runProgress').textContent = `${a.biome.emoji} ${a.idx + 1} / ${a.plan.length}`;
+                showProgress();
             }
         }
         // A miss always ends on the model answer: it is written, and the right gribouille glows.
