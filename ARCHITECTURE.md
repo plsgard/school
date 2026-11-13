@@ -9,6 +9,7 @@ The site is a small set of plain HTML pages sharing ES modules served as static 
 ```
 /
 ├── index.html                 # landing page: "Qui joue ?" profile picker + "Autres jeux" (math quizzes)
+├── jeu.html                   # CE2 game « L’île des Gribouilles » (canvas; assets/jeu/)
 ├── multiplication.html        # multiplication-table quiz
 ├── addition.html              # complement-of-addition quiz
 ├── gs.html                    # Grande Section learning track (one page, four screens)
@@ -152,6 +153,7 @@ All keys live under the `school.v1.*` namespace and are read/written only throug
 | `school.v1.learn.<profileId>.<trackId>` | `{ cards: { [cardId]: { lvl, miss, alt, passed, fmt, last, topDays } }, formats: { [format]: { n, ok } } }` | English track only: written-ladder state of lesson items (`assets/en/ladder.js`). `lvl` 1–4, `miss`/`alt` the pending first miss, `passed` the highest level passed first try, `fmt` the last format played, `last` the last wrong answer typed, `topDays` the local days with a first-try success at the top level (2 = mastered). `formats` counts, per exercise format, how often it was followed by a right answer. Kept apart from `srs` so the shared scheduler never sees it. |
 | `school.v1.sessions.<profileId>.<trackId>` | `[{ date, items: [{ cardId, type, correctFirstTry, attempts, ms }], durationMs }]` | Daily sessions; on the English track also lesson sessions (`lesson: <id>`, items with `result`, `typed`, `recorded`), which count for the 🔥 streak. Last 14 completed sessions, newest first. `date` is an ISO timestamp; the pattern filler game stores `cardId: null`. Drives the daily cap and the parent corner's daily week line. |
 | `school.v1.practice.<profileId>.<trackId>` | `[{ date, theme, items: [{ cardId, type, correctFirstTry, attempts, ms, preview? }], durationMs }]` | Completed practice rounds, newest first, capped at 30 (`appendPractice`). `theme` is a `THEMES` id; `preview: true` marks an item played for exposure and never recorded in the SRS. A round left with 🏠 is not appended (its answered cards are already in the SRS). Feeds the parent corner's practice line. **Separate on purpose:** `sessions` holds 14 entries and drives `dailyCapReached`; unlimited practice rounds stored there would evict today's daily session and give ▶ Jouer back. With two keys, practice can never touch the daily cap. |
+| `school.v1.game.<profileId>.<gameId>` | `{ v, crystals, hero, heroes, skills: { [skillId]: { lvl, streak, misses, top, best, n, ok } }, village: { 'x,y': itemId }, day, runsToday, runs, lastPlayed: { [biomeId]: day }, bonusDay, bonusBiome, settings: { maxRuns, sound }, seenIntro }` | The CE2 game (`gameId = 'ile'`, `jeu.html`), played as the CE2 profile. Read through `normalize` (`assets/jeu/rules.js`), which drops unknown skill, item and hero ids. |
 | `school.v1.level.<profileId>.<quizId>` | number | Future — math difficulty progression. |
 | `school.v1.achievements.<profileId>` | `[{ id, unlockedAt }]` | Future — badges. |
 | `school.v1.theme` | string | Future — themes. |
@@ -670,6 +672,38 @@ flowchart TD
   D -->|no, first error| H3[columnHint without the answer] --> K
   D -->|no, second error| S[worked solution, column by column] --> M[missed → next]
 ```
+
+## CE2 game « L’île des Gribouilles » (`jeu.html`)
+
+A canvas game for the CE2 child, next to the tracks (nothing is shared with `ce2.html` but the profile). The learning is the game's action: a question is shown, each creature ("gribouille") carries one answer, the child throws a star at the right one. It covers the CE2 programme in 24 skills, all multiple choice.
+
+| File | Role |
+|---|---|
+| `assets/jeu/questions.js` | Pure. `SKILLS` (id, name, 1–3 levels, generator) and `generate(skillId, level, rng, avoid)` → `{ skill, level, prompt, answer, choices, clock? }`. Maths are generated; French comes from small hand-written banks (`[level, …]` rows). `typo()` fixes French typography on every prompt and choice. |
+| `assets/jeu/rules.js` | Pure. `BIOMES` (6, each owns skills), the per-skill ladder (`recordAnswer`), `composeExpedition`, crystals, the daily limit, the bonus gate, the village (`CATALOG`, `HEROES`, `place`, `remove`, `buyHero`, `friends`), `normalize`. |
+| `assets/jeu/world.js` | Pure geometry: `moveInArena` (walls + round rocks), `moveOnGrid` (village tiles), `discTiles`, `spawnPoints`, `hits`. |
+| `assets/jeu/app.js` | Input (keys, tap, floating joystick), the loop, canvas drawing, DOM overlays (HUD, question, tray, dialogs), a small synth for sounds. `jeu.html?debug` exposes `window.jeu` (`arena`, `state`, `throwAt`, `tick(dt)`) for hand-testing. |
+
+```mermaid
+flowchart LR
+    V[Village<br/>walk, build, friends] -- walk into a gate --> G{Gate dialog<br/>stars per skill}
+    G -- "▶ Partir (daily limit not reached)" --> A[Arena: 8 questions<br/>+ replay of each miss]
+    A -- right on first throw --> L[recordAnswer: streak +1<br/>3 crystals + combo]
+    A -- wrong first --> M[recordAnswer: miss<br/>model answer shown, right creature glows<br/>question replayed at the end]
+    L --> A
+    M --> A
+    A -- all answered --> S[Summary: crystals, new stars,<br/>freed friend, misses with answers]
+    S --> V
+    V -- crystals --> B[Build 🔨 / heroes 🎭]
+```
+
+**Ladder** (per skill, `state.skills[id]`): `MASTERY` (4) first-throw answers in a row win a star and move up a level; at the last level the skill is `top`. `PULLBACK` (2) first-throw misses in a row move down one step: the questions get easier, but `best` (the stars shown, 69 in all) never goes down, so a star, a friend or a building is never lost and a star is won once. Only the first throw counts; the replay of a missed question is never recorded. Stars unlock catalog items; a biome with `FRIEND_STARS` (3) stars frees its friend, who then walks in the village.
+
+**Expedition** (`composeExpedition`): 8 questions from the biome's skills, weakest skills more often, never the same skill twice in a row; questions 4 and 7 are reviews of skills of other biomes that already have a star. The level of a question is read when it is asked, so a level won mid-run applies at once. `bonusBiome` is the biome with the fewest stars (then the one played longest ago); it is fixed once a day (`withDailyBonus`) and its first finished run of that day pays double, to pull the child toward what he avoids. An expedition counts for the daily limit when it starts (`beginRun`), so going home early gives no free run; `finishRun` only pays.
+
+**Rules for the child**: no lives, no timer, no score (stars and crystals); a miss always ends on the model answer and never blocks; a revealed answer is not praised; removing a building refunds it; `settings.maxRuns` (parent corner, long-press ⚙️, default 6) caps expeditions per day while building stays open.
+
+**Screens and zoom**: the arena uses `scale` (the short side of the screen is 560 units), the village its own `vscale` so the whole island fits a tablet or laptop screen (it scrolls on a phone). Emoji are drawn with `fillText`; every emoji used predates 2019 so an older Android tablet shows them (ground tiles are colours, shown as swatches in the tray). A blocking item is refused on any tile the hero or a friend overlaps (`discTiles`), so nobody gets walled in.
 
 ## Local development
 

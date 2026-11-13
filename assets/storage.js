@@ -153,3 +153,12 @@ export function appendPractice(profileId, trackId, round) {
     writeJSON(key, all);
     return all;
 }
+
+// Whole save of a game (jeu.html: crystals, village, per-skill ladder…), normalized by the game's own rules on read.
+export function loadGame(profileId, gameId) {
+    return readJSON(`${NS}.game.${profileId}.${gameId}`, null);
+}
+
+export function saveGame(profileId, gameId, state) {
+    writeJSON(`${NS}.game.${profileId}.${gameId}`, state);
+}

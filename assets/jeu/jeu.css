@@ -1,0 +1,65 @@
+/* « L’île des Gribouilles » : a full-screen canvas with DOM overlays (HUD, question, tray, dialogs). */
+html, body.jeu { margin: 0; height: 100%; overflow: hidden; background: #5db7e6; color: #1d2433; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+body.jeu { touch-action: manipulation; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; overscroll-behavior: none; }
+body.jeu [hidden] { display: none !important; }
+#stage { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+
+.jeu-hud { position: fixed; top: 0; left: 0; right: 0; z-index: 5; display: flex; align-items: center; gap: 8px; pointer-events: none;
+    padding: calc(8px + env(safe-area-inset-top)) calc(10px + env(safe-area-inset-right)) 8px calc(10px + env(safe-area-inset-left)); }
+.jeu-hud > *, .jeu-row > * { pointer-events: auto; }
+.jeu-spacer { flex: 1; pointer-events: none !important; }
+.jeu-btn { width: 48px; height: 48px; border-radius: 16px; border: 3px solid #1d2433; background: #fff; font-size: 24px; line-height: 1; display: grid; place-items: center;
+    text-decoration: none; cursor: pointer; padding: 0; box-shadow: 0 3px 0 #1d2433; color: inherit; }
+.jeu-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #1d2433; }
+.jeu-btn[aria-pressed="true"] { background: #ffd23f; }
+.jeu-pill { background: #fff; border: 3px solid #1d2433; border-radius: 999px; padding: 6px 14px; font-weight: 800; font-size: 18px; white-space: nowrap; box-shadow: 0 3px 0 #1d2433; }
+.jeu-pill.bump { animation: jeu-bump .3s; }
+@keyframes jeu-bump { 50% { transform: scale(1.18); } }
+.jeu-combo { background: #ffd23f; }
+
+.jeu-hud-arena { flex-direction: column; align-items: stretch; background: linear-gradient(#1d2433ee, #1d2433cc); padding-bottom: 12px; pointer-events: auto; }
+.jeu-row { display: flex; align-items: center; gap: 8px; }
+.jeu-question { display: flex; align-items: center; justify-content: center; gap: 16px; min-height: 64px; }
+#prompt { margin: 0; color: #fff; font-size: clamp(22px, 4.2vmin, 38px); font-weight: 800; text-align: center; line-height: 1.25; -webkit-user-select: text; user-select: text; }
+#clock svg { width: clamp(84px, 16vmin, 130px); height: auto; display: block; }
+.jeu-model { margin: 0; text-align: center; color: #1d2433; background: #ffd23f; border-radius: 12px; padding: 6px 12px; font-size: clamp(18px, 3.2vmin, 26px); font-weight: 800; align-self: center; }
+
+.jeu-tray { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; display: flex; gap: 8px; overflow-x: auto; background: #1d2433ee;
+    padding: 10px calc(10px + env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) calc(10px + env(safe-area-inset-left)); -webkit-overflow-scrolling: touch; }
+.jeu-item { flex: 0 0 auto; min-width: 72px; border: 3px solid #1d2433; border-radius: 16px; background: #fff; padding: 6px 8px; display: grid; justify-items: center; gap: 2px; cursor: pointer; color: inherit; font: inherit; }
+.jeu-item b { font-size: 30px; line-height: 1.1; font-weight: 400; }
+.jeu-item b.jeu-swatch { width: 32px; height: 32px; border-radius: 8px; border: 2px solid #1d2433; box-sizing: border-box; }
+.jeu-item small { font-size: 14px; font-weight: 800; white-space: nowrap; }
+.jeu-item[aria-pressed="true"] { background: #ffd23f; transform: translateY(-4px); }
+.jeu-item:disabled { opacity: .5; cursor: default; }
+
+.jeu-tip { position: fixed; left: 50%; bottom: calc(130px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 7; margin: 0; max-width: min(92vw, 560px);
+    background: #fff; border: 3px solid #1d2433; border-radius: 18px; padding: 10px 16px; font-size: 19px; font-weight: 700; text-align: center; pointer-events: none; box-shadow: 0 3px 0 #1d2433; }
+
+.jeu-dialog { position: fixed; inset: 0; z-index: 10; background: #1d2433aa; display: grid; place-items: center; padding: 16px; }
+.jeu-card { background: #fff; border: 4px solid #1d2433; border-radius: 26px; padding: 20px 22px; width: min(560px, 100%); max-height: calc(100% - 8px); overflow-y: auto; box-sizing: border-box;
+    box-shadow: 0 6px 0 #1d2433; font-size: 19px; line-height: 1.4; -webkit-user-select: text; user-select: text; }
+.jeu-card h1 { margin: 0 0 8px; font-size: 28px; line-height: 1.2; }
+.jeu-card h2 { margin: 14px 0 4px; font-size: 19px; }
+.jeu-card p { margin: 6px 0; }
+.jeu-card ul { margin: 6px 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+.jeu-card li { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.jeu-card li span:last-child { white-space: nowrap; font-weight: 800; }
+.jeu-card li.miss { display: block; background: #fff4d6; border-radius: 12px; padding: 6px 10px; }
+.jeu-card li.miss b { display: block; }
+.jeu-big { font-size: 30px; font-weight: 800; text-align: center; }
+.jeu-note { color: #56617a; font-size: 16px; }
+.jeu-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.jeu-cta { flex: 1 1 160px; min-height: 56px; border-radius: 18px; border: 3px solid #1d2433; background: #fff; font: inherit; font-weight: 800; font-size: 20px; cursor: pointer; color: inherit; box-shadow: 0 4px 0 #1d2433; }
+.jeu-cta.primary { background: #54d17a; }
+.jeu-cta:active { transform: translateY(2px); box-shadow: 0 2px 0 #1d2433; }
+.jeu-card select { font: inherit; padding: 6px 10px; border-radius: 10px; border: 2px solid #1d2433; }
+.jeu-card table { width: 100%; border-collapse: collapse; font-size: 16px; }
+.jeu-card td, .jeu-card th { text-align: left; padding: 3px 6px 3px 0; }
+.jeu-card td:not(:first-child) { white-space: nowrap; }
+
+/* Parental gate (assets/hold.js): the button fills up while held. */
+.hold-gate { position: relative; overflow: hidden; }
+.hold-gate::after { content: ""; position: absolute; inset: 0; background: rgba(255, 183, 3, .6); transform: scaleY(0); transform-origin: bottom; pointer-events: none; }
+.hold-gate.holding::after { transform: scaleY(1); transition: transform var(--hold-ms, 1.5s) linear; }
+@media (prefers-reduced-motion: reduce) { .jeu-pill.bump { animation: none; } .hold-gate.holding::after { transition: none; } }

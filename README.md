@@ -213,6 +213,18 @@ For a lesson he must know in writing (a test is coming). Works from a Claude Cod
 - **« Vérifie avec une addition »** (on by default): after a right answer, he can add the result and the bottom number to get the top number back, as CE2 teachers ask.
 - **Parent corner** (hold ⚙️): set the level by hand, **unlock level 7 (zéro en haut) once the class has done it**, then level 8 (4 chiffres, later in CE2), default mode, problems per session, proof on/off, results per level over the last 14 sessions, reset.
 
+## CE2 game: L’île des Gribouilles
+
+`jeu.html`, linked from "Autres jeux" on the home page: a video game for Augustin (CE2) that runs in the browser on the iPad, an Android tablet or a Mac. It is separate from the subtraction track and does not replace it.
+
+- **The island (village).** Touch where to go (or use the arrow keys). Six gates lead to six lands: 🌲 numbers, ⛏️ mental calculation, 🏖️ measures and geometry, 🌋 conjugation, 🍄 grammar and vocabulary, ❄️ spelling. The gate marked ✨ pays double that day: it is the land where he has the fewest stars.
+- **An expedition.** 8 questions, about 3 minutes. The question is at the top; each gribouille carries an answer. Move (thumb on the left of the screen, or arrow keys) and throw a star at the right one (touch or click it, or space bar). A wrong throw shows the right answer and that question comes back at the end. No timer, no lives.
+- **Progress.** 4 right answers in a row on a skill win a star ⭐ and harder questions; 2 misses in a row make them easier again (a star already won is never lost). Stars unlock things to build, and 3 stars in a land free a friend who comes to live in the village.
+- **Crystals 💎.** Earned in expeditions (more for answers right on the first throw and for combos). 🔨 builds the village (🧹 removes and refunds), 🎭 buys heroes.
+- **Parent corner.** Long-press ⚙️: expeditions per day (default 6, counted when one starts; building is never limited) and, per skill, the level and the first-throw success rate.
+
+To add or fix a French question, edit the banks in `assets/jeu/questions.js` (one row per question: level, sentence, answer, wrong answers) and run `node --test`: the tests check every question of every level (answer among the choices, typography, labels short enough for a creature).
+
 ## Add a new math quiz
 
 1. Copy `multiplication.html` to `<topic>.html`.

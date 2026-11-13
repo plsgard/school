@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>L’île des Gribouilles · CE2</title>
+    <link rel="stylesheet" href="assets/jeu/jeu.css">
+</head>
+<body class="jeu">
+    <canvas id="stage" aria-label="Le jeu"></canvas>
+
+    <header id="hudVillage" class="jeu-hud">
+        <a class="jeu-btn" href="index.html" aria-label="Retour à l’accueil">🏠</a>
+        <span class="jeu-pill" id="crystals" aria-label="Cristaux">💎 0</span>
+        <span class="jeu-pill" id="stars" aria-label="Étoiles">⭐ 0</span>
+        <span class="jeu-spacer"></span>
+        <button type="button" class="jeu-btn" id="buildBtn" aria-label="Construire">🔨</button>
+        <button type="button" class="jeu-btn" id="heroBtn" aria-label="Choisir son héros">🎭</button>
+        <button type="button" class="jeu-btn" id="soundBtn" aria-label="Son">🔊</button>
+        <button type="button" class="jeu-btn" id="parentBtn" aria-label="Coin des parents (appui long)">⚙️</button>
+    </header>
+
+    <header id="hudArena" class="jeu-hud jeu-hud-arena" hidden>
+        <div class="jeu-row">
+            <span class="jeu-pill" id="runProgress"></span>
+            <span class="jeu-pill" id="runCrystals">💎 0</span>
+            <span class="jeu-pill jeu-combo" id="combo" hidden></span>
+            <span class="jeu-spacer"></span>
+            <button type="button" class="jeu-btn" id="quitBtn" aria-label="Rentrer au village">🏝️</button>
+        </div>
+        <div class="jeu-question">
+            <span id="clock" hidden></span>
+            <p id="prompt" role="status" aria-live="polite"></p>
+        </div>
+        <p id="model" class="jeu-model" role="status" aria-live="polite" hidden></p>
+    </header>
+
+    <div id="tray" class="jeu-tray" hidden></div>
+    <p id="tip" class="jeu-tip" role="status" aria-live="polite" hidden></p>
+    <div id="dialog" class="jeu-dialog" hidden><div class="jeu-card" id="card" role="dialog" aria-modal="true"></div></div>
+
+    <script type="module" src="assets/jeu/app.js"></script>
+</body>
+</html>
