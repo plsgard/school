@@ -3,11 +3,11 @@
 // and closes on one (replayed at the level he passed, never recorded); in between it works small batches: new items
 // come in file order, an item answered comes back after a few others until it is written from memory, and every
 // third slot prefers the lesson's phrases (the test looks like them). The daily session (rules.js) is not involved.
-import { LEARN_KINDS, initial, topLevel, levelOf, pickFormat, isMastered, isKnown, applyAnswer } from './ladder.js';
+// `table` is the ladder's table (EN_LADDER by default): other subjects pass one with kinds of their own.
+import { EN_LADDER, isLearnKind, initial, topLevel, levelOf, pickFormat, isMastered, isKnown, applyAnswer } from './ladder.js';
 import { resolveItem } from './today.js';
 import { recordResult } from '../core/progress.js';
 import { record } from '../core/scheduler.js';
-import { SUPPORT_FORMATS } from './ladder.js';
 import { EN_PROFILE } from './rules.js';
 
 const DAY_MS = 864e5;
@@ -22,7 +22,7 @@ export function examSoon(exam, today) {
 }
 
 // Still on the ladder: not yet written from memory, or sent back below the top after a miss.
-export const inLearning = (state, kind, top) => !isKnown(state) || levelOf(state, kind, top) < top;
+export const inLearning = (state, kind, top, table = EN_LADDER) => !isKnown(state) || levelOf(state, kind, top, table) < top;
 
 // A phrase waits until each of its words that is a 'spell' item of the same lesson has been met once.
 export function available(card, { cards, learn, now = new Date() }) {
@@ -36,22 +36,22 @@ export function available(card, { cards, learn, now = new Date() }) {
 // cards: the lesson's cards, in file order. history: this session's [{ cardId, recorded }]. owed: [{ cardId, notBefore }].
 // newCount: new cards already started this session. Returns { card, level, format, record, isNew } or null.
 export function nextStep({ cards, srs, learn, today, exam = null, hasVoice = true, history = [], owed = [], index, total,
-    newCount = 0, rng = Math.random, now = new Date() }) {
+    newCount = 0, rng = Math.random, now = new Date(), table = EN_LADDER }) {
     const prevId = history.at(-1)?.cardId;
     const plays = new Map();
     for (const h of history) if (h.recorded) plays.set(h.cardId, (plays.get(h.cardId) ?? 0) + 1);
     const soon = examSoon(exam, today);
-    const isLearn = (c) => LEARN_KINDS.includes(c.kind);
-    const top = (c) => topLevel(c.kind, hasVoice);
+    const isLearn = (c) => isLearnKind(c.kind, table);
+    const top = (c) => topLevel(c.kind, hasVoice, table);
     const st = (c) => learn.cards[c.id];
-    const lvl = (c) => levelOf(st(c), c.kind, top(c));
+    const lvl = (c) => levelOf(st(c), c.kind, top(c), table);
     const ok = (c) => c.id !== prevId && (plays.get(c.id) ?? 0) < MAX_PLAYS;
     const step = (card, { record = true, level = null, isNew = false } = {}) => {
         if (!isLearn(card)) return { card, level: null, format: null, record, isNew };
-        const state = st(card) ?? initial(card.kind);
+        const state = st(card) ?? initial(card.kind, table);
         const at = level ?? lvl(card);
         // A reward replay uses the plain format of the level he passed, not the "other format" of a pending miss.
-        const format = pickFormat(card.kind, { ...state, lvl: at, alt: level == null && state.alt }, learn.formats);
+        const format = pickFormat(card.kind, { ...state, lvl: at, alt: level == null && state.alt }, learn.formats, table);
         return { card, level: at, format, record, isNew };
     };
     const passed = cards.filter(c => isLearn(c) && (st(c)?.passed ?? 0) > 0);
@@ -73,7 +73,7 @@ export function nextStep({ cards, srs, learn, today, exam = null, hasVoice = tru
     const dueOwed = owed.filter(o => o.notBefore <= index).map(o => byId.get(o.cardId)).filter(c => c && ok(c));
 
     // Learning: met, not yet written from memory. Lowest level first, then file order.
-    const learning = cards.filter(c => isLearn(c) && st(c) && inLearning(st(c), c.kind, top(c)) && !owedIds.has(c.id) && ok(c))
+    const learning = cards.filter(c => isLearn(c) && st(c) && inLearning(st(c), c.kind, top(c), table) && !owedIds.has(c.id) && ok(c))
         .sort((a, b) => lvl(a) - lvl(b));
     const cap = soon ? Infinity : Math.ceil(total / 2);
     const fresh = newCount < cap
@@ -84,7 +84,7 @@ export function nextStep({ cards, srs, learn, today, exam = null, hasVoice = tru
     const due = (c) => (srs.cards[c.id]?.due ?? '9999') <= today;
     const confirm = (c) => soon && isLearn(c) && !isMastered(st(c)) && st(c).topDays.at(-1) !== today;
     const reviews = cards.filter(c => ok(c) && !owedIds.has(c.id) && (isLearn(c)
-        ? st(c) && !inLearning(st(c), c.kind, top(c)) && (due(c) || confirm(c))
+        ? st(c) && !inLearning(st(c), c.kind, top(c), table) && (due(c) || confirm(c))
         : srs.cards[c.id] && due(c)));
     // The slot before the closing one is kept for confirming, before the test, an item written from memory on
     // another day: learning and new items would otherwise fill every slot until the test.
@@ -115,19 +115,19 @@ export function afterAnswer({ owed, cardId, index, learning }) {
 // Pure: one answered step → the next stored states. `learning` says whether the card is owed again this session.
 // A lesson item enters the Leitner schedule with its first right answer at the top level; from then on a top-level
 // answer moves its box like any card (not before it is due: no promotion for extra practice), a miss demotes it.
-export function applyStep({ learn, srs, step, result, ms, typed, today, hasVoice = true, profile = EN_PROFILE }) {
+export function applyStep({ learn, srs, step, result, ms, typed, today, hasVoice = true, profile = EN_PROFILE, table = EN_LADDER }) {
     const { card } = step;
     if (!step.record) return { learn, srs, learning: false };
-    if (!LEARN_KINDS.includes(card.kind)) {
+    if (!isLearnKind(card.kind, table)) {
         // `record`, not `recordResult`: a lesson session must not spend the daily session's new-item budget.
         return { learn, srs: record(srs, card.id, result === 'right', today, profile), learning: false };
     }
-    const top = topLevel(card.kind, hasVoice);
-    const nextLearn = applyAnswer(learn, card.id, card.kind, { result, ms, format: step.format, typed, today, top });
+    const top = topLevel(card.kind, hasVoice, table);
+    const nextLearn = applyAnswer(learn, card.id, card.kind, { result, ms, format: step.format, typed, today, top }, table);
     let nextSrs = srs;
     const known = srs.cards[card.id];
-    const fromMemory = !SUPPORT_FORMATS.includes(step.format);
+    const fromMemory = !table.support.includes(step.format);
     if (step.level >= top && fromMemory && result === 'right' && (!known || known.due <= today)) nextSrs = recordResult(srs, card.id, true, today, profile);
     else if (result === 'miss' && known) nextSrs = recordResult(srs, card.id, false, today, profile);
-    return { learn: nextLearn, srs: nextSrs, learning: inLearning(nextLearn.cards[card.id], card.kind, top) };
+    return { learn: nextLearn, srs: nextSrs, learning: inLearning(nextLearn.cards[card.id], card.kind, top, table) };
 }
