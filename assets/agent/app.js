@@ -119,7 +119,7 @@ function showHub() {
 }
 
 function showWorld() {
-    if (mission) scene.showRoom(mission.parsed, mission.type);
+    if (mission) { scene.showRoom(mission.parsed, mission.type); if (mission.type === 'sort') drawZones(); }
     else showHub();
 }
 
@@ -157,8 +157,7 @@ async function openBriefing(lessonId) {
     }
     const { srs, learn } = loadTrack(lesson.trackId);
     const hasVoice = sound.hasVoice();
-    let type = M.pickType({ lesson, srs, learn, today: day, lastType: game.missions[lesson.id]?.lastType ?? null, hasVoice });
-    if (type === 'sort' && M.missionTypes(lesson, { hasVoice }).includes('infiltration')) type = 'infiltration'; // sort run: Task 9
+    const type = M.pickType({ lesson, srs, learn, today: day, lastType: game.missions[lesson.id]?.lastType ?? null, hasVoice });
     if (!type) { toast(`Cette leçon se joue avec le son en anglais (🔊).`, 4000); return; }
     const training = !M.canRecord({ lesson, type, srs, learn, today: day, hasVoice });
     const priority = game.priority.ids.includes(lesson.id) && !game.priority.done.includes(lesson.id);
@@ -189,11 +188,16 @@ function startMission({ lesson, type, training, srs, learn, hasVoice, day }) {
         runCredits: 0, locks: 0, firstTry: 0, caught: 0, hidden: 0, busy: false, exitOpen: false,
         respawn: cellCenter(parsed.spawn),
         emp: equipped === 'emp' ? 1 : 0, hint: equipped === 'hint' ? 2 : 0,
+        sort: null, zoneCats: [], fences: [], zoneKey: '', litZone: null, lastZone: null,
     };
     app.screen = 'mission';
     scene.showRoom(parsed, type);
+    if (type === 'sort') {
+        const cats = mission.m.cards[0]?.deck.cats ?? [];
+        assignZones(cats);
+    }
     placeAt(mission.respawn);
-    const first = parsed.locks[0] ?? parsed.exit;
+    const first = parsed.locks[0] ?? parsed.dispenser ?? parsed.exit;
     const target = cellCenter(first);
     app.yaw = Math.atan2(-(target.x - app.player.x), -(target.z - app.player.z));
     hud.mission(true);
@@ -207,8 +211,8 @@ function placeAt(p) {
 // ---------------------------------------------------------------- mission tick
 let solidsKey = '', roomSolids = [];
 function missionSolids() {
-    const key = [...mission.openDoors].sort().join(',');
-    if (key !== solidsKey || !roomSolids.length) { solidsKey = key; roomSolids = solidsOf(mission.parsed, mission.openDoors); }
+    const key = `${[...mission.openDoors].sort().join(',')}|${mission.zoneKey}`;
+    if (key !== solidsKey || !roomSolids.length) { solidsKey = key; roomSolids = [...solidsOf(mission.parsed, mission.openDoors), ...mission.fences]; }
     return roomSolids;
 }
 
@@ -230,10 +234,11 @@ function tickMission(inp, dt) {
         refreshHud();
     }
     const target = mission.hidden > 0 ? null : app.player;
-    mission.robots = mission.robots.map(r => stepRobot(r, target, dt, mission.parsed, mission.openDoors));
+    mission.robots = mission.robots.map(r => stepRobot(r, target, dt, mission.parsed, mission.openDoors, mission.fences));
     if (target && mission.robots.some(r => caught(r, app.player))) { onCaught(); return; }
     if (mission.m.done && !mission.exitOpen) allDoorsOpen();
-    if (!mission.exitOpen) {
+    if (mission.type === 'sort') tickSort(inp);
+    else if (!mission.exitOpen) {
         const n = mission.m.index;
         const lock = mission.parsed.locks[n];
         if (lock) {
@@ -249,7 +254,11 @@ function onCaught() {
     mission.caught++;
     mission.hidden = HIDE_S;
     sound.play('caught');
-    toast(`Repéré${NBSP}! Retour à la dernière porte ouverte.`);
+    if (mission.type === 'sort') {
+        // The crate goes back to the dispenser; the answer is not affected.
+        if (mission.sort) mission.sort.phase = 'dispenser';
+        toast(`Un drone t’a attrapé${NBSP}! La caisse retourne au distributeur.`);
+    } else toast(`Repéré${NBSP}! Retour à la dernière porte ouverte.`);
     placeAt(mission.respawn);
     mission.robots = activePaths().map((p, i) => createRobot(p, i));
 }
@@ -303,6 +312,80 @@ function afterLock(res) {
         toast(`🚨 Alarme niveau ${out.mission.alarm}${NBSP}: plus de robots.`);
     }
     refreshHud();
+}
+
+// ---------------------------------------------------------------- sort run
+const ZONE_COLORS = [0xff6b6b, 0x4f8cff, 0x37d67a, 0xffc93c];
+
+// The group's categories take the layout's zones in order; the zones left over are fenced off.
+function assignZones(cats) {
+    const key = cats.map(c => c.id).join(',');
+    if (key === mission.zoneKey) return;
+    mission.zoneKey = key;
+    mission.zoneCats = mission.parsed.zones.map((z, i) => cats[i] ?? null);
+    mission.fences = mission.parsed.zones.filter((z, i) => !cats[i])
+        .flatMap(z => z.tiles.map(t => ({ ...cellCenter(t), w: 2, d: 2, h: 1.2 })));
+    drawZones();
+}
+
+function drawZones() {
+    scene.setZones(mission.parsed.zones.map((z, i) => {
+        const cat = mission.zoneCats[i];
+        return { tiles: z.tiles, color: ZONE_COLORS[i % ZONE_COLORS.length], closed: !cat, lit: mission.litZone === i,
+            fence: cat ? [] : z.tiles.map(t => ({ ...cellCenter(t), w: 2, d: 2, h: 1.2 })),
+            lines: cat ? [{ text: cat.emoji ?? '', size: 70, emoji: true }, { text: cat.label, size: 52 }] : null };
+    }));
+}
+
+const sameCell = (a, b) => a && b && a.x === b.x && a.y === b.y;
+const zoneAt = (cell) => mission.parsed.zones.findIndex(z => z.tiles.some(t => sameCell(t, cell)));
+
+function tickSort(inp) {
+    const { parsed } = mission;
+    const cell = cellOf(app.player.x, app.player.z);
+    if (mission.exitOpen) return;
+    const atDispenser = near(app.player, cellCenter(parsed.dispenser), 1.8) || (inp.action && near(app.player, cellCenter(parsed.dispenser), 3));
+    if (!mission.sort && atDispenser) { takeNewCrate(); return; }
+    if (mission.sort?.phase === 'dispenser' && atDispenser) { mission.sort.phase = 'carried'; mission.sort.t0 = Date.now(); sound.play('pick'); return; }
+    if (mission.sort?.phase !== 'carried') { mission.lastZone = null; return; }
+    const zi = zoneAt(cell);
+    if (zi === mission.lastZone) return;
+    mission.lastZone = zi;
+    const cat = zi >= 0 ? mission.zoneCats[zi] : null;
+    if (!cat) return;
+    const { ex } = mission.sort;
+    if (cat.id === ex.cat) {
+        // Right zone: at the first drop it is right; after a wrong drop it was a miss (no retry in this type).
+        const result = mission.sort.wrong ? 'miss' : 'right';
+        afterLock({ result, ms: Date.now() - mission.sort.t0, typed: mission.sort.wrong ?? '' });
+        sound.play(result === 'right' ? 'right' : 'door');
+        toast(result === 'right' ? `✅ Bien rangé${NBSP}!` : `Rangé. Cette caisse reviendra plus tard.`, 1800);
+        mission.sort = null;
+        mission.litZone = null;
+        drawZones();
+        return;
+    }
+    if (!mission.sort.wrong) {
+        // Wrong zone: the crate stays in his hands, the right zone lights up and its name is shown.
+        mission.sort.wrong = cat.id;
+        mission.litZone = mission.zoneCats.findIndex(c => c?.id === ex.cat);
+        drawZones();
+        sound.play('wrong');
+        const right = ex.cats.find(c => c.id === ex.cat);
+        toast(`❌ Pas ici${NBSP}: ${ex.label} → ${right?.emoji ?? ''} ${right?.label ?? ''}. Porte-la dans la zone qui brille.`, 4500);
+    }
+}
+
+function takeNewCrate() {
+    const m = M.openLock(mission.m, { srs: mission.srs, learn: mission.learn, today: mission.day });
+    mission.m = m;
+    if (m.done) { allDoorsOpen(); toast(`Toutes les caisses sont rangées${NBSP}! File vers la sortie.`); return; }
+    const ex = M.exerciseFor(m.step, { cards: mission.lesson.cards });
+    assignZones(ex.cats);
+    mission.sort = { ex, phase: 'carried', wrong: null, t0: Date.now() };
+    mission.lastZone = zoneAt(cellOf(app.player.x, app.player.z));
+    sound.play('pick');
+    toast(`📦 ${ex.emoji ? `${ex.emoji} ` : ''}${ex.label}${NBSP}: range-la dans la bonne zone.`, 3000);
 }
 
 // ---------------------------------------------------------------- lock panel
@@ -421,9 +504,20 @@ function view() {
         groundY: groundAt(app.player.x, app.player.z, app.player.y, solids),
         board: !mission && game.owned.includes('board'),
         robots: mission ? mission.robots : [],
+        crate: crateView(),
         openDoors: mission?.openDoors, nextDoor: nextLock, exitOpen: mission?.exitOpen,
         chips: new Set(game.chips),
     };
+}
+
+// Where the current sort crate is drawn: over his head, or back on the dispenser.
+function crateView() {
+    const s = mission?.sort;
+    scene.setCrate(s ? { text: s.ex.label, emoji: s.ex.emoji } : null);
+    if (!s) return null;
+    if (s.phase === 'carried') return { x: app.player.x, y: app.player.y + 2.6, z: app.player.z };
+    const d = cellCenter(mission.parsed.dispenser);
+    return { x: d.x, y: 1.6, z: d.z };
 }
 
 let last = performance.now();
