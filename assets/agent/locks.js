@@ -164,6 +164,13 @@ function applyHint(ex, ui) {
         for (const b of wrong.slice(0, 2)) { b.disabled = true; b.classList.add('gone'); }
         return true;
     }
+    if (ex.type === 'sentence') {
+        // A sentence of his own: the first letter of the model says nothing; one key idea does.
+        const word = ex.keys?.[0]?.[0];
+        if (!word) return false;
+        ui.stage.prepend(ui.el('p', { class: 'ag-hint-line' }, `🛸 Indice${NBSP}: pense au mot « ${word} ».`));
+        return true;
+    }
     const answer = ex.type === 'cloze' ? ex.cloze.answer : ex.model;
     if (!answer) return false;
     const first = answer.trim()[0];
