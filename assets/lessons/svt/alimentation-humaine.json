@@ -1,0 +1,632 @@
+{
+  "id": "alimentation-humaine",
+  "label": "L’alimentation humaine · SVT chapitre 3",
+  "source": "SVT 6e, chapitre 3 : « Les 20 questions auxquelles il faut savoir répondre » et le bilan du chapitre (documents du professeur). Réponses rédigées d’après le bilan ; celles que le bilan ne donne pas sont à vérifier dans le cahier.",
+  "exam": "2026-11-23",
+  "groups": [
+    {
+      "id": "questions",
+      "kind": "qa",
+      "label": "Les 20 questions",
+      "consigne": "Réponds par une phrase.",
+      "items": [
+        {
+          "id": "q01",
+          "q": "Citer quatre facteurs dont dépend l’alimentation.",
+          "a": "Les besoins dépendent de l’âge, du sexe, de l’activité physique et de la température extérieure.",
+          "keys": [
+            [
+              "âge"
+            ],
+            [
+              "sexe"
+            ],
+            [
+              "activité",
+              "sport"
+            ],
+            [
+              "température",
+              "temps qu’il fait",
+              "climat"
+            ]
+          ],
+          "wrong": [
+            "Les besoins dépendent de la couleur des cheveux, du prénom, de la taille des pieds et du jour de la semaine.",
+            "Les besoins dépendent de l’heure, de la saison, de la ville et de la taille de l’assiette.",
+            "Les besoins dépendent seulement de l’âge."
+          ]
+        },
+        {
+          "id": "q02",
+          "q": "À quelle condition l’alimentation est-elle qualifiée d’énergétiquement équilibrée ?",
+          "a": "L’alimentation est équilibrée si les apports (ce que l’on mange) correspondent aux besoins.",
+          "keys": [
+            [
+              "apports",
+              "apport",
+              "mange",
+              "manger"
+            ],
+            [
+              "correspondent",
+              "correspondre",
+              "égaux",
+              "égal",
+              "autant",
+              "pareil",
+              "équivalent"
+            ],
+            [
+              "besoins"
+            ]
+          ],
+          "wrong": [
+            "L’alimentation est équilibrée si on mange beaucoup de viande.",
+            "L’alimentation est équilibrée si on mange trois fois par jour.",
+            "L’alimentation est équilibrée si on ne mange que des légumes."
+          ]
+        },
+        {
+          "id": "q03",
+          "q": "Pourquoi l’activité sportive permet-elle d’équilibrer l’alimentation ?",
+          "a": "Le sport augmente les besoins : l’énergie apportée par les aliments est dépensée.",
+          "keys": [
+            [
+              "dépensée",
+              "dépense",
+              "dépenser",
+              "brûle",
+              "brûler",
+              "utilise",
+              "utiliser"
+            ],
+            [
+              "énergie",
+              "besoins",
+              "calories"
+            ]
+          ],
+          "wrong": [
+            "Le sport donne faim, donc on mange moins.",
+            "Le sport fait grandir les muscles, donc on n’a plus besoin de manger.",
+            "Le sport remplace les fruits et les légumes."
+          ]
+        },
+        {
+          "id": "q04",
+          "q": "Quels aliments sont riches en vitamines ?",
+          "a": "Les fruits et les légumes (surtout crus) sont riches en vitamines.",
+          "keys": [
+            [
+              "fruits",
+              "fruit"
+            ],
+            [
+              "légumes",
+              "légume"
+            ]
+          ],
+          "wrong": [
+            "Les bonbons et les gâteaux sont riches en vitamines.",
+            "La viande et le poisson sont riches en vitamines.",
+            "Le pain et les pâtes sont riches en vitamines."
+          ]
+        },
+        {
+          "id": "q05",
+          "q": "Pourquoi n’y a-t-il pas de vitamines dans une soupe ?",
+          "a": "Les vitamines sont détruites par la cuisson (la chaleur).",
+          "keys": [
+            [
+              "détruites",
+              "détruit",
+              "détruire",
+              "disparaissent",
+              "abîmées"
+            ],
+            [
+              "cuisson",
+              "chaleur",
+              "cuire",
+              "cuites",
+              "chauffe",
+              "chauffer",
+              "bouillir"
+            ]
+          ],
+          "wrong": [
+            "Parce que les vitamines restent dans l’eau du robinet.",
+            "Parce que la soupe est faite avec de l’eau froide.",
+            "Parce que les légumes de la soupe n’ont jamais de vitamines."
+          ]
+        },
+        {
+          "id": "q06",
+          "q": "À quoi est due l’obésité ?",
+          "a": "L’obésité est due à des apports (ce que l’on mange) plus grands que les besoins.",
+          "keys": [
+            [
+              "apports",
+              "apport",
+              "mange",
+              "manger"
+            ],
+            [
+              "plus",
+              "trop",
+              "supérieurs"
+            ],
+            [
+              "besoins"
+            ]
+          ],
+          "wrong": [
+            "L’obésité est due au manque de sommeil.",
+            "L’obésité est due au froid.",
+            "L’obésité est due au fait de boire de l’eau."
+          ]
+        },
+        {
+          "id": "q07",
+          "q": "Quels aliments sont à l’origine de l’obstruction des artères ?",
+          "a": "Les aliments trop gras (les graisses) bouchent les artères.",
+          "keys": [
+            [
+              "gras",
+              "graisses",
+              "graisse",
+              "matières grasses"
+            ]
+          ],
+          "wrong": [
+            "Les fruits et les légumes bouchent les artères.",
+            "L’eau et le lait bouchent les artères.",
+            "Le pain complet bouche les artères."
+          ]
+        },
+        {
+          "id": "q08",
+          "q": "Quels sont les deux aliments dont il ne faut pas abuser ?",
+          "a": "Il ne faut pas abuser du gras et du sucre.",
+          "keys": [
+            [
+              "gras",
+              "graisses",
+              "graisse",
+              "matières grasses"
+            ],
+            [
+              "sucre",
+              "sucres",
+              "sucreries",
+              "sucré",
+              "sucrés"
+            ]
+          ],
+          "wrong": [
+            "Il ne faut pas abuser des fruits et des légumes.",
+            "Il ne faut pas abuser de l’eau et du lait.",
+            "Il ne faut pas abuser du pain et des pâtes."
+          ]
+        },
+        {
+          "id": "q09",
+          "q": "Citer trois aliments indispensables pour que l’alimentation soit de qualité.",
+          "a": "Les fruits, les légumes et les laitages.",
+          "keys": [
+            [
+              "fruits",
+              "fruit"
+            ],
+            [
+              "légumes",
+              "légume"
+            ],
+            [
+              "laitages",
+              "laitage",
+              "produits laitiers",
+              "lait",
+              "yaourts",
+              "fromage"
+            ]
+          ],
+          "wrong": [
+            "Les bonbons, les frites et les sodas.",
+            "Les gâteaux, les chips et les fruits.",
+            "La viande, les légumes et le chocolat."
+          ]
+        },
+        {
+          "id": "q10",
+          "q": "Que détecte l’eau iodée ?",
+          "a": "L’eau iodée détecte l’amidon : elle devient bleu-violet.",
+          "keys": [
+            [
+              "amidon"
+            ]
+          ],
+          "wrong": [
+            "L’eau iodée détecte le sucre.",
+            "L’eau iodée détecte les vitamines.",
+            "L’eau iodée détecte les microbes."
+          ]
+        },
+        {
+          "id": "q11",
+          "q": "Comment le lait se transforme-t-il en yaourt ?",
+          "a": "Des micro-organismes (des bactéries) transforment le lait en yaourt.",
+          "keys": [
+            [
+              "micro-organismes",
+              "microorganismes",
+              "micro-organisme",
+              "microorganisme",
+              "microbes",
+              "microbe",
+              "bactéries",
+              "ferments"
+            ],
+            [
+              "transforment",
+              "transforme",
+              "transformer",
+              "fermentation",
+              "fermentent"
+            ]
+          ],
+          "wrong": [
+            "Le lait se transforme en yaourt quand on le met au congélateur.",
+            "Le lait se transforme en yaourt quand on ajoute du sucre.",
+            "Le lait se transforme en yaourt quand on le fait bouillir longtemps."
+          ]
+        },
+        {
+          "id": "q12",
+          "q": "Quelle est la différence entre un aliment et un nutriment ?",
+          "a": "La digestion transforme les gros aliments en petits nutriments qui peuvent passer dans le sang.",
+          "keys": [
+            [
+              "digestion",
+              "digéré",
+              "digérés",
+              "digérer"
+            ],
+            [
+              "petits",
+              "petit",
+              "petites",
+              "petite"
+            ],
+            [
+              "sang"
+            ]
+          ],
+          "wrong": [
+            "Un aliment se mange et un nutriment se boit.",
+            "Un nutriment est un aliment qui vient d’une culture.",
+            "Il n’y a pas de différence : ce sont deux mots pour la même chose."
+          ]
+        },
+        {
+          "id": "q13",
+          "q": "Comment les organes sont-ils alimentés après que la digestion a eu lieu ?",
+          "a": "Les nutriments sont transportés par le sang jusqu’aux organes, en continu toute la journée.",
+          "keys": [
+            [
+              "nutriments",
+              "nutriment"
+            ],
+            [
+              "sang"
+            ]
+          ],
+          "wrong": [
+            "Les aliments vont directement dans les organes par l’estomac.",
+            "Les organes sont alimentés seulement pendant les repas.",
+            "Les organes sont alimentés par l’air que l’on respire."
+          ]
+        },
+        {
+          "id": "q14",
+          "q": "Citer cinq aliments fabriqués à partir des grains de blé.",
+          "a": "Le pain, les pâtes, la semoule, la farine et les gâteaux.",
+          "keys": [
+            [
+              "pain",
+              "pains"
+            ],
+            [
+              "pâtes"
+            ],
+            [
+              "semoule",
+              "couscous",
+              "boulgour"
+            ],
+            [
+              "farine",
+              "gâteaux",
+              "gâteau",
+              "biscuits",
+              "biscottes",
+              "brioche",
+              "croissants",
+              "crêpes"
+            ]
+          ],
+          "wrong": [
+            "Le riz, le maïs, les frites, le sucre et le lait.",
+            "Le pain, le fromage, le yaourt, le beurre et les œufs.",
+            "Les chips, le riz, les pommes, le miel et le jus d’orange."
+          ]
+        },
+        {
+          "id": "q15",
+          "q": "Citer trois aliments fabriqués à partir du lait.",
+          "a": "Le yaourt, le fromage et le beurre.",
+          "keys": [
+            [
+              "yaourt",
+              "yaourts",
+              "yogourt",
+              "yoghourt"
+            ],
+            [
+              "fromage",
+              "fromages"
+            ],
+            [
+              "beurre",
+              "crème",
+              "crème fraîche",
+              "glace",
+              "glaces"
+            ]
+          ],
+          "wrong": [
+            "Le pain, le beurre et les pâtes.",
+            "Le yaourt, le pain et la confiture.",
+            "Les œufs, la viande et le miel."
+          ]
+        },
+        {
+          "id": "q16",
+          "q": "Pourquoi certains microbes sont-ils utiles ? Donner deux exemples.",
+          "a": "Certains micro-organismes sont utiles : ils permettent de produire des aliments comme les yaourts et le fromage.",
+          "keys": [
+            [
+              "produire",
+              "produisent",
+              "fabriquer",
+              "fabriquent",
+              "faire",
+              "font"
+            ],
+            [
+              "yaourts",
+              "yaourt",
+              "pain"
+            ],
+            [
+              "fromage",
+              "fromages",
+              "pain"
+            ]
+          ],
+          "wrong": [
+            "Ils sont utiles car ils nous rendent malades.",
+            "Ils sont utiles car ils détruisent les vitamines de la soupe.",
+            "Ils sont utiles car ils bouchent les artères."
+          ]
+        },
+        {
+          "id": "q17",
+          "q": "Que signifie pathogène ?",
+          "a": "Pathogène signifie qui peut nous rendre malade.",
+          "keys": [
+            [
+              "malade",
+              "malades",
+              "maladie",
+              "maladies"
+            ]
+          ],
+          "wrong": [
+            "Pathogène signifie qui fabrique des yaourts.",
+            "Pathogène signifie qui vit dans l’eau.",
+            "Pathogène signifie qui est fait d’une seule cellule."
+          ]
+        },
+        {
+          "id": "q18",
+          "q": "Quelles sont les deux techniques permettant d’empêcher la prolifération des microbes dans les aliments ?",
+          "a": "La destruction des micro-organismes par la chaleur et la limitation de leur prolifération par le froid.",
+          "keys": [
+            [
+              "chaleur",
+              "chauffer",
+              "chaud",
+              "cuisson",
+              "cuire",
+              "pasteurisation",
+              "stérilisation"
+            ],
+            [
+              "froid",
+              "réfrigérateur",
+              "frigo",
+              "congélation",
+              "congélateur",
+              "réfrigération",
+              "congeler"
+            ]
+          ],
+          "wrong": [
+            "Le sel et le sucre.",
+            "Laver les aliments et les couper en morceaux.",
+            "Mettre les aliments au soleil et à la lumière."
+          ]
+        },
+        {
+          "id": "q19",
+          "q": "Qu’est-ce que la pasteurisation ? À quelle température se pratique-t-elle ?",
+          "a": "La pasteurisation consiste à chauffer un aliment à environ 70 °C puis à le refroidir vite, pour détruire des microbes.",
+          "keys": [
+            [
+              "chauffer",
+              "chauffe",
+              "chaleur",
+              "chauffé"
+            ],
+            [
+              "70",
+              "72",
+              "75",
+              "80",
+              "85",
+              "65",
+              "63"
+            ],
+            [
+              "microbes",
+              "microbe",
+              "micro-organismes",
+              "microorganismes",
+              "bactéries",
+              "détruire"
+            ]
+          ],
+          "wrong": [
+            "La pasteurisation consiste à congeler un aliment à -18 °C.",
+            "La pasteurisation consiste à ajouter du sel dans un aliment.",
+            "La pasteurisation consiste à faire bouillir un aliment à 100 °C pendant une heure pour le cuire."
+          ]
+        },
+        {
+          "id": "q20",
+          "q": "Citer trois règles d’hygiène en vigueur dans les cuisines des cantines scolaires.",
+          "a": "Le lavage des mains, la propreté des ustensiles et le port de vêtements adaptés.",
+          "keys": [
+            [
+              "mains",
+              "main"
+            ],
+            [
+              "ustensiles",
+              "ustensile",
+              "vaisselle",
+              "plan de travail"
+            ],
+            [
+              "vêtements",
+              "tenue",
+              "blouse",
+              "charlotte",
+              "gants",
+              "tablier",
+              "calot",
+              "bonnet"
+            ]
+          ],
+          "wrong": [
+            "Manger vite, parler fort et finir son assiette.",
+            "Ranger son plateau, dire merci et ne pas courir.",
+            "Laver les mains seulement le soir."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "origine",
+      "kind": "sort",
+      "label": "Origine des aliments",
+      "consigne": "Range chaque aliment : vient-il d’un élevage ou d’une culture ?",
+      "cats": [
+        {
+          "id": "elevage",
+          "label": "Élevage",
+          "emoji": "🐄"
+        },
+        {
+          "id": "culture",
+          "label": "Culture",
+          "emoji": "🌾"
+        }
+      ],
+      "items": [
+        {
+          "id": "viande",
+          "label": "la viande",
+          "cat": "elevage",
+          "emoji": "🥩"
+        },
+        {
+          "id": "lait",
+          "label": "le lait",
+          "cat": "elevage",
+          "emoji": "🥛"
+        },
+        {
+          "id": "oeuf",
+          "label": "l’œuf",
+          "cat": "elevage",
+          "emoji": "🥚"
+        },
+        {
+          "id": "yaourt",
+          "label": "le yaourt",
+          "cat": "elevage"
+        },
+        {
+          "id": "fromage",
+          "label": "le fromage",
+          "cat": "elevage",
+          "emoji": "🧀"
+        },
+        {
+          "id": "beurre",
+          "label": "le beurre",
+          "cat": "elevage",
+          "emoji": "🧈"
+        },
+        {
+          "id": "pomme",
+          "label": "la pomme",
+          "cat": "culture",
+          "emoji": "🍎"
+        },
+        {
+          "id": "carotte",
+          "label": "la carotte",
+          "cat": "culture",
+          "emoji": "🥕"
+        },
+        {
+          "id": "pain",
+          "label": "le pain",
+          "cat": "culture",
+          "emoji": "🍞"
+        },
+        {
+          "id": "gateau",
+          "label": "le gâteau",
+          "cat": "culture",
+          "emoji": "🍰"
+        },
+        {
+          "id": "pates",
+          "label": "les pâtes",
+          "cat": "culture",
+          "emoji": "🍝"
+        },
+        {
+          "id": "farine",
+          "label": "la farine",
+          "cat": "culture"
+        }
+      ]
+    }
+  ]
+}

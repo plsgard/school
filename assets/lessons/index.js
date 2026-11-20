@@ -11,7 +11,7 @@ import { EN_LADDER } from '../en/ladder.js';
 import { checkSentence, clozeOf } from './qa.js';
 
 // Lesson ids per subject, the current lesson first.
-export const SUBJECTS = { svt: [] };
+export const SUBJECTS = { svt: ['alimentation-humaine'] };
 
 // The English ladder plus 'qa': other subjects run on the English lesson engine with this table.
 export const LESSON_LADDER = {
