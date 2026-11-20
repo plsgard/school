@@ -47,7 +47,7 @@ export function createInput(root, { stick = null, buttons = {} } = {}) {
         } else if (!look) {
             look = { id: e.pointerId, x: e.clientX };
         }
-        root.setPointerCapture?.(e.pointerId);
+        try { root.setPointerCapture?.(e.pointerId); } catch { /* a pointer that already ended */ }
         e.preventDefault();
     };
     const onMove = (e) => {
