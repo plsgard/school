@@ -187,7 +187,7 @@ export function createScene(canvas) {
         world = new THREE.Group();
         scene.add(world);
         beaconMeshes.clear(); chipMeshes.clear(); doorMeshes.clear(); zoneMeshes = [];
-        for (const r of robotPool) { scene.remove(r.group, r.cone); }
+        for (const r of robotPool) { scene.remove(r.group, r.cone); disposeTree(r.group); disposeTree(r.cone); }
         robotPool.length = 0;
         crate = null; exitPad = null; dispenser = null;
         cam.ready = false;

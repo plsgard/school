@@ -43,27 +43,36 @@ export function expandLessonCards(decks) {
 // Every problem of a lesson file, one string each; [] = valid. Run on every shipped file by the tests.
 export function validateLesson(lesson) {
     const errors = [];
+    if (lesson.exam != null && !/^\d{4}-\d{2}-\d{2}$/.test(lesson.exam)) errors.push(`exam must be YYYY-MM-DD or null: ${lesson.exam}`);
+    const groupIds = new Set();
     for (const g of lesson.groups ?? []) {
         const at = (it) => `${g.id}/${it?.id ?? '?'}`;
+        if (!g.id || groupIds.has(g.id)) errors.push(`${g.id ?? '?'}: missing or duplicate group id`);
+        groupIds.add(g.id);
         if (!SKILLS[g.kind]) { errors.push(`${g.id}: unknown kind ${g.kind}`); continue; }
         const seen = new Set();
         for (const it of g.items ?? []) {
-            if (seen.has(it.id)) errors.push(`${at(it)}: duplicate id`);
+            if (!it.id) errors.push(`${at(it)}: item without id`);
+            else if (seen.has(it.id)) errors.push(`${at(it)}: duplicate id`);
             seen.add(it.id);
         }
         if (g.kind === 'qa') {
             for (const it of g.items ?? []) {
                 if (!it.q || !it.a || !Array.isArray(it.keys) || !it.keys.length) { errors.push(`${at(it)}: needs q, a and keys`); continue; }
                 if ((it.wrong ?? []).length < 3) errors.push(`${at(it)}: needs 3 wrong answers`);
+                else if (new Set([it.a, ...it.wrong]).size !== it.wrong.length + 1) errors.push(`${at(it)}: wrong answers repeat each other or the answer`);
                 if (checkSentence(it.keys, it.a).outcome !== 'right') errors.push(`${at(it)}: the answer fails its own keys`);
-                if (!clozeOf(it)) errors.push(it.cloze ? `${at(it)}: cloze "${it.cloze}" is not in the answer` : `${at(it)}: no key written in the answer (cloze)`);
+                if (!clozeOf(it)) errors.push(it.cloze ? `${at(it)}: cloze "${it.cloze}" is not a whole word of the answer` : `${at(it)}: no key written in the answer (cloze)`);
                 for (const w of it.wrong ?? []) if (checkSentence(it.keys, w).outcome === 'right') errors.push(`${at(it)}: wrong answer passes the keys: ${w}`);
             }
         } else if (g.kind === 'sort') {
             const cats = new Set((g.cats ?? []).map(c => c.id));
             if (cats.size < 2) errors.push(`${g.id}: a sort group needs 2 categories`);
             else if (cats.size > 4) errors.push(`${g.id}: a sort group has at most 4 categories (a sort room has 4 zones)`);
-            else for (const it of g.items ?? []) if (!cats.has(it.cat)) errors.push(`${at(it)}: unknown category ${it.cat}`);
+            else for (const it of g.items ?? []) {
+                if (!cats.has(it.cat)) errors.push(`${at(it)}: unknown category ${it.cat}`);
+                if (!it.label) errors.push(`${at(it)}: sort item without label`);
+            }
         }
     }
     return errors;

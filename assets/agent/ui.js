@@ -2,6 +2,8 @@
 // DOM overlays of Agent L: the HUD, the briefing, the debrief, the hideout, the parent corner and the intro. Data
 // text always goes through textContent (el() never sets innerHTML). French UI text, English briefings for English
 // lessons (spoken when a voice exists; a tap shows the French).
+import { dayNumber } from './rules.js';
+
 const NBSP = ' ';
 const $ = (id) => document.getElementById(id);
 
@@ -80,7 +82,7 @@ export function briefingLines(lesson, type, index = 0) {
     ];
 }
 
-const daysUntil = (exam, today) => Math.round((Date.parse(`${exam}T00:00:00Z`) - Date.parse(`${today}T00:00:00Z`)) / 864e5);
+const daysUntil = (exam, today) => dayNumber(exam) - dayNumber(today);
 
 // Resolves 'go' or 'later'.
 export function showBriefing(lesson, type, { priority = false, training = false, exam = null, today = '', index = 0, say = null } = {}) {
@@ -117,7 +119,7 @@ export function showDebrief({ stars = 0, credits = 0, rankUp = null, missed = []
     return openCard((close) => [
         el('h2', {}, quit ? '🏠 Mission interrompue' : stars ? `Mission accomplie${NBSP}!` : 'Mission terminée'),
         quit ? el('p', { class: 'ag-note' }, 'Tes réponses sont gardées. Pas d’étoiles cette fois.') : el('div', { class: 'ag-stars', 'aria-label': `${stars} étoile${stars > 1 ? 's' : ''} sur 3` }, '⭐'.repeat(stars) + '☆'.repeat(3 - stars)),
-        training ? el('p', { class: 'ag-note' }, 'Entraînement : rien n’était à réviser aujourd’hui, rien n’est enregistré.') : null,
+        training ? el('p', { class: 'ag-note' }, `Entraînement${NBSP}: rien n’était à réviser aujourd’hui, rien n’est enregistré.`) : null,
         el('p', {}, `💰 +${credits} crédits${!quit && caught === 0 && stars > 0 ? ` (bonus discrétion${NBSP}!)` : ''}`),
         rankUp ? el('p', { class: 'ag-briefing' }, `🎖️ Nouveau grade${NBSP}: ${rankUp}${NBSP}! Va voir la planque.`) : null,
         missed.length ? el('h3', {}, 'À retravailler') : null,
@@ -165,7 +167,7 @@ export function showParent({ settings, today: todayCount, lessons, days, onSetti
         const sound = el('input', { type: 'checkbox', checked: settings.sound, onchange: () => onSettings({ sound: sound.checked }) });
         let armed = false;
         const reset = el('button', { type: 'button', class: 'ag-small', onclick: () => {
-            if (!armed) { armed = true; reset.textContent = 'Confirmer : tout effacer ?'; return; }
+            if (!armed) { armed = true; reset.textContent = `Confirmer${NBSP}: tout effacer${NBSP}?`; return; }
             onReset();
             reset.textContent = 'Partie remise à zéro';
             reset.disabled = true;
@@ -177,13 +179,13 @@ export function showParent({ settings, today: todayCount, lessons, days, onSetti
                     el('button', { type: 'button', class: 'ag-small', onclick: () => setMax(-1), 'aria-label': 'Moins' }, '−'), maxOut,
                     el('button', { type: 'button', class: 'ag-small', onclick: () => setMax(1), 'aria-label': 'Plus' }, '+'))),
                 el('p', { class: 'ag-note' }, `Aujourd’hui${NBSP}: ${todayCount} mission${todayCount > 1 ? 's' : ''}. L’île et la planque restent ouvertes une fois la limite atteinte.`),
-                el('label', {}, el('span', {}, 'Son et voix anglaise'), sound)),
+                el('label', {}, el('span', {}, 'Bruitages du jeu (la voix anglaise des leçons reste active)'), sound)),
             el('h3', {}, 'Progrès par leçon'),
             el('div', { class: 'ag-parent' }, el('table', {},
                 el('thead', {}, el('tr', {}, el('th', {}, 'Leçon'), el('th', {}, 'Acquis'), el('th', {}, 'Su'), el('th', {}, 'En cours'), el('th', {}, 'Nouveaux'))),
                 el('tbody', {}, ...lessons.map(l => el('tr', {}, el('td', {}, l.label),
                     ...['mastered', 'known', 'learning', 'new'].map(k => el('td', {}, String(l.progress[k])))))))),
-            el('p', { class: 'ag-note' }, 'Acquis : réussi de mémoire deux jours différents. Su : réussi de mémoire une fois. Les progrès sont partagés avec la page d’anglais.'),
+            el('p', { class: 'ag-note' }, `Acquis${NBSP}: réussi de mémoire deux jours différents. Su${NBSP}: réussi de mémoire une fois. Les progrès sont partagés avec la page d’anglais.`),
             el('h3', {}, '7 derniers jours'),
             days.length ? el('ul', { class: 'ag-list' }, ...days.map(([d, v]) => el('li', {}, el('span', {}, d),
                 el('span', {}, `${v.missions} mission${v.missions > 1 ? 's' : ''} · ${v.locks} serrures · ${v.firstTry} du premier coup`))))

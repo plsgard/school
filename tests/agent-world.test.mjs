@@ -65,6 +65,11 @@ describe('mission room', () => {
         const crate = solidsOf(parsed).find(b => b.kind === 'crate');
         assert.deepEqual([crate.h, crate.w], [1, TILE]);
     });
+    test('solidsOf_SortRoom_DispenserIsALowBox', () => {
+        const sortRoom = parseLayout(LAYOUTS.sort[0]);
+        const d = solidsOf(sortRoom).find(b => b.kind === 'dispenser');
+        assert.deepEqual([d.cx, d.cy, d.h], [sortRoom.dispenser.x, sortRoom.dispenser.y, 1.2]);
+    });
     test('sees_CrateBetween_ReturnsFalse', () => {
         // Row 3 of the serpentine: crate at (15, 3); robot at (17, 3) looking west, player at (13, 3), then at (13, 1).
         const robot = { ...cellCenter({ x: 17, y: 3 }), dir: Math.PI };

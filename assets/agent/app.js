@@ -5,7 +5,8 @@
 // locks.js / sound.js speak to the child. Learning state (learn / srs) is the lesson engine's, shared with en.html;
 // the game's own state (credits, ranks, shop, day log) is `game.<profile>.agent`. Every save is best-effort.
 // `agent.html?debug` exposes window.agent for hand-testing (`&fixture` adds the test lesson as subject 'demo').
-import { getActiveProfileId, loadSrs, saveSrs, loadLearn, saveLearn, loadGame, saveGame } from '../storage.js';
+import { getActiveProfileId, loadSrs, saveSrs, loadLearn, saveLearn, loadGame, saveGame, loadSettings } from '../storage.js';
+import { enSettings } from '../en/rules.js';
 import { ensureProfiles, trackProfileId } from '../profiles.js';
 import { holdToActivate } from '../hold.js';
 import { loadDecks } from '../en/decks/index.js';
@@ -44,10 +45,20 @@ function loadState() {
     catch { return R.normalize(null); }
 }
 const saveState = () => R.persist((s) => saveGame(profileId, R.GAME_ID, s), game);
+// Lesson progress per track, read from storage once and kept in memory: with storage blocked (private mode, quota)
+// what he answered still counts for the next mission of the visit.
+const tracks = new Map();
 const loadTrack = (trackId) => {
-    let srs = { cards: {}, introduced: {} }, learn = { cards: {}, formats: {} };
-    try { srs = loadSrs(profileId, trackId); learn = loadLearn(profileId, trackId); } catch (err) { console.warn('[agent] progress unreadable', err); }
-    return { srs, learn };
+    if (!tracks.has(trackId)) {
+        let srs = { cards: {}, introduced: {} }, learn = { cards: {}, formats: {} };
+        try { srs = loadSrs(profileId, trackId); learn = loadLearn(profileId, trackId); } catch (err) { console.warn('[agent] progress unreadable', err); }
+        tracks.set(trackId, { srs, learn });
+    }
+    return tracks.get(trackId);
+};
+const keepTrack = (trackId, srs, learn) => {
+    tracks.set(trackId, { srs, learn });
+    R.persist(() => { saveLearn(profileId, trackId, learn); saveSrs(profileId, trackId, srs); }, null);
 };
 
 async function loadContent() {
@@ -81,7 +92,9 @@ const input = createInput($('view'), {
     stick: $('stick'),
     buttons: { action: $('btnAction'), jump: $('btnJump'), sprint: $('btnSprint'), gadget: $('btnGadget') },
 });
-const sound = createSound({ enabled: true });
+let enVoice = '';
+try { enVoice = enSettings(loadSettings(profileId)).enVoice; } catch { /* default voice */ }
+const sound = createSound({ enabled: true, voiceName: enVoice });
 const hud = createHud();
 
 let toastTimer = null;
@@ -383,24 +396,32 @@ const activePaths = () => [...mission.parsed.patrols, ...mission.parsed.reserve.
 
 // The world waits while he answers: no timer on an answer.
 async function openDoorLock(n) {
-    mission.busy = true;
-    const now = new Date();
-    let m = M.openLock(mission.m, { srs: mission.srs, learn: mission.learn, today: mission.day, now });
-    mission.m = m;
-    if (m.done) {
-        allDoorsOpen();
-        toast(`Toutes les portes s’ouvrent${NBSP}! File vers la sortie.`);
-        mission.busy = false;
-        return;
+    const here = mission;
+    here.busy = true;
+    try {
+        const now = new Date();
+        const m = M.openLock(here.m, { srs: here.srs, learn: here.learn, today: here.day, now });
+        here.m = m;
+        if (m.done) {
+            allDoorsOpen();
+            toast(`Toutes les portes s’ouvrent${NBSP}! File vers la sortie.`);
+            return;
+        }
+        const ex = M.exerciseFor(m.step, { cards: here.lesson.cards, now });
+        const res = await showLock(ex, `🔒 Porte ${n + 1}${NBSP}/${NBSP}${here.m.total}`);
+        if (mission !== here) return;
+        afterLock(res);
+        here.openDoors.add(n);
+        here.respawn = cellCenter(here.parsed.locks[n]);
+        sound.play('door');
+    } catch (err) {
+        // Never stuck behind a door: it opens, and the mission goes on.
+        console.error('[agent] lock failed', err);
+        if (mission === here) { here.openDoors.add(n); here.m = { ...here.m, index: here.m.index + 1, done: here.m.index + 1 >= here.m.total }; }
+        closeLock();
+    } finally {
+        here.busy = false;
     }
-    const ex = M.exerciseFor(m.step, { cards: mission.lesson.cards, now });
-    const res = await showLock(ex, `🔒 Porte ${n + 1}${NBSP}/${NBSP}${mission.m.total}`);
-    if (!mission) return; // quit while the panel was open
-    afterLock(res);
-    mission.openDoors.add(n);
-    mission.respawn = cellCenter(mission.parsed.locks[n]);
-    sound.play('door');
-    mission.busy = false;
 }
 
 // One answered lock: the lesson engine records it, the game pays for it, both are saved.
@@ -415,8 +436,7 @@ function afterLock(res) {
     mission.runCredits += pay.credits;
     mission.locks++;
     if (m.step.record && res.result === 'right') mission.firstTry++;
-    const { trackId } = mission.lesson;
-    R.persist(() => { saveLearn(profileId, trackId, mission.learn); saveSrs(profileId, trackId, mission.srs); }, null);
+    keepTrack(mission.lesson.trackId, mission.srs, mission.learn);
     saveState();
     if (pay.credits) sound.play('coin');
     if (out.masteredNow) toast(`🏅 Maîtrisé${NBSP}! +${R.PAY.mastered} crédits.`);
@@ -475,7 +495,7 @@ function tickSort(inp) {
         const result = mission.sort.wrong ? 'miss' : 'right';
         afterLock({ result, ms: Date.now() - mission.sort.t0, typed: mission.sort.wrong ?? '' });
         sound.play(result === 'right' ? 'right' : 'door');
-        toast(result === 'right' ? `✅ Bien rangé${NBSP}!` : `Rangé. Cette caisse reviendra plus tard.`, 1800);
+        toast(result === 'right' ? `✅ Bien rangé${NBSP}!` : `Rangé. Cette caisse reviendra un autre jour.`, 1800);
         mission.sort = null;
         mission.litZone = null;
         drawZones();
@@ -527,17 +547,24 @@ async function showLock(ex, title) {
     $('lock').hidden = false;
     placeLock();
     freeze(true);
-    const hint = mission.hint > 0 ? () => { if (mission.hint <= 0) return false; mission.hint--; refreshHud(); return true; } : null;
+    const here = mission;
+    const hint = here.hint > 0 ? () => { if (mission !== here || here.hint <= 0) return false; here.hint--; refreshHud(); return true; } : null;
     const res = await Promise.race([
         playLock(ex, lockUi, { hint }),
         new Promise(resolve => { debugAnswer = (result) => resolve({ result, ms: 5000, typed: result === 'miss' ? 'debug' : '' }); }),
     ]);
     debugAnswer = null;
+    closeLock();
+    return res;
+}
+
+function closeLock() {
     sound.stop();
     $('lock').hidden = true;
     $('hintBtn').hidden = true;
+    lockUi.stage.replaceChildren();
+    lockUi.feedback.replaceChildren();
     freeze(false);
-    return res;
 }
 
 // ---------------------------------------------------------------- end of a mission
@@ -553,21 +580,25 @@ async function finishMission() {
     sound.play(fin.rankUp ? 'rank' : 'right');
     freeze(true);
     app.screen = 'debrief';
-    await showDebrief({ stars, credits: done.runCredits + fin.credits, rankUp: fin.rankUp ? R.RANKS[R.rankOf(game.xp)].name : null,
-        missed: M.missed(done.m, done.lesson.cards), training: done.training, caught: done.caught });
-    backToHub(done.lesson.id);
+    try {
+        await showDebrief({ stars, credits: done.runCredits + fin.credits, rankUp: fin.rankUp ? R.RANKS[R.rankOf(game.xp)].name : null,
+            missed: M.missed(done.m, done.lesson.cards), training: done.training, caught: done.caught });
+    } finally {
+        backToHub(done.lesson.id);
+    }
 }
 
 // 🏠 mid-mission: what he answered stays recorded and paid; no star pay; the mission counted when it started.
 async function quitMission() {
-    if (!mission || app.screen !== 'mission') return;
+    // While a lock panel waits for his answer, 🏠 does nothing: the panel is the only thing to finish.
+    if (!mission || app.screen !== 'mission' || mission.busy || app.frozen) return;
     const done = mission;
     game = R.quitMission(game, { today: done.day, locks: done.locks, firstTry: done.firstTry });
     saveState();
     freeze(true);
     app.screen = 'debrief';
-    await showDebrief({ quit: true, credits: done.runCredits, missed: M.missed(done.m, done.lesson.cards) });
-    backToHub(done.lesson.id);
+    try { await showDebrief({ quit: true, credits: done.runCredits, missed: M.missed(done.m, done.lesson.cards) }); }
+    finally { backToHub(done.lesson.id); }
 }
 
 function backToHub(lessonId) {
@@ -586,11 +617,12 @@ function backToHub(lessonId) {
 
 {   // 🏠 quits on a 0.8 s hold or two taps within 2 s.
     const btn = $('quitBtn');
-    let hold = null, armed = null;
+    let hold = null, armed = null, held = false;
     const release = () => { clearTimeout(hold); hold = null; };
-    btn.addEventListener('pointerdown', () => { release(); hold = setTimeout(quitMission, 800); });
+    btn.addEventListener('pointerdown', () => { release(); held = false; hold = setTimeout(() => { held = true; quitMission(); }, 800); });
     for (const ev of ['pointerup', 'pointerleave', 'pointercancel']) btn.addEventListener(ev, release);
     btn.addEventListener('click', () => {
+        if (held) { held = false; return; } // the click that ends a hold
         if (armed) { clearTimeout(armed); armed = null; quitMission(); return; }
         toast('Touche encore 🏠 pour quitter la mission.', 2000);
         armed = setTimeout(() => { armed = null; }, 2000);
@@ -622,9 +654,12 @@ function view() {
         robots: mission ? mission.robots : [],
         crate: crateView(),
         openDoors: mission?.openDoors, nextDoor: nextLock, exitOpen: mission?.exitOpen,
-        chips: new Set(game.chips),
+        chips: chipSet(),
     };
 }
+
+let chipCache = { list: null, set: new Set() };
+const chipSet = () => { if (chipCache.list !== game.chips) chipCache = { list: game.chips, set: new Set(game.chips) }; return chipCache.set; };
 
 // Where the current sort crate is drawn: over his head, or back on the dispenser.
 function crateView() {
@@ -724,7 +759,7 @@ if (DEBUG) {
             return { ...app.player };
         },
         info: () => ({ ...scene.info(), pixelRatio: scene.pixelRatio() }),
-        briefing: (lessonId) => openBriefing(lessonId),
+        briefing: (lessonId) => (!mission && !app.frozen ? openBriefing(lessonId) : false),
         // Walks up to the next lock door and opens its panel.
         openNext() {
             if (!mission || mission.busy || mission.exitOpen) return false;

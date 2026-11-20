@@ -40,11 +40,8 @@ const DAYS_KEPT = 30;
 const MAX_MISSIONS = [1, 12];
 const DAY_MS = 864e5;
 
-export const localDay = (d) => {
-    const p = (n) => String(n).padStart(2, '0');
-    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
-};
-const dayNumber = (day) => Math.round(Date.parse(`${day}T00:00:00Z`) / DAY_MS);
+export { localDay } from '../en/rules.js';
+export const dayNumber = (day) => Math.round(Date.parse(`${day}T00:00:00Z`) / DAY_MS);
 
 const defaults = () => ({
     v: 1, credits: 0, xp: 0, owned: ['classic'], equipped: { outfit: 'classic', gadget: null }, chips: [], day: null,
@@ -62,10 +59,12 @@ export function normalize(raw, { lessonIds, chipIds } = {}) {
     const lessonOk = (id) => !lessonIds || lessonIds.includes(id);
     const owned = [...new Set(['classic', ...list(r.owned)])].filter(id => ITEM[id]);
     const eq = r.equipped ?? {};
-    const settings = { ...base.settings, ...(r.settings ?? {}) };
-    const max = Math.round(Number(settings.maxMissions));
-    settings.maxMissions = Number.isFinite(max) ? Math.min(MAX_MISSIONS[1], Math.max(MAX_MISSIONS[0], max)) : base.settings.maxMissions;
-    settings.sound = settings.sound !== false;
+    const rs = r.settings ?? {};
+    const max = rs.maxMissions == null || rs.maxMissions === '' ? NaN : Math.round(Number(rs.maxMissions));
+    const settings = {
+        maxMissions: Number.isFinite(max) ? Math.min(MAX_MISSIONS[1], Math.max(MAX_MISSIONS[0], max)) : base.settings.maxMissions,
+        sound: rs.sound !== false,
+    };
     const pr = r.priority ?? {};
     const days = Object.entries(r.days && typeof r.days === 'object' ? r.days : {})
         .filter(([d]) => /^\d{4}-\d{2}-\d{2}$/.test(d)).sort(([a], [b]) => (a < b ? -1 : 1)).slice(-DAYS_KEPT)

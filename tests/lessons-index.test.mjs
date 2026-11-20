@@ -94,6 +94,30 @@ describe('validateLesson', () => {
         const l = copy(); sort(l).items[0].cat = 'lunaire';
         assert.equal(validateLesson(l).length, 1);
     });
+    test('validateLesson_ItemWithoutId_ReportsIt', () => {
+        const l = copy(); delete sort(l).items[0].id;
+        assert.equal(validateLesson(l).length, 1);
+    });
+    test('validateLesson_DuplicateGroupId_ReportsIt', () => {
+        const l = copy(); sort(l).id = 'questions';
+        assert.ok(validateLesson(l).some(e => e.includes('group id')));
+    });
+    test('validateLesson_SortItemWithoutLabel_ReportsIt', () => {
+        const l = copy(); delete sort(l).items[0].label;
+        assert.equal(validateLesson(l).length, 1);
+    });
+    test('validateLesson_ExamNotADate_ReportsIt', () => {
+        const l = copy(); l.exam = '23/11/2026';
+        assert.equal(validateLesson(l).length, 1);
+    });
+    test('validateLesson_WrongDuplicatesOrEqualsTheAnswer_ReportsIt', () => {
+        const l = copy(); qa(l).items[0].wrong[1] = qa(l).items[0].wrong[0];
+        assert.equal(validateLesson(l).length, 1);
+    });
+    test('validateLesson_ClozeInsideAnotherWord_ReportsIt', () => {
+        const l = copy(); qa(l).items[2].cloze = 'bet';
+        assert.equal(validateLesson(l).length, 1);
+    });
     test('validateLesson_OtherKind_ReportsIt', () => {
         const l = copy(); l.groups.push({ id: 'x', kind: 'order', items: [] });
         assert.equal(validateLesson(l).length, 1);

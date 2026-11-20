@@ -63,6 +63,7 @@ export function solidsOf(parsed, openLocks = new Set()) {
             const box = (h, kind) => out.push({ x: (x + 0.5) * TILE, z: (y + 0.5) * TILE, w: TILE, d: TILE, h, kind, cx: x, cy: y });
             if (ch === '#') box(3, 'wall');
             else if (ch === 'c') box(1, 'crate');
+            else if (ch === 'P') box(1.2, 'dispenser');
             else if (ch >= '0' && ch <= '9' && !openLocks.has(Number(ch))) box(3, 'door');
         }
     }
@@ -117,6 +118,14 @@ function cachedSolids(parsed, openLocks) {
     return entry.solids;
 }
 
+const mergedCache = new WeakMap();
+function mergedSolids(parsed, openLocks, extra) {
+    const base = cachedSolids(parsed, openLocks);
+    let entry = mergedCache.get(extra);
+    if (!entry || entry.base !== base) { entry = { base, solids: [...base, ...extra] }; mergedCache.set(extra, entry); }
+    return entry.solids;
+}
+
 function moveToward(robot, target, speed, dt, solids) {
     const dist = Math.hypot(target.x - robot.x, target.z - robot.z);
     if (dist < 0.05) return { x: robot.x, z: robot.z, arrived: true };
@@ -129,7 +138,7 @@ function moveToward(robot, target, speed, dt, solids) {
 // A player standing on top of something is still seen; extra = more solids (a sort run's fences).
 export function stepRobot(robot, player, dt, parsed, openLocks = new Set(), extra = []) {
     if (robot.frozenS > 0) return { ...robot, frozenS: Math.max(0, robot.frozenS - dt) };
-    const solids = extra.length ? [...cachedSolids(parsed, openLocks), ...extra] : cachedSolids(parsed, openLocks);
+    const solids = extra.length ? mergedSolids(parsed, openLocks, extra) : cachedSolids(parsed, openLocks);
     const visible = player && sees(robot, player, opaqueWith(parsed, openLocks));
     const r = { ...robot };
     if (r.mode === 'chase') {

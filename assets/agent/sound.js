@@ -1,6 +1,8 @@
 // assets/agent/sound.js
-// A small synth for the game's sounds (no audio files) and the English voice of the briefings and lock panels,
-// through core/speech.js (device en-GB voice, else silent: nothing ever waits on speech it cannot play).
+// A small synth for the game's sound effects (no audio files) and the English voice of the briefings and lock panels,
+// through core/speech.js (device en-GB voice, else silent: nothing ever waits on speech it cannot play). The 🔊 toggle
+// mutes the effects only: the lesson voice (dictation, listening) follows en.html, which plays whenever a voice exists.
+// voiceName: the parent's English voice (settings enVoice, shared with en.html).
 import { createSpeech, createDeviceSource, SILENT_SOURCE } from '../core/speech.js';
 
 const NOTES = {
@@ -49,12 +51,12 @@ export function createSound({ enabled = true, voiceName = '' } = {}) {
             if (!on || !ctx) return;
             try { for (const [f, d, type, delay = 0, vol, slide] of NOTES[name] ?? []) tone(f, d, type, delay, vol, slide); } catch { /* ignore */ }
         },
-        // English only; resolves at once when sound is off or no English voice exists.
-        say(text) { return on && text ? speech.speak({ text }) : Promise.resolve(); },
+        // English only; resolves at once when no English voice exists.
+        say(text) { return text ? speech.speak({ text }) : Promise.resolve(); },
         stop() { speech.stop(); },
-        // Dictation and listening locks need sound on and an English voice.
-        hasVoice: () => on && device.listVoices().length > 0,
-        setEnabled(v) { on = !!v; if (!on) speech.stop(); },
+        // Same rule as en.html: dictation and listening locks exist when the device has an English voice.
+        hasVoice: () => device.listVoices().length > 0,
+        setEnabled(v) { on = !!v; },
         get enabled() { return on; },
     };
 }

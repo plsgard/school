@@ -4,6 +4,7 @@
 // → 3 answer in a sentence of his own, right when every key idea is in it. Accents, case and punctuation never
 // count: this is about remembering the idea and its words, not French spelling.
 import { checkAnswer } from '../en/answer.js';
+import { levenshtein } from '../en/pronounce.js';
 
 const ACCENTS = /[̀-ͯ]/g;
 
@@ -13,19 +14,9 @@ export const fold = (s) => String(s ?? '').toLowerCase()
     .replace(/[^a-z0-9]+/g, ' ')
     .trim();
 
-function distance(a, b) {
-    let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
-    for (let i = 1; i <= a.length; i++) {
-        const row = [i];
-        for (let j = 1; j <= b.length; j++) row[j] = Math.min(prev[j] + 1, row[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
-        prev = row;
-    }
-    return prev[b.length];
-}
-
 // A key word of 6 letters or more tolerates one letter off (bactérie / bactéries); a short one must be exact
 // (lait / laid are two words).
-const wordMatches = (key, typed) => key === typed || (key.length >= 6 && distance(key, typed) <= 1);
+const wordMatches = (key, typed) => key === typed || (key.length >= 6 && levenshtein(key, typed) <= 1);
 
 // One alternative (one or more words) occurs in the typed words as consecutive whole words.
 function occurs(alt, words) {
@@ -61,13 +52,13 @@ function findWord(text, needle) {
     return -1;
 }
 
-// The model answer split around the word to type: `item.cloze` when given, else the first key alternative (key
+// The model answer split around the word to type: `item.cloze` (a whole word of the answer) when given, else the first key alternative (key
 // order, then alternative order) written in the answer. null when no key is written in the answer.
 export function clozeOf(item) {
     const a = String(item.a ?? '');
     const split = (i, len) => ({ before: a.slice(0, i), after: a.slice(i + len), answer: a.slice(i, i + len) });
     if (item.cloze) {
-        const i = a.indexOf(item.cloze);
+        const i = findWord(a, item.cloze);
         return i < 0 ? null : split(i, item.cloze.length);
     }
     for (const alts of item.keys ?? []) {

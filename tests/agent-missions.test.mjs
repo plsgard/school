@@ -161,6 +161,30 @@ describe('mission', () => {
         assert.deepEqual(game.learn, learn);
         assert.deepEqual(game.srs, srs);
     });
+    test('playWholeMission_WrittenItems_LeaveSameStateAsAnEnHtmlLessonSession', () => {
+        // The reference is built as en.html's runLessonSession builds it: expandCards, the lesson's decks, no table.
+        // Written groups only, since en.html would also play the microphone cards the game leaves out.
+        const decks = lessonFiles.flatMap(flattenLesson).filter(d => d.lesson.id === 'what-day-is-it' && ['spell', 'write'].includes(d.kind));
+        const enCards = expandCards(decks);
+        const lesson = { ...byId('what-day-is-it'), cards: byId('what-day-is-it').cards.filter(c => ['spell', 'write'].includes(c.kind)) };
+        const answer = (step, i) => (i % 3 === 1 ? 'miss' : i % 4 === 2 ? 'retry' : 'right');
+        const game = playMission(lesson, { answer });
+        let { srs, learn } = empty();
+        let owed = [], newCount = 0;
+        const history = [];
+        for (let index = 0; index < LOCKS; index++) {
+            const step = nextStep({ cards: enCards, srs, learn, today: TODAY, exam: lesson.exam, hasVoice: true, history, owed, index, total: LOCKS, newCount, rng: seeded(index + 1), now: NOW });
+            if (!step) break;
+            if (step.isNew) newCount++;
+            history.push({ cardId: step.card.id, recorded: step.record });
+            if (!step.record) continue;
+            const out = applyStep({ learn, srs, step, result: answer(step, index), ms: 60000, typed: 'oops', today: TODAY, hasVoice: true });
+            ({ learn, srs } = out);
+            owed = afterAnswer({ owed, cardId: step.card.id, index, learning: out.learning });
+        }
+        assert.deepEqual(game.learn, learn);
+        assert.deepEqual(game.srs, srs);
+    });
     test('canRecord_FreshLesson_ReturnsTrue', () => {
         const { srs, learn } = empty();
         assert.equal(canRecord({ lesson: byId('demo'), type: 'sort', srs, learn, today: TODAY, hasVoice: true }), true);

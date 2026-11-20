@@ -41,6 +41,11 @@ describe('normalize', () => {
         assert.equal(normalize({ settings: { maxMissions: 40 } }, { lessonIds: [] }).settings.maxMissions, 12);
         assert.equal(normalize({ settings: { maxMissions: 0 } }, { lessonIds: [] }).settings.maxMissions, 1);
     });
+    test('normalize_MaxMissionsNullOrUnknownKeys_DefaultAndDropped', () => {
+        const s = normalize({ settings: { maxMissions: null, junk: 1 } }, { lessonIds: [] });
+        assert.deepEqual(s.settings, { maxMissions: 6, sound: true });
+        assert.equal(normalize({ settings: { maxMissions: '' } }, { lessonIds: [] }).settings.maxMissions, 6);
+    });
     test('normalize_ManyDays_KeepsTheLast30', () => {
         const days = Object.fromEntries(Array.from({ length: 40 }, (_, i) => [`2026-10-${String(i + 1).padStart(2, '0')}`, { missions: 1, locks: 10, firstTry: 5 }]));
         const kept = Object.keys(normalize({ days }, { lessonIds: [] }).days);

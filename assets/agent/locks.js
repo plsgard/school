@@ -28,11 +28,13 @@ function modelLine(ui, model, typed) {
     return ui.el('div', { class: 'answer' }, pre, mid ? ui.el('mark', {}, mid) : null, post);
 }
 
-// gap-pick (grammar) and listen-pick (vocab): the first tap decides.
+// gap-pick (grammar), listen-pick (vocab) and the pick of a 'qa' item (other subjects): the first tap decides.
 function playChoice(ex, ui) {
     const { el } = ui;
     const t0 = Date.now();
     const listen = ex.type === 'listen-pick';
+    const qa = ex.kind === 'qa';
+    const lang = qa ? 'fr' : 'en';
     return new Promise(resolve => {
         const grid = el('div', { class: 'en-choices' }, ...ex.choices.map(c => el('button', {
             type: 'button', class: 'en-choice', 'data-correct': c.correct ? '1' : '0',
@@ -41,22 +43,25 @@ function playChoice(ex, ui) {
                 const ms = Date.now() - t0;
                 for (const b of grid.querySelectorAll('button')) b.disabled = true;
                 grid.querySelector('[data-correct="1"]').classList.add('ok');
-                const shown = listen ? `${ex.answer.en} = ${ex.answer.fr}` : ex.filled;
+                const shown = listen ? `${ex.answer.en} = ${ex.answer.fr}` : qa ? ex.model : ex.filled;
                 if (c.correct) {
-                    ui.feedback.replaceChildren(el('strong', {}, `✅ Oui${NBSP}!`), el('div', { class: 'answer', lang: 'en' }, shown));
+                    ui.feedback.replaceChildren(el('strong', {}, `✅ Oui${NBSP}!`), el('div', { class: 'answer', lang }, shown));
                     await ui.say(ex.say);
                     await ui.sleep(450);
                     resolve({ result: 'right', ms, typed: '' });
                     return;
                 }
                 e.currentTarget.classList.add('ko');
-                ui.feedback.replaceChildren(el('strong', {}, `❌ La bonne réponse${NBSP}:`), el('div', { class: 'answer', lang: 'en' }, shown));
+                ui.feedback.replaceChildren(el('strong', {}, `❌ La bonne réponse${NBSP}:`), el('div', { class: 'answer', lang }, shown));
                 await ui.say(ex.say);
                 await continueButton(ui);
                 resolve({ result: 'miss', ms, typed: c.text ?? c.fr ?? '' });
             },
         }, listen && c.img ? el('span', { class: 'img' }, c.img) : null, listen ? c.fr : c.text)));
-        if (listen) {
+        if (qa) {
+            if (ex.choices.some(c => c.text.length > 28)) grid.classList.add('long');
+            ui.stage.replaceChildren(el('div', { class: 'en-prompt' }, el('div', { class: 'fr' }, ex.cue)), grid);
+        } else if (listen) {
             const replay = el('button', { type: 'button', class: 'en-speak', 'aria-label': 'Réécouter', onclick: () => ui.say(ex.say) }, '🔊');
             ui.stage.replaceChildren(replay, grid);
             setTimeout(() => ui.say(ex.say), 300);
@@ -159,9 +164,12 @@ async function playSentence(ex, ui) {
 
 // The hint drone: two wrong choices go, or the first letter shows. Returns whether something was revealed.
 function applyHint(ex, ui) {
+    // Choices: up to two wrong ones go, but one always stays (a hint never gives the answer away).
     const wrong = [...ui.stage.querySelectorAll('.en-choice[data-correct="0"]:not(:disabled)')];
     if (wrong.length) {
-        for (const b of wrong.slice(0, 2)) { b.disabled = true; b.classList.add('gone'); }
+        const n = Math.min(2, wrong.length - 1);
+        if (!n) return false;
+        for (const b of wrong.slice(0, n)) { b.disabled = true; b.classList.add('gone'); }
         return true;
     }
     if (ex.type === 'sentence') {
@@ -180,26 +188,36 @@ function applyHint(ex, ui) {
 
 export function playLock(ex, ui, { hint = null } = {}) {
     let hinted = false;
+    // Once he answers (a choice tapped, a form sent), the hint is of no use: no charge spent for nothing.
+    const answered = (e) => {
+        if (e.type === 'submit' || e.target.closest?.('.en-choice')) { if (ui.hintButton) ui.hintButton.disabled = true; }
+    };
+    ui.stage.addEventListener('click', answered, true);
+    ui.stage.addEventListener('submit', answered, true);
     if (ui.hintButton) {
         ui.hintButton.hidden = !hint;
         ui.hintButton.disabled = false;
         ui.hintButton.onclick = () => {
-            if (hinted || !hint || !hint()) return;
+            if (hinted || !hint) return;
+            // Spend a charge only when the hint can show something.
+            const probe = ex.type === 'sentence' ? !!ex.keys?.[0]?.[0]
+                : ui.stage.querySelectorAll('.en-choice[data-correct="0"]:not(:disabled)').length !== 1;
+            if (!probe || !hint()) return;
             if (applyHint(ex, ui)) hinted = true;
             ui.hintButton.disabled = true;
         };
     }
     let play;
-    if (LESSON_FORMATS.includes(ex.type)) {
+    if (ex.kind === 'qa' && (ex.type === 'pick' || ex.type === 'pick2')) play = playChoice(ex, ui);
+    else if (LESSON_FORMATS.includes(ex.type)) {
         play = playLesson(ex, ui);
-        // Long answers (other subjects) read better one per line.
-        const grid = ui.stage.querySelector('.en-choices');
-        if (grid && ex.choices?.some(c => c.text.length > 28)) grid.classList.add('long');
     } else if (ex.type === 'gap-pick' || ex.type === 'listen-pick') play = playChoice(ex, ui);
     else if (ex.type === 'cloze') play = playCloze(ex, ui);
     else if (ex.type === 'sentence') play = playSentence(ex, ui);
     else throw new Error(`no lock panel for ${ex.type}`);
     return play.then(r => {
+        ui.stage.removeEventListener('click', answered, true);
+        ui.stage.removeEventListener('submit', answered, true);
         if (ui.hintButton) { ui.hintButton.hidden = true; ui.hintButton.onclick = null; }
         return { ...r, result: hinted && r.result === 'right' ? 'retry' : r.result };
     });
