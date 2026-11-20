@@ -2,7 +2,7 @@
 
 ## Overview
 
-`school` is a static, zero-build web app for the owner's kids: timed math quizzes and an English track for the older child, a column-subtraction track for the middle one (CE2), and a spaced-repetition **learning track** for the youngest (Grande Section de maternelle: sounds, letters, syllables, tracing in capitals and cursive, numbers to 10), with one daily session plus unlimited themed practice rounds. It is hosted on **GitHub Pages directly off `main`** — pushing to `main` is the deploy. There is no build pipeline, no package manager, no CI and no backend. All persistence is browser-local via `localStorage`. Pure modules are covered by `node --test` (Node's built-in runner, no dependencies); DOM code is hand-tested.
+`school` is a static, zero-build web app for the owner's kids: timed math quizzes, an English track and a 3D game on his lessons (Agent L) for the older child, a column-subtraction track for the middle one (CE2), and a spaced-repetition **learning track** for the youngest (Grande Section de maternelle: sounds, letters, syllables, tracing in capitals and cursive, numbers to 10), with one daily session plus unlimited themed practice rounds. It is hosted on **GitHub Pages directly off `main`** — pushing to `main` is the deploy. There is no build pipeline, no package manager, no CI and no backend. All persistence is browser-local via `localStorage`. Pure modules are covered by `node --test` (Node's built-in runner, no dependencies); DOM code is hand-tested.
 
 The site is a small set of plain HTML pages sharing ES modules served as static files.
 
@@ -10,6 +10,7 @@ The site is a small set of plain HTML pages sharing ES modules served as static 
 /
 ├── index.html                 # landing page: "Qui joue ?" profile picker + "Autres jeux" (math quizzes)
 ├── jeu.html                   # CE2 game « L’île des Gribouilles » (canvas; assets/jeu/)
+├── agent.html                 # 6e game « Agent L » (three.js; assets/agent/)
 ├── multiplication.html        # multiplication-table quiz
 ├── addition.html              # complement-of-addition quiz
 ├── gs.html                    # Grande Section learning track (one page, four screens)
@@ -44,6 +45,11 @@ The site is a small set of plain HTML pages sharing ES modules served as static 
 │   │                          #   mots-p1.json (période 1), mots-gs.json (generic GS words)
 │   ├── ce2/                   # CE2 subtraction track: method.js (compensation solver), generators.js (levels +
 │   │                          #   generator), rules.js (ladder, session), app.js, parent.js, ce2.css
+│   ├── lessons/               # other subjects' lessons: index.js (SUBJECTS, LESSON_LADDER, validateLesson), qa.js,
+│   │                          #   <subject>/<id>.json (svt/alimentation-humaine.json)
+│   ├── agent/                 # Agent L: missions.js, rules.js, levels.js, world.js (pure); scene.js, input.js,
+│   │                          #   locks.js, ui.js, sound.js, app.js, agent.css
+│   ├── vendor/three/          # three.js 0.187.0 ES module build (MIT), README with checksums
 │   └── audio/gs/              # pre-recorded mp3 clips + manifest.json + sources.json
 ├── tools/                     # gen-audio.mjs (clip recorder), cues.mjs (cue enumeration),
 │                              #   trace-sheet.mjs (trace model renderer), README.md
@@ -150,15 +156,16 @@ All keys live under the `school.v1.*` namespace and are read/written only throug
 | `school.v1.history.<profileId>.<quizId>` | `[{ score, totalQuestions, timerDuration, timeLeft, submittedAutomatically, date }]` | Math quizzes. Capped at 5 entries, newest first. Profile = `historyProfileId(profiles, activeId)`: the active profile only when its track is `'en'` (or no profiles exist yet), otherwise `'default'` — a math page opened after picking 🦄 keeps writing the older child's history. |
 | `school.v1.settings.<profileId>` | `{ sessionItems, practiceItems, parentMode, firstName, audio, voice, extraSessionOn?, enItems?, precision?, tries?, mic?, enVoice? }` | Defaults `{ sessionItems: 6, practiceItems: 6, parentMode: null, firstName: '', audio: 'clips', voice: '' }`, merged on read. `practiceItems`: games per practice round, read through `practiceItems(settings)` (`gs/rules.js`), which rounds and clamps it to 6–10. `parentMode: null` = never set by a parent (automatic, see Child UX rules); `true`/`false` = explicit. `audio`: `'clips' \| 'device' \| 'silent'`. `voice`: preferred device voice name. `extraSessionOn`: local day (`YYYY-MM-DD`) on which a parent allowed one more session. `firstName` feeds the greeting and the name-spell card. English track keys (defaults in `assets/en/rules.js` `EN_DEFAULTS`): `enItems` 12 (6–20), `precision` `'indulgent' \| 'normal' \| 'exigeant'`, `tries` 3 (1–5), `mic` `'auto' \| 'self'`, `enVoice` (device voice name), `enMicLog` (the last 5 in-session listens, one line each, shown in the parent corner). CE2 keys (read by `ce2Settings`, `assets/ce2/rules.js`): `ce2Items` 8 (6–10), `ce2Mode` `'guided' \| 'solo'`, `ce2Proof` (default true), `ce2Unlocked` (subset of `[7, 8]`). |
 | `school.v1.srs.<profileId>.<trackId>` | `{ cards: { [cardId]: { box, due, seen, lapses } }, introduced: { [day]: [itemKey] } }` | Leitner state. `cardId = <deckId>/<itemId>#<skill>` (e.g. `letters/a#trace-cap`, `letters/a#trace`, `mots-gs/robot#sound-final`, `numbers/7#trace`, `name/lea#name-spell`); `itemKey = <deckId>/<itemId>`. `due` and the `introduced` keys are local days. One state for both the daily session and practice rounds; `introduced` is the shared daily new-item budget. CE2 (`srs.<id>.ce2`): cards are mastered levels `L<n>`, plus `ladder: { level, streak, misses }`. |
-| `school.v1.learn.<profileId>.<trackId>` | `{ cards: { [cardId]: { lvl, miss, alt, passed, fmt, last, topDays } }, formats: { [format]: { n, ok } } }` | English track only: written-ladder state of lesson items (`assets/en/ladder.js`). `lvl` 1–4, `miss`/`alt` the pending first miss, `passed` the highest level passed first try, `fmt` the last format played, `last` the last wrong answer typed, `topDays` the local days with a first-try success at the top level (2 = mastered). `formats` counts, per exercise format, how often it was followed by a right answer. Kept apart from `srs` so the shared scheduler never sees it. |
+| `school.v1.learn.<profileId>.<trackId>` | `{ cards: { [cardId]: { lvl, miss, alt, passed, fmt, last, topDays } }, formats: { [format]: { n, ok } } }` | Lesson tracks: written-ladder state of lesson items (`assets/en/ladder.js`): `en` (written by `en.html` and Agent L) and one per other subject (`svt`…, written by Agent L, the `qa` kind). `lvl` 1–4, `miss`/`alt` the pending first miss, `passed` the highest level passed first try, `fmt` the last format played, `last` the last wrong answer typed, `topDays` the local days with a first-try success at the top level (2 = mastered). `formats` counts, per exercise format, how often it was followed by a right answer. Kept apart from `srs` so the shared scheduler never sees it. |
 | `school.v1.sessions.<profileId>.<trackId>` | `[{ date, items: [{ cardId, type, correctFirstTry, attempts, ms }], durationMs }]` | Daily sessions; on the English track also lesson sessions (`lesson: <id>`, items with `result`, `typed`, `recorded`), which count for the 🔥 streak. Last 14 completed sessions, newest first. `date` is an ISO timestamp; the pattern filler game stores `cardId: null`. Drives the daily cap and the parent corner's daily week line. |
 | `school.v1.practice.<profileId>.<trackId>` | `[{ date, theme, items: [{ cardId, type, correctFirstTry, attempts, ms, preview? }], durationMs }]` | Completed practice rounds, newest first, capped at 30 (`appendPractice`). `theme` is a `THEMES` id; `preview: true` marks an item played for exposure and never recorded in the SRS. A round left with 🏠 is not appended (its answered cards are already in the SRS). Feeds the parent corner's practice line. **Separate on purpose:** `sessions` holds 14 entries and drives `dailyCapReached`; unlimited practice rounds stored there would evict today's daily session and give ▶ Jouer back. With two keys, practice can never touch the daily cap. |
 | `school.v1.game.<profileId>.<gameId>` | `{ v, crystals, hero, heroes, skills: { [skillId]: { lvl, streak, misses, top, best, n, ok } }, village: { 'x,y': itemId }, day, runsToday, runs, lastPlayed: { [biomeId]: day }, bonusDay, bonusBiome, settings: { maxRuns, sound }, seenIntro }` | The CE2 game (`gameId = 'ile'`, `jeu.html`), played as the CE2 profile. Read through `normalize` (`assets/jeu/rules.js`), which drops unknown skill, item and hero ids. |
+| `school.v1.game.<profileId>.agent` | `{ v, credits, xp, owned: [itemId], equipped: { outfit, gadget }, chips: [chipId], day, missionsToday, priority: { day, ids, done }, missions: { [lessonId]: { runs, bestStars, lastType, last } }, days: { [day]: { missions, locks, firstTry } }, settings: { maxMissions, sound }, seenIntro }` | Agent L (`agent.html`), played as the profile on the `en` track. Read through `normalize` (`assets/agent/rules.js`): unknown lesson, item and chip ids dropped, `maxMissions` clamped to 1–12, the last 30 `days` kept. The learning itself is in `learn` / `srs` (per track id), never here. |
 | `school.v1.level.<profileId>.<quizId>` | number | Future — math difficulty progression. |
 | `school.v1.achievements.<profileId>` | `[{ id, unlockedAt }]` | Future — badges. |
 | `school.v1.theme` | string | Future — themes. |
 
-`trackId` is `'gs'`, `'ce2'` or `'en'`. CE2 sessions store `{ date, mode, items: [{ level, top, bottom, outcome: 'clean' \| 'fixed' \| 'missed', review }], durationMs }`. `migrateLegacyHistory()` runs once on quiz-engine init and copies any pre-namespaced `multiplicationHistory` / `additionHistory` arrays into `school.v1.history.default.<quizId>`, then removes the old keys. Idempotent.
+`trackId` is `'gs'`, `'ce2'`, `'en'`, or a subject of `assets/lessons/` (`'svt'`…, `learn` and `srs` only, written by Agent L). CE2 sessions store `{ date, mode, items: [{ level, top, bottom, outcome: 'clean' \| 'fixed' \| 'missed', review }], durationMs }`. `migrateLegacyHistory()` runs once on quiz-engine init and copies any pre-namespaced `multiplicationHistory` / `additionHistory` arrays into `school.v1.history.default.<quizId>`, then removes the old keys. Idempotent.
 
 ## Learning tracks
 
@@ -606,9 +613,9 @@ A lesson is one file made by a Claude session from photos of the notebook (READM
 |---|---|
 | `assets/en/decks/index.js` | `LESSON_FILES`, `flattenLesson`; `loadDecks` returns lesson decks first, then `DECK_FILES`. A group's `strict` is its items' default. |
 | `assets/en/answer.js` | Pure `checkAnswer(accepted, typed, strict, confusables)` → `right` / `almost` (+ reasons `case`, `punct`, `spelling`) / `wrong`. Another item's answer is never a near miss; `strict.spelling` disables near misses. |
-| `assets/en/ladder.js` | Pure ladder: levels, `FORMATS`, `FAST_MS`, `pickFormat`, `applyAnswer`, `isKnown`, `isMastered`. |
+| `assets/en/ladder.js` | Pure ladder: levels, `FORMATS`, `FAST_MS`, `pickFormat`, `applyAnswer`, `isKnown`, `isMastered`. Every function takes an optional ladder **table** `{ formats, fastMs, support, top }` (default `EN_LADDER`, today's constants; the kinds are the keys of `formats`), so other subjects run on the same engine: `assets/lessons/index.js` `LESSON_LADDER` adds `qa` (1 `pick`, 2 `cloze`, 3 `sentence`). `en.html` passes no table. |
 | `assets/en/lesson-generators.js` | Pure `generateLesson(card, { format })` → `pick`, `pick2`, `fill`, `tiles`, `type`, `cover`, `hear` exercises. |
-| `assets/en/lesson-session.js` | Pure composer `nextStep` (one exercise at a time), `afterAnswer`, `applyStep` (ladder + Leitner), `available`, `examSoon`. |
+| `assets/en/lesson-session.js` | Pure composer `nextStep` (one exercise at a time), `afterAnswer`, `applyStep` (ladder + Leitner), `available`, `examSoon`; `nextStep`, `applyStep` and `inLearning` take the same optional `table`. The phrase slot and `available()` concern the English `write` / `spell` kinds only. |
 | `assets/en/lesson-play.js` | DOM renderers of the written exercises; resolves `{ result: 'right' \| 'retry' \| 'miss', ms, typed }`. |
 | `assets/en/lesson-report.js` | Pure `lessonReport` / `reportText` for the parent corner and "Copier le bilan". |
 | `assets/en/today.js` | Today's date in the lesson's written and spoken forms (the `dynamic: "today"` item). |
@@ -704,6 +711,57 @@ flowchart LR
 **Rules for the child**: no lives, no timer, no score (stars and crystals); a miss always ends on the model answer and never blocks; a revealed answer is not praised; removing a building refunds it; `settings.maxRuns` (parent corner, long-press ⚙️, default 6) caps expeditions per day while building stays open.
 
 **Screens and zoom**: the arena uses `scale` (the short side of the screen is 560 units), the village its own `vscale` so the whole island fits a tablet or laptop screen (it scrolls on a phone). Emoji are drawn with `fillText`; every emoji used predates 2019 so an older Android tablet shows them (ground tiles are colours, shown as swatches in the tray). A blocking item is refused on any tile the hero or a friend overlaps (`discTiles`), so nobody gets walled in.
+
+## 6e game « Agent L » (`agent.html`)
+
+A 3D spy game on the older child's lessons (spec: `docs/superpowers/specs/2026-11-20-agent-l-3d-game-design.md`). Every lock he opens is one retrieval of a lesson item. It is a **second front end on the English lesson engine**: a mission is exactly a lesson session of 10 exercises (`nextStep` / `applyStep` with `LESSON_LADDER`), each exercise rendered as a lock, reading and writing the same `learn` / `srs` as `en.html` for English (and `learn.<id>.svt`, `srs.<id>.svt` for SVT). The game never overrides the composer, so the same answers leave the same state whichever page he plays on (`tests/agent-missions.test.mjs` pins it). It does not write `sessions.<id>.en` (that would evict `en.html`'s sessions and flatten its streak); its day log is in its own state.
+
+| Module | Role |
+|---|---|
+| `assets/lessons/index.js` | Pure. `SUBJECTS`, `LESSON_LADDER`, `loadLessons`, `flattenSubjectLesson` (keeps a sort group's `cats`), `expandLessonCards` (`<lesson>-<group>/<item>#answer` / `#sort`), `validateLesson`. |
+| `assets/lessons/qa.js` | Pure. `fold` (accents, case, punctuation), `checkSentence(keys, typed)` (every key idea present as whole words; 6+ letters tolerate one letter), `clozeOf`, `checkCloze`, `generateQa` (`pick`, `pick2`, `cloze`, `sentence`; never throws on a thin item). |
+| `assets/agent/missions.js` | Pure. `buildCatalog` (English lesson groups grouped by lesson, stand-alone decks as lessons, other subjects; only the skills playable without a microphone: `write`, `gap-pick`, `listen-pick`, `answer`, `sort`), `missionTypes`, `pickType`, `needCount`, `canRecord`, `createMission`, `openLock`, `exerciseFor`, `answerLock`, `stars`, `missed`, `progressOf`. |
+| `assets/agent/rules.js` | Pure. Pay table, ranks, the shop `CATALOG`, `normalize`, `rollDay`, `canStart`, `beginMission`, `quitMission`, `payLock`, `finishMission`, `pickPriority`, `buy`, `equip`, `collectChip`, `streak`, `persist`. |
+| `assets/agent/levels.js` | Pure. `TILE` (2 m), the six mission `LAYOUTS` (grid strings), `parseLayout`, `validateLayout` (locks reachable in order, exit only behind lock 9, zones reachable), the `ISLAND` (boxes, districts with beacon slots, hideout, chips), `beaconsFor`. |
+| `assets/agent/world.js` | Pure. `stepPlayer` (slide along boxes, 35 cm step, jump 1.4 m, gravity), `solidsOf`, `sees` (range 9 m, cone 70°, crates and closed doors block sight), `stepRobot` (patrol → alert → chase → patrol), `caught`. |
+| `assets/agent/scene.js` | three.js drawing only: island (instanced boxes, canvas-texture signs), rooms, agent, robots and vision cones, beacons, doors, zones, crates. |
+| `assets/agent/input.js` | Floating joystick (left half), camera drag (right half / mouse), DOM buttons, keyboard. |
+| `assets/agent/locks.js` | The lock panels: `playLesson` (`assets/en/lesson-play.js`) unchanged for the English written formats, its own panels for `gap-pick`, `listen-pick`, `cloze`, `sentence`; the hint drone. |
+| `assets/agent/ui.js`, `sound.js`, `app.js` | DOM overlays (HUD, briefing, debrief, hideout, parent corner, intro); synth + en-GB voice; the state machine and the fixed-step loop. |
+
+```mermaid
+sequenceDiagram
+  participant Kid
+  participant App as agent/app.js
+  participant Mis as agent/missions.js
+  participant Eng as en/lesson-session.js
+  participant Lock as agent/locks.js
+  participant Rul as agent/rules.js
+  participant Sto as storage.js
+  Kid->>App: walks into a beacon
+  App->>Rul: rollDay, canStart
+  App->>Mis: pickType, canRecord (training run when nothing would be recorded)
+  App->>Kid: briefing (English spoken for English lessons)
+  App->>Rul: beginMission (counts for the daily cap)
+  loop each lock (door or crate), world paused while a panel is open
+    Kid->>App: reaches the next door / the dispenser
+    App->>Mis: openLock → nextStep(LESSON_LADDER)
+    Mis->>Eng: nextStep
+    App->>Mis: exerciseFor
+    App->>Lock: playLock (sort: dropped in a zone instead)
+    Lock-->>App: right / retry / miss (a miss ends on the model, copied once)
+    App->>Mis: answerLock → applyStep + afterAnswer
+    App->>Rul: payLock
+    App->>Sto: saveLearn, saveSrs, saveGame (best-effort)
+  end
+  Kid->>App: exit tile
+  App->>Rul: finishMission (stars, stealth bonus, priority pays twice once)
+  App->>Kid: debrief: stars, credits, rank, items to rework
+```
+
+**Rules that keep it a learning game.** No timer on an answer; a miss always ends on the model answer and never blocks (typed formats have him copy it once); slots 0, 1 and the last are the composer's unrecorded replays (a token credit, no stars); stars come only from recorded first-try answers; being caught sends him back to the last opened door and never undoes an answer; the hint drone caps the result at `retry`; an item not due and already mastered is never recorded again, so grinding pays tokens. Without an English voice (or with the sound off) no `hear` or `listen-pick` lock is offered. A sort run's wrong drop lights the right zone; the drop there is recorded as a miss once.
+
+**Rendering.** three.js 0.187.0, vendored (`assets/vendor/three/`, no build, no CDN); everything from primitives, instanced (about 30 draw calls on the island); the pixel ratio starts at min(2, device) and drops by 0.25 (to 1) when frames average more than 22 ms over 2 s; the loop stops while the page is hidden; WebGL missing or lost shows a message (a lost context is rebuilt on restore).
 
 ## Local development
 

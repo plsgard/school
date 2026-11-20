@@ -62,6 +62,7 @@ export function validateLesson(lesson) {
         } else if (g.kind === 'sort') {
             const cats = new Set((g.cats ?? []).map(c => c.id));
             if (cats.size < 2) errors.push(`${g.id}: a sort group needs 2 categories`);
+            else if (cats.size > 4) errors.push(`${g.id}: a sort group has at most 4 categories (a sort room has 4 zones)`);
             else for (const it of g.items ?? []) if (!cats.has(it.cat)) errors.push(`${at(it)}: unknown category ${it.cat}`);
         }
     }

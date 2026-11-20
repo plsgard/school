@@ -19,6 +19,7 @@ python3 -m http.server 8000
 - `gs.html` — the Grande Section track: one short session a day (6 games by default) plus practice rounds by theme, see [Home and practice](#home-and-practice).
 - `ce2.html` — the CE2 subtraction track (🐱): column subtraction by compensation, generated problems on a level ladder, see [CE2 track](#ce2-track-soustraction-posée).
 - `en.html` — the 6e English track (🦁): listen-and-pick + say-it with pronunciation check, see [English track](#english-track-6e). Its home links to the math quizzes.
+- `agent.html` — Agent L, a 3D spy game for the 6e child on his lessons (English and SVT), see [Agent L](#6e-game-agent-l).
 
 To test on the iPad from the Mac: same Wi-Fi, then open `http://<mac-ip>:8000/gs.html`.
 
@@ -224,6 +225,40 @@ For a lesson he must know in writing (a test is coming). Works from a Claude Cod
 - **Parent corner.** Long-press ⚙️: expeditions per day (default 6, counted when one starts; building is never limited) and, per skill, the level and the first-throw success rate.
 
 To add or fix a French question, edit the banks in `assets/jeu/questions.js` (one row per question: level, sentence, answer, wrong answers) and run `node --test`: the tests check every question of every level (answer among the choices, typography, labels short enough for a creature).
+
+## 6e game: Agent L
+
+`agent.html`, linked from "Autres jeux": a 3D spy game (three.js, vendored in `assets/vendor/three/`) for Louis on the iPad (Safari) or a Mac. Every lock he opens is one retrieval of a lesson item, written from memory as much as possible. It plays as the profile on the `en` track and **shares the lesson progress with `en.html`** (`learn` / `srs`): what he answers in the game counts on the English page and the other way round.
+
+- **The island.** Walk with the left thumb (floating joystick) or WASD / arrows; drag on the right half (or with the mouse) to turn the camera; ⤴️ / Space jumps, 🏃 / Shift runs, ✋ / E acts. A beacon stands in front of a building for every playable lesson: English lessons at Cobalt Academy, SVT at the market. Gold = priority of the day (credits doubled on the first finished mission), green = something to revise, grey = nothing new today (a training run, nothing recorded), red = the day's missions are used up. Data chips 💾 hide on rooftops and in corners.
+- **A mission** is exactly one lesson session of the English engine, 10 exercises: in an **infiltration** each exercise is a locked door (the format follows the item's level: pick → complete → type → dictation for English; pick → missing word → own sentence for SVT); in a **sort run** (SVT) each exercise is a crate to drop in the right zone. Robots patrol with a vision cone: seen, they chase; caught = back to the last opened door (or the crate back to its dispenser), nothing learned is lost. No timer on an answer: the world waits. A miss shows the answer, he copies it once, the way opens, and the item comes back 4 locks later.
+- **Rewards.** Credits for first-try answers and stars (1 to 3, from first-try answers only), a small bonus when never caught, a bonus when an item becomes mastered (right on a second day). Ranks open gadgets (⚡ IEM freezes nearby robots, 🛸 hint drone), outfits and the hoverboard, bought in the **hideout** at the harbour.
+- **Parent corner** (hold ⚙️): missions per day (default 6, counted when one starts; the island and the hideout stay open), sound, per-lesson progress (mastered / known / learning / new), the last 7 days, and a reset of the game (credits, ranks, purchases; never the lesson progress).
+- **Try it on the iPad from the Mac:** `python3 -m http.server 8000` on the Mac, then `http://<mac-ip>:8000/agent.html` on the iPad (same Wi-Fi). `agent.html?debug` exposes `window.agent` (state, teleport, tick, openNext, answer…) for hand-testing; `?debug&fixture` adds the test lesson as a subject of its own.
+
+### Add a lesson for another subject
+
+SVT, physics, French… use the same lesson envelope as the English lessons, in `assets/lessons/<subject>/<id>.json`, listed (current lesson first) in `SUBJECTS` in `assets/lessons/index.js`. No code change: the game shows a beacon for it the day it is pushed (subjects without a district of their own use the market's free slots).
+
+1. Put the teacher's documents in `inbox/<subject>-<chapter>/` (git-excluded, never committed): typically the list of questions to know and the chapter's summary (bilan, `.doc` → `textutil -convert txt -stdout <file>`).
+2. Ask a Claude session to write the lesson. It takes the questions as the teacher wrote them (typography corrected), writes each model answer **in the bilan's words** where the bilan answers, and **lists every question whose answer the bilan does not give**: the parent checks those against the notebook before the test.
+3. Two group kinds:
+   ```json
+   { "id": "alimentation-humaine", "label": "L’alimentation humaine · SVT chapitre 3", "source": "…", "exam": "2026-11-23",
+     "groups": [
+       { "id": "questions", "kind": "qa", "label": "Les 20 questions", "consigne": "Réponds par une phrase.",
+         "items": [{ "id": "q17", "q": "Que signifie pathogène ?", "a": "Pathogène signifie qui peut nous rendre malade.",
+                     "keys": [["malade", "malades", "maladie", "maladies"]],
+                     "wrong": ["Pathogène signifie qui fabrique des yaourts.", "…", "…"] }] },
+       { "id": "origine", "kind": "sort", "label": "Origine des aliments", "consigne": "…",
+         "cats": [{ "id": "elevage", "label": "Élevage", "emoji": "🐄" }, { "id": "culture", "label": "Culture", "emoji": "🌾" }],
+         "items": [{ "id": "lait", "label": "le lait", "emoji": "🥛", "cat": "elevage" }] }
+     ] }
+   ```
+   - `qa`: `q` the question, `a` the model answer (one or two sentences), `keys` the 1 to 4 ideas a right answer must contain (each a list of accepted words or phrases; accents, capitals and punctuation never count; a word of 6 letters or more tolerates one letter off), `wrong` 3 plausible wrong answers (the level-1 choices; none may contain every key), `cloze` (optional) the word to type at level 2, by default the first key written in `a`. Ladder: pick the answer → type the missing word → answer in a sentence of his own.
+   - `sort`: 2 to 4 categories (`cats`), each item in one of them (`cat`). A plain Leitner card: right = first drop in the right zone.
+   - Item ids are stable (progress is keyed by them).
+4. Run `node --test`: `validateLesson_EverySubjectLesson_ReturnsNoError` checks every file (each answer passes its own keys, no wrong answer does, the cloze word is in the answer, sort categories exist).
 
 ## Add a new math quiz
 

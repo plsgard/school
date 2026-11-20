@@ -86,6 +86,10 @@ describe('validateLesson', () => {
         const l = copy(); sort(l).cats = [sort(l).cats[0]]; sort(l).items = sort(l).items.filter(i => i.cat === 'animale');
         assert.equal(validateLesson(l).length, 1);
     });
+    test('validateLesson_SortWithFiveCats_ReportsIt', () => {
+        const l = copy(); sort(l).cats.push({ id: 'a', label: 'A' }, { id: 'b', label: 'B' });
+        assert.equal(validateLesson(l).length, 1);
+    });
     test('validateLesson_SortItemWithUnknownCat_ReportsIt', () => {
         const l = copy(); sort(l).items[0].cat = 'lunaire';
         assert.equal(validateLesson(l).length, 1);
