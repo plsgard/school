@@ -3,7 +3,9 @@
 // and closes on one (replayed at the level he passed, never recorded); in between it works small batches: new items
 // come in file order, an item answered comes back after a few others until it is written from memory, and every
 // third slot prefers the lesson's phrases (the test looks like them). The daily session (rules.js) is not involved.
-// `table` is the ladder's table (EN_LADDER by default): other subjects pass one with kinds of their own.
+// `table` is the ladder's table (EN_LADDER by default): other subjects pass one with kinds of their own. The phrase
+// slot and `available()` apply to the English 'write' / 'spell' kinds only; other kinds take the plain learning,
+// new and review order.
 import { EN_LADDER, isLearnKind, initial, topLevel, levelOf, pickFormat, isMastered, isKnown, applyAnswer } from './ladder.js';
 import { resolveItem } from './today.js';
 import { recordResult } from '../core/progress.js';

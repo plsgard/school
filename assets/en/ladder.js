@@ -4,14 +4,14 @@
 // 4 transfer (dictation). Right first try climbs (fast: skips a level), a first miss stays and switches format,
 // a second miss in a row goes down one level. State lives beside the Leitner state (storage.js loadLearn).
 //
-// The kinds, formats and speeds are a table (EN_LADDER by default), so other subjects can run on the same engine
-// with kinds of their own (assets/lessons/index.js LESSON_LADDER adds 'qa'). en.html passes no table.
+// The kinds, formats and speeds are a table (EN_LADDER by default), so a game can run other subjects on the same
+// engine with kinds of its own. en.html passes no table.
 
-export const LEARN_KINDS = ['spell', 'write'];
 export const FORMATS = {
     spell: { 1: ['pick'], 2: ['fill', 'tiles'], 3: ['type', 'cover'] },
     write: { 2: ['tiles', 'fill'], 3: ['type', 'cover'], 4: ['hear'] },
 };
+export const LEARN_KINDS = Object.keys(FORMATS);
 // Under this time a right answer is a known item: it skips a level.
 export const FAST_MS = { 1: 4000, 2: 9000, 3: 12000 };
 // A format is preferred over the table's order only once both have this many answers.
@@ -31,11 +31,9 @@ export const EN_LADDER = {
 
 export const learnKinds = (table = EN_LADDER) => Object.keys(table.formats);
 export const isLearnKind = (kind, table = EN_LADDER) => Object.hasOwn(table.formats, kind);
-// A kind off the ladder starts at 1, as before the table existed.
-export const startLevel = (kind, table = EN_LADDER) => {
-    const levels = table.formats[kind];
-    return levels ? Math.min(...Object.keys(levels).map(Number)) : 1;
-};
+// A kind off the ladder starts at 1.
+export const startLevel = (kind, table = EN_LADDER) =>
+    (isLearnKind(kind, table) ? Math.min(...Object.keys(table.formats[kind]).map(Number)) : 1);
 // Dictation needs an English voice on the device.
 export const topLevel = (kind, hasVoice, table = EN_LADDER) => table.top(kind, hasVoice);
 export const initial = (kind, table = EN_LADDER) => ({ lvl: startLevel(kind, table), miss: 0, alt: false, passed: 0, fmt: null, last: null, topDays: [] });

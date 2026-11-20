@@ -205,7 +205,7 @@ State: `learn.default.<subject>` and `srs.default.<subject>` through the existin
 **One engine, not two (decided by the parent on 2026-11-20).** Today the ladder's kinds and formats are constants
 inside `assets/en/ladder.js`, imported by `nextStep` and `applyStep`; a `qa` card would be treated as non-written
 and `pickFormat('qa', …)` throws. So `pickFormat`, `applyAnswer`, `nextStep`, `applyStep` (and the
-helpers they call) get an optional table argument `{ kinds, formats, fastMs, supportFormats, startLevel, topLevel }`
+helpers they call) get an optional table argument `{ formats, fastMs, support, top }` (the kinds are the keys of `formats`)
 whose default is today's English table, the way `core/` receives a track's constraints. `en.html` passes nothing
 and behaves as before (its tests pin that); the game passes a table that adds `qa` (levels 1 `pick`, 2 `cloze`,
 3 `sentence`). `sort` and `order` items are plain Leitner cards (`record`), as `grammar` is. Files stay where they

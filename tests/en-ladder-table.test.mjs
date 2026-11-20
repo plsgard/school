@@ -33,6 +33,20 @@ describe('ladder table', () => {
         const learn = answerQa({ cards: {}, formats: {} }, { result: 'right' });
         assert.equal(learn.cards[qaCard.id].lvl, 2);
     });
+    test('startLevel_KindOffTheLadder_Returns1', () => {
+        assert.deepEqual([startLevel('grammar'), startLevel('grammar', T), startLevel('constructor', T)], [1, 1, 1]);
+    });
+    test('applyAnswer_TableFastMsAndSupportAndTop_AreReadFromTheTable', () => {
+        // Every field differs from EN_LADDER: no fast skip, 'cloze' shows the answer, qa tops at 2.
+        const U = { ...T, fastMs: {}, support: ['cloze'], top: (kind) => (kind === 'qa' ? 2 : 3) };
+        const opts = { ms: 100, typed: '', today: TODAY };
+        const climbed = applyAnswer({ cards: {}, formats: {} }, qaCard.id, 'qa', { ...opts, result: 'right', format: 'pick', top: U.top('qa') }, U);
+        assert.equal(climbed.cards[qaCard.id].lvl, 2);
+        const supported = applyAnswer(climbed, qaCard.id, 'qa', { ...opts, result: 'right', format: 'cloze', top: U.top('qa') }, U);
+        assert.deepEqual(supported.cards[qaCard.id].topDays, []);
+        const top = applyAnswer(climbed, qaCard.id, 'qa', { ...opts, result: 'right', format: 'sentence', top: U.top('qa') }, U);
+        assert.deepEqual(top.cards[qaCard.id].topDays, [TODAY]);
+    });
     test('applyAnswer_QaRightAtLevel3_AddsTopDay', () => {
         const start = { cards: { [qaCard.id]: { ...initial('qa', T), lvl: 3 } }, formats: {} };
         const learn = answerQa(start, { result: 'right', format: 'sentence' });
