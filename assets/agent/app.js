@@ -7,6 +7,7 @@
 // `agent.html?debug` exposes window.agent for hand-testing (`&fixture` adds the test lesson as subject 'demo').
 import { getActiveProfileId, loadSrs, saveSrs, loadLearn, saveLearn, loadGame, saveGame } from '../storage.js';
 import { ensureProfiles, trackProfileId } from '../profiles.js';
+import { holdToActivate } from '../hold.js';
 import { loadDecks } from '../en/decks/index.js';
 import { loadLessons, flattenSubjectLesson } from '../lessons/index.js';
 import { ISLAND, LAYOUTS, parseLayout, beaconsFor } from './levels.js';
@@ -17,7 +18,7 @@ import { createScene } from './scene.js';
 import { createInput } from './input.js';
 import { createSound } from './sound.js';
 import { playLock } from './locks.js';
-import { el, createHud, showBriefing, showDebrief } from './ui.js';
+import { el, createHud, showBriefing, showDebrief, showHideout, showParent, showIntro } from './ui.js';
 
 const STEP = 1 / 60;
 const NBSP = ' ';
@@ -68,6 +69,7 @@ const app = {
     yaw: 0,
     moving: false,
     nearBeacon: null,        // the beacon he stands on (no second briefing until he leaves it)
+    nearHideout: false,
 };
 let mission = null;
 
@@ -109,12 +111,46 @@ function refreshHud() {
 const lessonOf = (id) => catalog.find(l => l.id === id);
 const shortLabel = (lesson) => lesson.label.split(' · ')[0];
 
-function showHub() {
-    scene.showIsland(ISLAND, beacons, ISLAND.chips);
+// The day's priority beacons (at most 3), chosen once a day: a test within a week, then the most to work on, then
+// the lesson played longest ago.
+function ensurePriority(day) {
+    game = R.rollDay(game, day);
+    if (game.priority.day === day) return;
+    const hasVoice = sound.hasVoice();
+    const tracks = {};
+    const lessons = catalog.filter(l => M.missionTypes(l, { hasVoice }).length).map(l => {
+        tracks[l.trackId] ??= loadTrack(l.trackId);
+        return { id: l.id, exam: l.exam, need: M.needCount(l, { ...tracks[l.trackId], today: day, hasVoice }), lastPlayed: game.missions[l.id]?.last ?? null };
+    });
+    game = { ...game, priority: { day, ids: R.pickPriority(lessons, day), done: [] } };
+    saveState();
+}
+
+// Beacon look: priority (gold, double pay), play (green), rest (grey: a training run), cap (red: come back tomorrow).
+function refreshBeacons() {
+    const day = today();
+    ensurePriority(day);
+    const hasVoice = sound.hasVoice();
+    const tracks = {};
     for (const b of beacons) {
         const lesson = lessonOf(b.lessonId);
-        scene.setBeacon(b.lessonId, { state: 'play', lines: [{ text: shortLabel(lesson), size: 48 }] });
+        tracks[lesson.trackId] ??= loadTrack(lesson.trackId);
+        let state, sub;
+        if (!M.missionTypes(lesson, { hasVoice }).length) { state = 'rest'; sub = '🔊 Avec le son anglais'; }
+        else if (!R.canStart(game)) { state = 'cap'; sub = 'Reviens demain'; }
+        else if (game.priority.ids.includes(lesson.id) && !game.priority.done.includes(lesson.id)) { state = 'priority'; sub = '⭐ Prioritaire · crédits ×2'; }
+        else {
+            const need = M.needCount(lesson, { ...tracks[lesson.trackId], today: day, hasVoice });
+            state = need ? 'play' : 'rest';
+            sub = need ? `${need} à réviser` : 'Rien à réviser aujourd’hui';
+        }
+        scene.setBeacon(b.lessonId, { state, lines: [{ text: shortLabel(lesson), size: 46 }, { text: sub, size: 34, bold: false }] });
     }
+}
+
+function showHub() {
+    scene.showIsland(ISLAND, beacons, ISLAND.chips);
+    refreshBeacons();
     scene.setOutfit(R.itemById(game.equipped.outfit)?.colors);
 }
 
@@ -138,19 +174,99 @@ function walk(inp, dt, solids, speedFactor = 1) {
 }
 
 function tickHub(inp, dt) {
-    walk(inp, dt, ISLAND.solids, R.itemById('board') && game.owned.includes('board') ? PLAYER.boardFactor : 1);
+    walk(inp, dt, ISLAND.solids, game.owned.includes('board') ? PLAYER.boardFactor : 1);
     app.player.x = Math.max(-HALF, Math.min(HALF, app.player.x));
     app.player.z = Math.max(-HALF, Math.min(HALF, app.player.z));
+    for (const c of ISLAND.chips) {
+        if (game.chips.includes(c.id) || Math.hypot(app.player.x - c.x, app.player.z - c.z) > 1.2 || Math.abs(app.player.y - c.y) > 1.6) continue;
+        const out = R.collectChip(game, c.id);
+        game = out.state;
+        saveState();
+        sound.play('coin');
+        toast(`💾 Puce de données${NBSP}! +${out.credits} crédits (${game.chips.length}${NBSP}/${NBSP}${ISLAND.chips.length})`);
+        refreshHud();
+    }
+    if (app.nearHideout && !near(app.player, ISLAND.hideout, 4)) app.nearHideout = false;
+    if (!app.nearHideout && near(app.player, ISLAND.hideout, 2.2)) { app.nearHideout = true; openHideout(); return; }
     const here = beacons.find(b => near(app.player, b, 1.8));
     if (app.nearBeacon && !near(app.player, app.nearBeacon, 3.5)) app.nearBeacon = null;
     if (here && here !== app.nearBeacon) { app.nearBeacon = here; openBriefing(here.lessonId); }
 }
 
+// ---------------------------------------------------------------- hideout and parent corner
+function shopRows() {
+    const rank = R.rankOf(game.xp);
+    return R.CATALOG.map(item => ({
+        item, owned: game.owned.includes(item.id),
+        equipped: game.equipped.outfit === item.id || game.equipped.gadget === item.id,
+        locked: rank < item.rank, rankName: R.RANKS[item.rank].name, affordable: game.credits >= item.cost,
+    }));
+}
+
+async function openHideout() {
+    freeze(true);
+    const rank = R.rankOf(game.xp);
+    const next = R.RANK_XP[rank + 1];
+    await showHideout({
+        rankName: R.RANKS[rank].name, nextName: next ? R.RANKS[rank + 1].name : null,
+        progress: next ? (game.xp - R.RANK_XP[rank]) / (next - R.RANK_XP[rank]) : 1,
+        credits: () => game.credits, shop: shopRows(), streak: R.streak(game.days, today()),
+        best: catalog.map(l => ({ label: shortLabel(l), stars: game.missions[l.id]?.bestStars ?? 0 })),
+        chips: { found: game.chips.length, total: ISLAND.chips.length },
+        onBuy(id) {
+            const before = game;
+            game = R.buy(game, id);
+            if (game !== before) { sound.play('coin'); toast(`✔ ${R.itemById(id).name}${NBSP}: acheté.`); saveState(); refreshHud(); }
+            return shopRows();
+        },
+        onEquip(id) {
+            game = R.equip(game, id);
+            scene.setOutfit(R.itemById(game.equipped.outfit)?.colors);
+            saveState();
+            return shopRows();
+        },
+    });
+    // Step out of the doorway so the planque does not open again at once.
+    placeAt({ x: ISLAND.hideout.x, z: ISLAND.hideout.z + 3.5 });
+    freeze(false);
+}
+
+async function openParent() {
+    if (app.frozen || app.screen === 'boot') return;
+    freeze(true);
+    const hasVoice = sound.hasVoice();
+    const tracks = {};
+    const lessons = catalog.map(l => {
+        tracks[l.trackId] ??= loadTrack(l.trackId);
+        return { label: shortLabel(l), progress: M.progressOf(l, { ...tracks[l.trackId], hasVoice }) };
+    });
+    const day = today();
+    await showParent({
+        settings: game.settings, today: game.day === day ? game.missionsToday : 0, lessons,
+        days: Object.entries(game.days).sort(([a], [b]) => (a < b ? 1 : -1)).slice(0, 7),
+        onSettings(patch) {
+            game = R.normalize({ ...game, settings: { ...game.settings, ...patch } }, { lessonIds: catalog.map(l => l.id), chipIds });
+            sound.setEnabled(game.settings.sound);
+            saveState();
+            refreshHud();
+        },
+        onReset() {
+            game = R.rollDay(R.normalize({ seenIntro: true, settings: game.settings }, { lessonIds: catalog.map(l => l.id), chipIds }), today());
+            saveState();
+            scene.setOutfit(R.itemById(game.equipped.outfit)?.colors);
+            refreshHud();
+        },
+    });
+    if (!mission) refreshBeacons();
+    freeze(false);
+}
+holdToActivate($('parentBtn'), openParent);
+
 // ---------------------------------------------------------------- briefing → mission
 async function openBriefing(lessonId) {
     const lesson = lessonOf(lessonId);
     const day = today();
-    game = R.rollDay(game, day);
+    ensurePriority(day);
     if (!R.canStart(game)) {
         toast(`Plus de mission pour aujourd’hui${NBSP}: reviens demain${NBSP}! La planque reste ouverte.`, 4000);
         return;
@@ -581,6 +697,10 @@ async function boot() {
         app.screen = 'hub';
         showHub();
         refreshHud();
+        if (!game.seenIntro) {
+            freeze(true);
+            showIntro().then(() => { game = { ...game, seenIntro: true }; saveState(); freeze(false); });
+        }
     });
     requestAnimationFrame(frame);
 }

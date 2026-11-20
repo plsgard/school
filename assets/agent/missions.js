@@ -165,3 +165,22 @@ export function missed(mission, cards, now = new Date()) {
     const ids = [...new Set(mission.results.filter(r => r.recorded && r.result === 'miss').map(r => r.cardId))];
     return ids.map(id => byId.get(id)).filter(Boolean).map(c => cueModel(c, now));
 }
+
+// Per-lesson progress for the parent corner. Written items: new, learning (on the ladder), known (written from
+// memory), mastered (on two days). Other cards (Leitner only): new, learning (box 1), known (box 2), mastered (box 3+).
+export function progressOf(lesson, { srs, learn, hasVoice }) {
+    const out = { mastered: 0, known: 0, learning: 0, new: 0 };
+    for (const c of lesson.cards.filter(x => x.skill !== 'listen-pick' || hasVoice)) {
+        if (isLearn(c)) {
+            const st = learn.cards[c.id];
+            if (!st) out.new++;
+            else if (inLearning(st, c.kind, topLevel(c.kind, hasVoice, LESSON_LADDER), LESSON_LADDER)) out.learning++;
+            else if (isMastered(st)) out.mastered++;
+            else out.known++;
+        } else {
+            const box = srs.cards[c.id]?.box ?? 0;
+            out[box >= 3 ? 'mastered' : box === 2 ? 'known' : box === 1 ? 'learning' : 'new']++;
+        }
+    }
+    return out;
+}

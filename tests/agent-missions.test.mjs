@@ -5,7 +5,7 @@ import { LESSON_FILES, DECK_FILES, flattenLesson, expandCards } from '../assets/
 import { nextStep, afterAnswer, applyStep } from '../assets/en/lesson-session.js';
 import { LESSON_LADDER, flattenSubjectLesson } from '../assets/lessons/index.js';
 import {
-    LOCKS, buildCatalog, missionTypes, pickType, createMission, canRecord, openLock, exerciseFor, answerLock, stars, missed,
+    LOCKS, buildCatalog, missionTypes, pickType, createMission, canRecord, openLock, exerciseFor, answerLock, stars, missed, progressOf, needCount,
 } from '../assets/agent/missions.js';
 
 const read = async (path) => JSON.parse(await readFile(new URL(path, import.meta.url), 'utf8'));
@@ -216,5 +216,29 @@ describe('exerciseFor', () => {
             exerciseFor({ card: pick('demo', 'qa'), level: 2, format: 'cloze' }, { cards: byId('demo').cards, rng: seeded() }).type,
         ];
         assert.deepEqual(types, ['pick', 'gap-pick', 'listen-pick', 'cloze']);
+    });
+});
+
+describe('progress', () => {
+    test('progressOf_FreshLesson_EverythingNew', () => {
+        const { srs, learn } = empty();
+        assert.deepEqual(progressOf(byId('demo'), { srs, learn, hasVoice: true }), { mastered: 0, known: 0, learning: 0, new: 13 });
+    });
+    test('progressOf_MixedStates_CountsEachOnce', () => {
+        const lesson = byId('demo');
+        const [q1, q2, q3] = lesson.cards;
+        const [s1, s2, s3] = lesson.cards.filter(c => c.kind === 'sort');
+        const learn = { cards: {
+            [q1.id]: { lvl: 3, passed: 3, topDays: ['2026-11-01', '2026-11-02'] },
+            [q2.id]: { lvl: 3, passed: 3, topDays: ['2026-11-01'] },
+            [q3.id]: { lvl: 2, passed: 1, topDays: [] },
+        }, formats: {} };
+        const srs = { cards: { [s1.id]: { box: 3, due: '2026-12-01' }, [s2.id]: { box: 2, due: '2026-12-01' }, [s3.id]: { box: 1, due: TODAY } }, introduced: {} };
+        assert.deepEqual(progressOf(lesson, { srs, learn, hasVoice: true }), { mastered: 2, known: 2, learning: 2, new: 7 });
+    });
+    test('needCount_FreshLesson_CountsEveryPlayableCard', () => {
+        const { srs, learn } = empty();
+        assert.equal(needCount(byId('school-premises'), { srs, learn, today: TODAY, hasVoice: false }), 0);
+        assert.equal(needCount(byId('demo'), { srs, learn, today: TODAY, hasVoice: false }), 13);
     });
 });

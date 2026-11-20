@@ -71,7 +71,8 @@ export function normalize(raw, { lessonIds, chipIds } = {}) {
         .filter(([d]) => /^\d{4}-\d{2}-\d{2}$/.test(d)).sort(([a], [b]) => (a < b ? -1 : 1)).slice(-DAYS_KEPT)
         .map(([d, v]) => [d, { missions: count(v?.missions), locks: count(v?.locks), firstTry: count(v?.firstTry) }]);
     const missions = Object.entries(r.missions && typeof r.missions === 'object' ? r.missions : {}).filter(([id]) => lessonOk(id))
-        .map(([id, m]) => [id, { runs: count(m?.runs), bestStars: Math.min(3, count(m?.bestStars)), lastType: typeof m?.lastType === 'string' ? m.lastType : null }]);
+        .map(([id, m]) => [id, { runs: count(m?.runs), bestStars: Math.min(3, count(m?.bestStars)),
+            lastType: typeof m?.lastType === 'string' ? m.lastType : null, last: typeof m?.last === 'string' ? m.last : null }]);
     return {
         ...base,
         credits: count(r.credits),
@@ -106,12 +107,12 @@ const keepDays = (days) => Object.fromEntries(Object.entries(days).sort(([a], [b
 // A mission counts for the cap (and the day log) when it starts: quitting early gives no free mission.
 export function beginMission(state, { lessonId, type, today }) {
     const s = rollDay(state, today);
-    const m = s.missions[lessonId] ?? { runs: 0, bestStars: 0, lastType: null };
+    const m = s.missions[lessonId] ?? { runs: 0, bestStars: 0, lastType: null, last: null };
     const d = dayOf(s, today);
     return {
         ...s,
         missionsToday: s.missionsToday + 1,
-        missions: { ...s.missions, [lessonId]: { ...m, runs: m.runs + 1, lastType: type } },
+        missions: { ...s.missions, [lessonId]: { ...m, runs: m.runs + 1, lastType: type, last: today } },
         days: keepDays({ ...s.days, [today]: { ...d, missions: d.missions + 1 } }),
     };
 }
@@ -146,7 +147,7 @@ export function finishMission(state, { lessonId, stars, runCredits, today, locks
     const stealth = caught === 0 && stars > 0 ? PAY.stealth : 0;
     const priority = state.priority.ids.includes(lessonId) && !state.priority.done.includes(lessonId);
     const credits = starPay + stealth + (priority ? runCredits + starPay : 0);
-    const m = state.missions[lessonId] ?? { runs: 1, bestStars: 0, lastType: null };
+    const m = state.missions[lessonId] ?? { runs: 1, bestStars: 0, lastType: null, last: today };
     const xp = state.xp + credits;
     const next = {
         ...state,

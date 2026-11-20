@@ -125,3 +125,90 @@ export function showDebrief({ stars = 0, credits = 0, rankUp = null, missed = []
         el('button', { type: 'button', class: 'ag-cta', onclick: () => close() }, 'Retour sur l’île'),
     ]);
 }
+
+// ---------------------------------------------------------------- hideout
+// shop: [{ item, owned, equipped, locked, rankName, affordable }]; credits(): the current credits. Resolves when he leaves.
+export function showHideout({ rankName, nextName, progress, credits, shop, best, streak, chips, onBuy, onEquip }) {
+    return openCard((close) => {
+        const list = el('ul', { class: 'ag-list ag-shop' });
+        const head = el('p', {});
+        const render = (rows) => (head.textContent = `🎖️ ${rankName} · 💰 ${credits()} crédits${streak >= 2 ? ` · 🔥 ${streak}${NBSP}jours d’affilée` : ''}`, list.replaceChildren(...rows.map(r => el('li', { class: r.locked ? 'locked' : '' },
+            el('span', {}, r.item.name),
+            r.locked ? el('span', { class: 'ag-note' }, `🔒 ${r.rankName}`)
+                : r.owned ? (r.item.kind === 'board' ? el('span', { class: 'ag-note' }, '✔ Actif sur l’île')
+                    : el('button', { type: 'button', class: 'ag-small', disabled: r.equipped && r.item.kind === 'outfit', onclick: () => render(onEquip(r.item.id)) },
+                        r.equipped ? (r.item.kind === 'gadget' ? 'Ranger' : 'Porté') : 'Équiper'))
+                : el('button', { type: 'button', class: 'ag-small', disabled: !r.affordable, onclick: () => render(onBuy(r.item.id)) }, `💰 ${r.item.cost}`)))));
+        render(shop);
+        return [
+            el('h2', {}, '🏠 La planque'),
+            head,
+            nextName ? el('div', {}, el('p', { class: 'ag-note' }, `Prochain grade${NBSP}: ${nextName}`), el('div', { class: 'ag-bar' }, el('i', { style: `width: ${Math.round(progress * 100)}%` }))) : el('p', { class: 'ag-note' }, 'Grade maximum atteint.'),
+            el('h3', {}, 'Équipement'),
+            el('p', { class: 'ag-note' }, 'Les crédits se gagnent en mission. Un gadget sert pendant les missions.'),
+            list,
+            el('h3', {}, 'Trophées'),
+            el('ul', { class: 'ag-list' }, ...best.map(b => el('li', {}, el('span', {}, b.label), el('span', {}, b.stars ? '⭐'.repeat(b.stars) + '☆'.repeat(3 - b.stars) : '—')))),
+            el('p', { class: 'ag-note' }, `💾 Puces de données trouvées${NBSP}: ${chips.found}${NBSP}/${NBSP}${chips.total}`),
+            el('button', { type: 'button', class: 'ag-cta', onclick: () => close() }, 'Retour sur l’île'),
+        ];
+    });
+}
+
+// ---------------------------------------------------------------- parent corner
+// lessons: [{ label, progress: { mastered, known, learning, new } }]; days: [[day, { missions, locks, firstTry }]].
+export function showParent({ settings, today: todayCount, lessons, days, onSettings, onReset }) {
+    return openCard((close) => {
+        let max = settings.maxMissions;
+        const maxOut = el('strong', {}, String(max));
+        const setMax = (d) => { max = Math.min(12, Math.max(1, max + d)); maxOut.textContent = String(max); onSettings({ maxMissions: max }); };
+        const sound = el('input', { type: 'checkbox', checked: settings.sound, onchange: () => onSettings({ sound: sound.checked }) });
+        let armed = false;
+        const reset = el('button', { type: 'button', class: 'ag-small', onclick: () => {
+            if (!armed) { armed = true; reset.textContent = 'Confirmer : tout effacer ?'; return; }
+            onReset();
+            reset.textContent = 'Partie remise à zéro';
+            reset.disabled = true;
+        } }, 'Remettre la partie à zéro');
+        return [
+            el('h2', {}, '⚙️ Coin des parents'),
+            el('div', { class: 'ag-parent' },
+                el('label', {}, el('span', {}, 'Missions par jour'), el('span', { class: 'ag-row', style: 'flex: 0 0 auto; align-items: center' },
+                    el('button', { type: 'button', class: 'ag-small', onclick: () => setMax(-1), 'aria-label': 'Moins' }, '−'), maxOut,
+                    el('button', { type: 'button', class: 'ag-small', onclick: () => setMax(1), 'aria-label': 'Plus' }, '+'))),
+                el('p', { class: 'ag-note' }, `Aujourd’hui${NBSP}: ${todayCount} mission${todayCount > 1 ? 's' : ''}. L’île et la planque restent ouvertes une fois la limite atteinte.`),
+                el('label', {}, el('span', {}, 'Son et voix anglaise'), sound)),
+            el('h3', {}, 'Progrès par leçon'),
+            el('div', { class: 'ag-parent' }, el('table', {},
+                el('thead', {}, el('tr', {}, el('th', {}, 'Leçon'), el('th', {}, 'Acquis'), el('th', {}, 'Su'), el('th', {}, 'En cours'), el('th', {}, 'Nouveaux'))),
+                el('tbody', {}, ...lessons.map(l => el('tr', {}, el('td', {}, l.label),
+                    ...['mastered', 'known', 'learning', 'new'].map(k => el('td', {}, String(l.progress[k])))))))),
+            el('p', { class: 'ag-note' }, 'Acquis : réussi de mémoire deux jours différents. Su : réussi de mémoire une fois. Les progrès sont partagés avec la page d’anglais.'),
+            el('h3', {}, '7 derniers jours'),
+            days.length ? el('ul', { class: 'ag-list' }, ...days.map(([d, v]) => el('li', {}, el('span', {}, d),
+                el('span', {}, `${v.missions} mission${v.missions > 1 ? 's' : ''} · ${v.locks} serrures · ${v.firstTry} du premier coup`))))
+                : el('p', { class: 'ag-note' }, 'Aucune mission ces 7 derniers jours.'),
+            el('p', { class: 'ag-note' }, 'La remise à zéro efface crédits, grades et achats du jeu, jamais les progrès des leçons.'),
+            reset,
+            el('button', { type: 'button', class: 'ag-cta', onclick: () => close() }, '✔ Fermer'),
+        ];
+    });
+}
+
+// ---------------------------------------------------------------- intro (first launch)
+const INTRO = [
+    { title: '🤖 GLITCH', text: `Une intelligence artificielle, GLITCH, a pris le contrôle de l’île de Cobalt avec ses robots. Toi, Agent L, tu vas reprendre les bâtiments un par un.` },
+    { title: '🔒 Les serrures', text: `Dans chaque mission, chaque porte pose une question de tes leçons. Pas de chrono${NBSP}: le jeu attend ta réponse. Si tu te trompes, la bonne réponse s’affiche, tu la recopies et la porte s’ouvre quand même. Les étoiles viennent des réponses justes du premier coup.` },
+    { title: '🏠 La planque', text: `Les balises lumineuses devant les bâtiments lancent les missions (⭐ dorées${NBSP}: crédits doublés). Ta planque est au port, près du départ${NBSP}: dépense tes crédits en gadgets et en tenues. Les robots te renvoient en arrière s’ils te voient, sans rien te faire perdre.` },
+];
+
+export async function showIntro() {
+    for (let i = 0; i < INTRO.length; i++) {
+        await openCard((close) => [
+            el('h2', {}, INTRO[i].title),
+            el('p', {}, INTRO[i].text),
+            el('p', { class: 'ag-dots', 'aria-hidden': 'true' }, INTRO.map((_, j) => (j === i ? '●' : '○')).join(' ')),
+            el('button', { type: 'button', class: 'ag-cta', onclick: () => close() }, i < INTRO.length - 1 ? 'Suivant ▶' : '▶ À toi de jouer'),
+        ]);
+    }
+}

@@ -29,13 +29,13 @@ describe('normalize', () => {
     test('normalize_UnknownIds_AreDropped', () => {
         const s = normalize({
             owned: ['classic', 'emp', 'jetpack'], equipped: { outfit: 'jetpack', gadget: 'emp' }, chips: ['chip-1', 'chip-99'],
-            priority: { day: TODAY, ids: ['a', 'zz'], done: ['zz'] }, missions: { a: { runs: 1, bestStars: 2, lastType: 'sort' }, zz: { runs: 3 } },
+            priority: { day: TODAY, ids: ['a', 'zz'], done: ['zz'] }, missions: { a: { runs: 1, bestStars: 2, lastType: 'sort', last: '2026-11-19' }, zz: { runs: 3 } },
         }, { lessonIds: ['a'], chipIds: ['chip-1'] });
         assert.deepEqual(s.owned, ['classic', 'emp']);
         assert.deepEqual(s.equipped, { outfit: 'classic', gadget: 'emp' });
         assert.deepEqual(s.chips, ['chip-1']);
         assert.deepEqual(s.priority, { day: TODAY, ids: ['a'], done: [] });
-        assert.deepEqual(Object.keys(s.missions), ['a']);
+        assert.deepEqual(s.missions, { a: { runs: 1, bestStars: 2, lastType: 'sort', last: '2026-11-19' } });
     });
     test('normalize_MaxMissionsOutOfRange_IsClamped', () => {
         assert.equal(normalize({ settings: { maxMissions: 40 } }, { lessonIds: [] }).settings.maxMissions, 12);
@@ -69,7 +69,7 @@ describe('day and cap', () => {
     test('beginMission_CountsTheMissionWhenItStarts', () => {
         const s = beginMission(fresh(), { lessonId: 'a', type: 'sort', today: TODAY });
         assert.equal(s.missionsToday, 1);
-        assert.deepEqual(s.missions.a, { runs: 1, bestStars: 0, lastType: 'sort' });
+        assert.deepEqual(s.missions.a, { runs: 1, bestStars: 0, lastType: 'sort', last: TODAY });
         assert.deepEqual(s.days[TODAY], { missions: 1, locks: 0, firstTry: 0 });
     });
     test('quitMission_AddsTheLocksWithoutPay', () => {
