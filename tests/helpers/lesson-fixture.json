@@ -1,0 +1,50 @@
+{
+  "id": "demo",
+  "label": "Démo · d’où viennent les aliments",
+  "source": "Fixture de test, inventée (pas une leçon de l’enfant)",
+  "exam": null,
+  "groups": [
+    {
+      "id": "questions",
+      "kind": "qa",
+      "label": "Questions",
+      "consigne": "Réponds par une phrase.",
+      "items": [
+        { "id": "q1", "q": "D’où vient le miel ?", "a": "Le miel est fabriqué par les abeilles.",
+          "keys": [["abeilles", "abeille"]],
+          "wrong": ["Le miel pousse sur les arbres.", "Le miel vient des vaches.", "Le miel est extrait des roches."] },
+        { "id": "q2", "q": "Avec quoi fabrique-t-on le pain ?", "a": "On fabrique le pain avec de la farine, de l’eau et de la levure.",
+          "keys": [["farine"], ["eau"], ["levure"]],
+          "wrong": ["On fabrique le pain avec du lait et du sucre.", "Le pain pousse dans les champs.", "On fabrique le pain avec du sel seulement."] },
+        { "id": "q3", "q": "D’où vient le sucre ?", "a": "Le sucre vient de la betterave ou de la canne à sucre.",
+          "keys": [["betterave", "canne"]], "cloze": "betterave",
+          "wrong": ["Le sucre vient du lait.", "Le sucre vient du sel de mer.", "Le sucre vient des œufs."] },
+        { "id": "q4", "q": "Pourquoi met-on les aliments au réfrigérateur ?", "a": "Le froid ralentit le développement des microbes.",
+          "keys": [["froid"], ["ralentit", "ralentir", "freine"], ["microbes", "microbe", "bactéries"]],
+          "wrong": ["Pour qu’ils deviennent sucrés.", "Pour les faire cuire.", "Pour qu’ils changent de couleur."] }
+      ]
+    },
+    {
+      "id": "origine",
+      "kind": "sort",
+      "label": "Origine des aliments",
+      "consigne": "Range chaque aliment selon son origine.",
+      "cats": [
+        { "id": "animale", "label": "Origine animale", "emoji": "🐄" },
+        { "id": "vegetale", "label": "Origine végétale", "emoji": "🌱" },
+        { "id": "minerale", "label": "Origine minérale", "emoji": "🧂" }
+      ],
+      "items": [
+        { "id": "lait", "label": "le lait", "emoji": "🥛", "cat": "animale" },
+        { "id": "oeuf", "label": "l’œuf", "emoji": "🥚", "cat": "animale" },
+        { "id": "miel", "label": "le miel", "emoji": "🍯", "cat": "animale" },
+        { "id": "pomme", "label": "la pomme", "emoji": "🍎", "cat": "vegetale" },
+        { "id": "riz", "label": "le riz", "emoji": "🍚", "cat": "vegetale" },
+        { "id": "carotte", "label": "la carotte", "emoji": "🥕", "cat": "vegetale" },
+        { "id": "sel", "label": "le sel", "cat": "minerale" },
+        { "id": "eau", "label": "l’eau", "emoji": "💧", "cat": "minerale" },
+        { "id": "bicarbonate", "label": "le bicarbonate", "cat": "minerale" }
+      ]
+    }
+  ]
+}
