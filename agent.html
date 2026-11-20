@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Agent L · 6e</title>
+    <link rel="stylesheet" href="assets/agent/agent.css">
+</head>
+<body class="agent">
+    <canvas id="view" aria-label="L’île de Cobalt"></canvas>
+    <div id="stick" class="ag-stick" hidden><i></i></div>
+
+    <header id="hud" class="ag-hud" hidden>
+        <a class="ag-btn" id="homeBtn" href="index.html" aria-label="Retour à l’accueil">🏠</a>
+        <button type="button" class="ag-btn" id="quitBtn" aria-label="Quitter la mission (appui long ou deux fois)" hidden>🏠</button>
+        <span class="ag-pill" id="credits" aria-label="Crédits">💰 0</span>
+        <span class="ag-pill" id="rank"></span>
+        <span class="ag-pill" id="lockCount" hidden></span>
+        <span class="ag-pill" id="alarm" hidden></span>
+        <span class="ag-pill" id="gadgetInfo" hidden></span>
+        <span class="ag-spacer"></span>
+        <button type="button" class="ag-btn" id="soundBtn" aria-label="Son">🔊</button>
+        <button type="button" class="ag-btn" id="parentBtn" aria-label="Coin des parents (appui long)">⚙️</button>
+    </header>
+
+    <div id="controls" class="ag-controls" hidden>
+        <button type="button" class="ag-ctl" id="btnGadget" aria-label="Gadget (Q)" hidden>⚡</button>
+        <button type="button" class="ag-ctl" id="btnSprint" aria-label="Courir (Maj)">🏃</button>
+        <button type="button" class="ag-ctl" id="btnJump" aria-label="Sauter (Espace)">⤴️</button>
+        <button type="button" class="ag-ctl big" id="btnAction" aria-label="Action (E)">✋</button>
+    </div>
+
+    <p id="toast" class="ag-toast" role="status" aria-live="polite" hidden></p>
+
+    <section id="lock" class="ag-lock" role="dialog" aria-modal="true" aria-labelledby="lockTitle" hidden>
+        <div class="ag-lock-head">
+            <span id="lockTitle" class="ag-lock-title"></span>
+            <button type="button" class="ag-small" id="hintBtn" hidden>🛸 Indice</button>
+        </div>
+        <p id="lockConsigne" class="ag-consigne"></p>
+        <div id="lockStage" class="ag-stage"></div>
+        <div id="lockFeedback" class="ag-feedback" role="status" aria-live="polite"></div>
+    </section>
+
+    <div id="overlay" class="ag-overlay" hidden><div class="ag-card" id="card" role="dialog" aria-modal="true"></div></div>
+
+    <div id="start" class="ag-start">
+        <div class="ag-start-card">
+            <p class="ag-kicker">Île de Cobalt · mission secrète</p>
+            <h1>🕵️ Agent L</h1>
+            <p id="startNote" class="ag-note">Chargement…</p>
+            <button type="button" class="ag-cta" id="playBtn" disabled>▶ Jouer</button>
+            <a class="ag-link" href="index.html">← Retour</a>
+        </div>
+    </div>
+
+    <script type="module" src="assets/agent/app.js"></script>
+</body>
+</html>
