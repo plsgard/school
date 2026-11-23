@@ -1,11 +1,11 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { LESSON_FILES, flattenLesson, expandCards } from '../assets/en/decks/index.js';
+import { flattenLesson, expandCards } from '../assets/en/decks/index.js';
 import { lessonReport, reportText } from '../assets/en/lesson-report.js';
 import { initial } from '../assets/en/ladder.js';
 
-const lesson = JSON.parse(await readFile(new URL(`../assets/en/decks/${LESSON_FILES[0]}.json`, import.meta.url), 'utf8'));
+const lesson = JSON.parse(await readFile(new URL(`../assets/en/decks/what-day-is-it.json`, import.meta.url), 'utf8'));
 const decks = flattenLesson(lesson);
 const cards = expandCards(decks);
 const meta = decks[0].lesson;

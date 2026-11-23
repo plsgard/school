@@ -12,7 +12,7 @@ export const DECK_FILES = ['halloween-poem', 'have', 'school-premises', 'actions
 // is a deck (kind + items) and may be of two more kinds, practised in writing on a ladder (ladder.js):
 //   spell: a word or short form (cue "mercredi" → "Wednesday")     write: a phrase or sentence
 // The current lesson first.
-export const LESSON_FILES = ['what-day-is-it'];
+export const LESSON_FILES = ['what-time-is-it', 'what-day-is-it'];
 
 // One deck per group, id `<lesson>-<group>`, carrying its lesson's identity. A group's `strict` is its items' default.
 export function flattenLesson(lesson) {

@@ -13,13 +13,14 @@ const cards = expandCards(decks);
 const learnDecks = decks.filter(d => ['spell', 'write'].includes(d.kind));
 const seeded = (seed = 1) => () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
 const card = (id) => cards.find(c => c.id === id);
+const dayLesson = lessons.find(l => l.id === 'what-day-is-it');
 const NOW = new Date(2026, 10, 11, 18, 0); // Wednesday 11 November 2026
 
 describe('lesson files', () => {
     test('flattenLesson_Groups_DeckIdsAndLessonMeta', () => {
         const d = decks.find(x => x.id === 'what-day-is-it-days');
         assert.equal(d.kind, 'spell');
-        assert.deepEqual(d.lesson, { id: 'what-day-is-it', label: lessons[0].label, exam: '2026-11-13', source: lessons[0].source });
+        assert.deepEqual(d.lesson, { id: 'what-day-is-it', label: dayLesson.label, exam: '2026-11-13', source: dayLesson.source });
         assert.deepEqual(decks.find(x => x.id === 'what-day-is-it-suffix').items[0].strict, { spelling: true });
     });
     test('loadDecks_LessonsFirstThenDecks', async () => {

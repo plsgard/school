@@ -38,7 +38,7 @@ function playMission(lesson, { type = 'infiltration', hasVoice = true, answer = 
 describe('buildCatalog', () => {
     test('buildCatalog_EnglishDecks_GroupsLessonGroupsAndKeepsDecksApart', () => {
         const en = catalog.filter(l => l.subject === 'en');
-        assert.deepEqual(en.map(l => l.id), ['what-day-is-it', 'have', 'school-premises', 'actions-in-class', 'my-school-bag']);
+        assert.deepEqual(en.map(l => l.id), ['what-time-is-it', 'what-day-is-it', 'have', 'school-premises', 'actions-in-class', 'my-school-bag']);
         assert.equal(byId('what-day-is-it').exam, '2026-11-13');
         assert.equal(byId('have').trackId, 'en');
         assert.ok(byId('what-day-is-it').cards.some(c => c.deckId === 'what-day-is-it-months'));

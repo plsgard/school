@@ -1,0 +1,81 @@
+{
+  "id": "what-time-is-it",
+  "label": "What time is it? · dire l’heure",
+  "source": "Cours d’anglais des 20 et 23 novembre 2026 (cahier de textes) : lire l’heure sur une pendule, match the clock with the time, AM/PM, présenter une journée de son emploi du temps ; exercice d’entraînement LearningApps « Tell the time ! » (réponse sans phrase, exemple : five past three).",
+  "exam": "2026-11-24",
+  "groups": [
+    {
+      "id": "times", "kind": "write", "label": "Dire l’heure", "consigne": "Quelle heure est-il ? Écris-la en anglais.",
+      "strict": { "punct": false },
+      "items": [
+        { "id": "t0700", "cue": "7:00", "en": ["It's seven o'clock.", "It is seven o'clock.", "seven o'clock"],
+          "slips": ["It's seven clock.", "It's seven hours.", "It's o'clock seven."] },
+        { "id": "t1200", "cue": "12:00", "en": ["It's twelve o'clock.", "It is twelve o'clock.", "twelve o'clock", "It's midday.", "It's noon."],
+          "slips": ["It's twelve hours.", "It's twelve clock.", "It's o'clock twelve."] },
+        { "id": "t0305", "cue": "3:05", "en": ["It's five past three.", "It is five past three.", "five past three"],
+          "slips": ["It's five to three.", "It's three past five.", "It's five past four."] },
+        { "id": "t0410", "cue": "4:10", "en": ["It's ten past four.", "It is ten past four.", "ten past four"],
+          "slips": ["It's ten to four.", "It's four past ten.", "It's ten to five."] },
+        { "id": "t0815", "cue": "8:15", "en": ["It's a quarter past eight.", "It is a quarter past eight.", "It's quarter past eight.", "a quarter past eight", "quarter past eight"],
+          "slips": ["It's a quarter to eight.", "It's half past eight.", "It's a quarter past nine."] },
+        { "id": "t0220", "cue": "2:20", "en": ["It's twenty past two.", "It is twenty past two.", "twenty past two"],
+          "slips": ["It's twenty to two.", "It's two past twenty.", "It's twenty to three."] },
+        { "id": "t0625", "cue": "6:25", "en": ["It's twenty-five past six.", "It is twenty-five past six.", "It's twenty five past six.", "twenty-five past six", "twenty five past six"],
+          "slips": ["It's twenty-five to six.", "It's twenty-five to seven.", "It's six past twenty-five."] },
+        { "id": "t0930", "cue": "9:30", "en": ["It's half past nine.", "It is half past nine.", "half past nine"],
+          "slips": ["It's half to nine.", "It's half past ten.", "It's a quarter past nine."] },
+        { "id": "t1130", "cue": "11:30", "en": ["It's half past eleven.", "It is half past eleven.", "half past eleven"],
+          "slips": ["It's half to twelve.", "It's half past twelve.", "It's eleven and half."] },
+        { "id": "t0135", "cue": "1:35", "en": ["It's twenty-five to two.", "It is twenty-five to two.", "It's twenty five to two.", "twenty-five to two", "twenty five to two"],
+          "slips": ["It's twenty-five past one.", "It's twenty-five to one.", "It's thirty-five past one."] },
+        { "id": "t0540", "cue": "5:40", "en": ["It's twenty to six.", "It is twenty to six.", "twenty to six"],
+          "slips": ["It's twenty to five.", "It's forty past five.", "It's twenty past six."] },
+        { "id": "t1045", "cue": "10:45", "en": ["It's a quarter to eleven.", "It is a quarter to eleven.", "It's quarter to eleven.", "a quarter to eleven", "quarter to eleven"],
+          "slips": ["It's a quarter to ten.", "It's a quarter past ten.", "It's a quarter past eleven."] },
+        { "id": "t0745", "cue": "7:45", "en": ["It's a quarter to eight.", "It is a quarter to eight.", "It's quarter to eight.", "a quarter to eight", "quarter to eight"],
+          "slips": ["It's a quarter to seven.", "It's a quarter past seven.", "It's a quarter past eight."] },
+        { "id": "t0350", "cue": "3:50", "en": ["It's ten to four.", "It is ten to four.", "ten to four"],
+          "slips": ["It's ten to three.", "It's ten past four.", "It's fifty past three."] },
+        { "id": "t1255", "cue": "12:55", "en": ["It's five to one.", "It is five to one.", "five to one"],
+          "slips": ["It's five to twelve.", "It's five past one.", "It's fifty-five past twelve."] }
+      ]
+    },
+    {
+      "id": "words", "kind": "spell", "label": "Les mots de l’heure", "consigne": "Écris ce mot en anglais.",
+      "items": [
+        { "id": "o-clock", "cue": "heure pile (7 h 00)", "en": ["o'clock"], "slips": ["o'clok", "a'clock", "o'cloc"] },
+        { "id": "past", "cue": "après l’heure (7 h 10 : ten … seven)", "en": ["past"], "slips": ["passed", "paste", "pass"] },
+        { "id": "to", "cue": "avant l’heure (6 h 50 : ten … seven)", "en": ["to"], "slips": ["too", "two", "tu"] },
+        { "id": "quarter", "cue": "un quart d’heure", "en": ["quarter", "a quarter"], "slips": ["quater", "quarteur", "cuarter"] },
+        { "id": "half", "cue": "une demi-heure (et demie)", "en": ["half"], "slips": ["haf", "halfe", "alf"] },
+        { "id": "midday", "cue": "midi", "en": ["midday", "noon"], "slips": ["middday", "midei", "midy"] },
+        { "id": "midnight", "cue": "minuit", "en": ["midnight"], "slips": ["midnigt", "midnite", "minight"] }
+      ]
+    },
+    {
+      "id": "am-pm", "kind": "write", "label": "AM ou PM", "consigne": "Écris l’heure en anglais avec AM (le matin) ou PM (l’après-midi, le soir).",
+      "strict": { "case": false, "punct": false },
+      "items": [
+        { "id": "am-0730", "cue": "7:30 le matin", "en": ["It's half past seven AM.", "It is half past seven AM.", "half past seven AM", "It's half past seven a.m.", "half past seven a.m."],
+          "slips": ["It's half past seven PM.", "It's half past six AM.", "It's half to seven AM."] },
+        { "id": "am-1000", "cue": "10:00 le matin", "en": ["It's ten AM.", "It is ten AM.", "It's ten o'clock AM.", "ten AM", "It's ten a.m.", "ten a.m."],
+          "slips": ["It's ten PM.", "It's ten hours AM.", "It's two PM."] },
+        { "id": "pm-1500", "cue": "15:00", "en": ["It's three PM.", "It is three PM.", "It's three o'clock PM.", "three PM", "It's three p.m.", "three p.m."],
+          "slips": ["It's three AM.", "It's fifteen PM.", "It's fifteen o'clock."] },
+        { "id": "pm-2045", "cue": "20:45", "en": ["It's a quarter to nine PM.", "It is a quarter to nine PM.", "It's quarter to nine PM.", "a quarter to nine PM", "It's a quarter to nine p.m.", "a quarter to nine p.m."],
+          "slips": ["It's a quarter to nine AM.", "It's a quarter to twenty-one PM.", "It's a quarter past eight PM."] }
+      ]
+    },
+    {
+      "id": "phrases", "kind": "write", "label": "Les phrases", "consigne": "Écris la phrase en anglais.",
+      "items": [
+        { "id": "what-time", "cue": "Quelle heure est-il ?", "en": ["What time is it?", "What time is it, please?"] },
+        { "id": "eight-oclock", "cue": "Il est huit heures.", "en": ["It's eight o'clock.", "It is eight o'clock."] },
+        { "id": "half-past-four", "cue": "Il est quatre heures et demie.", "en": ["It's half past four.", "It is half past four."] },
+        { "id": "midnight", "cue": "Il est minuit.", "en": ["It's midnight.", "It is midnight.", "It's twelve o'clock."] },
+        { "id": "english-at-nine", "cue": "J’ai anglais à neuf heures.", "en": ["I have English at nine o'clock.", "I have English at nine.", "I've got English at nine o'clock."] },
+        { "id": "maths-at-half-past-twelve", "cue": "J’ai maths à midi et demi.", "en": ["I have maths at half past twelve.", "I've got maths at half past twelve."] }
+      ]
+    }
+  ]
+}

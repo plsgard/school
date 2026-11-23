@@ -1,11 +1,11 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { LESSON_FILES, flattenLesson, expandCards } from '../assets/en/decks/index.js';
+import { flattenLesson, expandCards } from '../assets/en/decks/index.js';
 import { nextStep, afterAnswer, applyStep, examSoon, available, inLearning } from '../assets/en/lesson-session.js';
 import { initial } from '../assets/en/ladder.js';
 
-const lesson = JSON.parse(await readFile(new URL(`../assets/en/decks/${LESSON_FILES[0]}.json`, import.meta.url), 'utf8'));
+const lesson = JSON.parse(await readFile(new URL(`../assets/en/decks/what-day-is-it.json`, import.meta.url), 'utf8'));
 const cards = expandCards(flattenLesson(lesson));
 const TODAY = '2026-11-11';
 const NOW = new Date(2026, 10, 11, 18, 0);
