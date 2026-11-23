@@ -6,6 +6,7 @@
   "groups": [
     {
       "id": "times", "kind": "write", "label": "Dire l’heure", "consigne": "Quelle heure est-il ? Écris-la en anglais.",
+      "clock": true,
       "strict": { "punct": false },
       "items": [
         { "id": "t0700", "cue": "7:00", "en": ["It's seven o'clock.", "It is seven o'clock.", "seven o'clock"],

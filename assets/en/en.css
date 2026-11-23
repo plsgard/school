@@ -74,3 +74,4 @@ body.en { background: #f3f6fb; color: #1d2433; font-size: 18px; }
 @keyframes en-pulse { 50% { transform: scale(1.08); box-shadow: 0 0 0 10px rgba(208, 67, 59, .2); } }
 @keyframes en-shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 @media (prefers-reduced-motion: reduce) { .en-speak.listening, .en-choice.ko, .en-input.ko { animation: none; } .hold-gate.holding::after { transition: none; } }
+.en-prompt .en-clock { display: block; margin: 0 auto; max-width: 46vw; height: auto; }

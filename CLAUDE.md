@@ -38,7 +38,7 @@ See [`README.md`](README.md) for run/deploy/test basics, the iPad setup, deck au
 │   │                                #   expeditions, village), world.js (geometry), app.js (canvas, input, overlays), jeu.css
 │   ├── en/                          # English track: app.js, parent.js, rules.js, generators.js, pronounce.js, listen.js;
 │   │   │                            #   lessons from photos: answer.js, ladder.js, lesson-session.js,
-│   │   │                            #   lesson-generators.js, lesson-play.js, lesson-report.js, today.js
+│   │   │                            #   lesson-generators.js, lesson-play.js, lesson-report.js, today.js, clock.js
 │   │   └── decks/                   # index.js (LESSON_FILES, DECK_FILES) + one JSON per lesson / deck
 │   ├── lessons/                     # other subjects: index.js (SUBJECTS, LESSON_LADDER, validateLesson), qa.js,
 │   │                                #   <subject>/<id>.json (one lesson per file, e.g. svt/alimentation-humaine.json)

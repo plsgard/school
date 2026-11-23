@@ -4,6 +4,7 @@
 // A miss always ends on the model answer; typed formats then ask to copy it once (not scored). Never blocks.
 import { checkAnswer } from './answer.js';
 import { joinTiles } from './lesson-generators.js';
+import { clockFace } from './clock.js';
 
 const NBSP = ' ';
 
@@ -39,7 +40,7 @@ const put = (node, ...children) => node.replaceChildren(...children.filter(c => 
 function cueBlock(ex, { el }) {
     if (!ex.cue) return null;
     return el('div', { class: 'en-prompt' },
-        el('div', { class: 'fr' }, ex.cue),
+        ex.clock ? clockFace(document, ex.clock) : el('div', { class: 'fr' }, ex.cue),
         // What to write (a day, a date…), only where he writes it himself and the instruction does not say it already.
         ['fill', 'cover'].includes(ex.type) && ex.hint ? el('div', { class: 'en-note' }, ex.hint) : null);
 }

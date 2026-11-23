@@ -19,6 +19,7 @@ export function flattenLesson(lesson) {
     const meta = { id: lesson.id, label: lesson.label, exam: lesson.exam ?? null, source: lesson.source ?? '' };
     return lesson.groups.map(g => ({
         id: `${lesson.id}-${g.id}`, kind: g.kind, label: g.label, consigne: g.consigne ?? '', lesson: meta,
+        ...(g.clock === true ? { clock: true } : {}),
         items: g.strict ? g.items.map(it => ({ ...it, strict: { ...g.strict, ...(it.strict ?? {}) } })) : g.items,
     }));
 }

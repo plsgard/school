@@ -135,3 +135,4 @@ body.agent { overscroll-behavior: none; -webkit-user-select: none; user-select: 
     .ag-ctl { width: 56px; height: 56px; font-size: 24px; }
     .ag-ctl.big { width: 74px; height: 74px; }
 }
+.ag-lock .en-prompt .en-clock { display: block; margin: 0 auto; width: 150px; height: 150px; }

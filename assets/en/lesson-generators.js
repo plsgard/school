@@ -5,6 +5,7 @@
 //   cover: shown a few seconds, hidden, typed                            hear: dictation (no cue)
 import { strictFor } from './answer.js';
 import { resolveItem } from './today.js';
+import { parseClock } from './clock.js';
 
 const NBSP = ' ';
 const CONSIGNES = {
@@ -93,6 +94,8 @@ export function generateLesson(card, { format, cards, rng = Math.random, now = n
         confusables: others,
         say: item.hear ?? model,
     };
+    // A clock group ("clock": true) draws the cue "4:10" as a clock face; dictation has no cue.
+    if (card.deck?.clock && format !== 'hear' && parseClock(item.cue)) ex.clock = item.cue;
     if (format === 'pick' || format === 'pick2') {
         const wrong = [...new Set([...shuffle(item.slips ?? [], rng), ...shuffle(others, rng)])].filter(t => !item.en.includes(t));
         const n = format === 'pick2' ? 1 : 3;

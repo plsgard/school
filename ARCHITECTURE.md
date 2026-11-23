@@ -617,6 +617,7 @@ A lesson is one file made by a Claude session from photos of the notebook (READM
 | `assets/en/lesson-generators.js` | Pure `generateLesson(card, { format })` → `pick`, `pick2`, `fill`, `tiles`, `type`, `cover`, `hear` exercises. |
 | `assets/en/lesson-session.js` | Pure composer `nextStep` (one exercise at a time), `afterAnswer`, `applyStep` (ladder + Leitner), `available`, `examSoon`; `nextStep`, `applyStep` and `inLearning` take the same optional `table`. The phrase slot and `available()` concern the English `write` / `spell` kinds only. |
 | `assets/en/lesson-play.js` | DOM renderers of the written exercises; resolves `{ result: 'right' \| 'retry' \| 'miss', ms, typed }`. |
+| `assets/en/clock.js` | The clock face of a `"clock": true` group: pure geometry (`parseClock`, `handAngles`, `clockModel`) and `clockFace(doc, "4:10")`, an SVG built with `createElementNS`. |
 | `assets/en/lesson-report.js` | Pure `lessonReport` / `reportText` for the parent corner and "Copier le bilan". |
 | `assets/en/today.js` | Today's date in the lesson's written and spoken forms (the `dynamic: "today"` item). |
 

@@ -182,6 +182,7 @@ For a lesson he must know in writing (a test is coming). Works from a Claude Cod
    - `kind`: `spell` (a word or short form) or `write` (a phrase or sentence); a group may also be `vocab`, `grammar` or `text` as below (a `grammar` item without `fr` only gets the gap game, no microphone).
    - `cue`: what is shown (French, a number…). `en`: accepted answers, the model first. `slips`: plausible wrong forms, at least 3 for a `spell` item with those of its group; put the child's real mistakes first. `hear`: what the voice says when it differs from what is written.
    - `strict` (item or group): `case` and `punct` decide whether a capital or a comma matters (defaults: `write` both, `spell` capitals only); `spelling: true` refuses near misses (a suffix group: "3nd" is the mistake itself).
+   - `"clock": true` (group): each cue is a time (`"4:10"`) drawn as a clock face instead of the digits (`assets/en/clock.js`), as on the clocks of a lesson on telling the time.
    - `"dynamic": "today"`: one item whose answer is today's date.
    - Item ids are stable: changing one loses the progress on that item. Adding items and slips is free.
 4. He plays **▶ Réviser cette leçon** on the home screen. Each item climbs: pick the right spelling → complete it → write it from memory → write it from audio (phrases). A known item gets there in two answers; a missed one comes back in another format, then one level lower. A missing capital or comma is "Presque !" with one more try.
