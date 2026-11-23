@@ -10,7 +10,7 @@ import { enSettings } from '../en/rules.js';
 import { ensureProfiles, trackProfileId } from '../profiles.js';
 import { holdToActivate } from '../hold.js';
 import { loadDecks } from '../en/decks/index.js';
-import { loadLessons, flattenSubjectLesson } from '../lessons/index.js';
+import { SUBJECTS, loadLessons, flattenSubjectLesson } from '../lessons/index.js';
 import { ISLAND, LAYOUTS, parseLayout, beaconsFor } from './levels.js';
 import { PLAYER, stepPlayer, groundAt, solidsOf, createRobot, stepRobot, caught, cellCenter, cellOf, near } from './world.js';
 import * as M from './missions.js';
@@ -63,7 +63,9 @@ const keepTrack = (trackId, srs, learn) => {
 
 async function loadContent() {
     const enDecks = await loadDecks();
-    const subjects = { svt: await loadLessons('svt') };
+    const names = Object.keys(SUBJECTS);
+    const loaded = await Promise.all(names.map(s => loadLessons(s)));
+    const subjects = Object.fromEntries(names.map((s, i) => [s, loaded[i]]));
     if (DEBUG && params.has('fixture')) {
         subjects.demo = flattenSubjectLesson(await (await fetch('tests/helpers/lesson-fixture.json')).json());
     }

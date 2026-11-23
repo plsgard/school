@@ -1,0 +1,392 @@
+{
+  "id": "volume-et-masse",
+  "label": "Volume et masse · Physique chapitre 2",
+  "source": "Cahier de textes de physique (10 et 12 novembre 2026) : bilans « II. Le volume » et « III. La masse » ; fiche « TP n°1 chapitre 2 » (mesurer la masse d’un solide, d’un solide divisé ou d’un liquide, touche TARE).",
+  "groups": [
+    {
+      "id": "questions",
+      "kind": "qa",
+      "label": "Les questions du chapitre",
+      "consigne": "Réponds par une phrase.",
+      "items": [
+        {
+          "id": "v-definition",
+          "q": "Que représente le volume d’un objet ?",
+          "a": "Le volume d’un objet représente l’espace, la place qu’occupe l’objet.",
+          "keys": [
+            [
+              "espace",
+              "place"
+            ]
+          ],
+          "wrong": [
+            "Le volume d’un objet représente la quantité de matière de l’objet.",
+            "Le volume d’un objet indique s’il est lourd ou léger.",
+            "Le volume d’un objet représente sa température."
+          ]
+        },
+        {
+          "id": "v-instrument",
+          "q": "Avec quoi mesure-t-on un volume ?",
+          "a": "On mesure un volume avec une éprouvette graduée.",
+          "keys": [
+            [
+              "eprouvette",
+              "eprouvettes"
+            ]
+          ],
+          "wrong": [
+            "On mesure un volume avec une balance.",
+            "On mesure un volume avec une règle graduée.",
+            "On mesure un volume avec un thermomètre."
+          ]
+        },
+        {
+          "id": "v-unite",
+          "q": "Quelle est l’unité de mesure du volume ?",
+          "a": "L’unité de mesure du volume est le litre (L) et ses sous-multiples.",
+          "keys": [
+            [
+              "litre",
+              "litres"
+            ]
+          ],
+          "wrong": [
+            "L’unité de mesure du volume est le gramme (g).",
+            "L’unité de mesure du volume est le kilogramme (kg).",
+            "L’unité de mesure du volume est le mètre (m)."
+          ]
+        },
+        {
+          "id": "v-precision",
+          "q": "Pourquoi faut-il choisir une éprouvette adaptée au volume mesuré ?",
+          "a": "Plus l’éprouvette a une grande contenance, moins elle est précise, car ses graduations sont plus grandes.",
+          "keys": [
+            [
+              "moins precise",
+              "moins precis",
+              "moins elle est precise",
+              "moins de precision",
+              "pas precise"
+            ],
+            [
+              "grande",
+              "grandes",
+              "grosse",
+              "contenance",
+              "graduations"
+            ]
+          ],
+          "cloze": "précise",
+          "wrong": [
+            "Plus l’éprouvette est grande, plus elle est précise.",
+            "Toutes les éprouvettes donnent la même mesure.",
+            "Une petite éprouvette mesure aussi la masse."
+          ]
+        },
+        {
+          "id": "v-solide",
+          "q": "Comment mesure-t-on le volume d’un solide ?",
+          "a": "Pour mesurer le volume d’un solide, on utilise la méthode par déplacement d’eau.",
+          "keys": [
+            [
+              "deplacement",
+              "deplace"
+            ],
+            [
+              "eau"
+            ]
+          ],
+          "wrong": [
+            "On pose le solide sur une balance.",
+            "On mesure le solide avec une règle et on lit des litres.",
+            "On met le solide dans une éprouvette vide."
+          ]
+        },
+        {
+          "id": "v-litre-ml",
+          "q": "1 litre, c’est combien de millilitres ?",
+          "a": "1 L = 1000 mL.",
+          "keys": [
+            [
+              "1000"
+            ]
+          ],
+          "wrong": [
+            "1 L = 100 mL.",
+            "1 L = 10 mL.",
+            "1 L = 10000 mL."
+          ]
+        },
+        {
+          "id": "v-litre-cl",
+          "q": "1 litre, c’est combien de centilitres ?",
+          "a": "1 L = 100 cL.",
+          "keys": [
+            [
+              "100"
+            ]
+          ],
+          "wrong": [
+            "1 L = 1000 cL.",
+            "1 L = 10 cL.",
+            "1 L = 50 cL."
+          ]
+        },
+        {
+          "id": "m-definition",
+          "q": "Que représente la masse d’un objet ?",
+          "a": "La masse d’un objet représente la quantité de matière de l’objet.",
+          "keys": [
+            [
+              "quantite"
+            ],
+            [
+              "matiere"
+            ]
+          ],
+          "wrong": [
+            "La masse d’un objet représente la place qu’occupe l’objet.",
+            "La masse d’un objet représente sa taille.",
+            "La masse d’un objet représente sa couleur."
+          ]
+        },
+        {
+          "id": "m-lourd",
+          "q": "Que nous indique la masse d’un objet ?",
+          "a": "La masse d’un objet nous indique si l’objet est lourd ou léger.",
+          "keys": [
+            [
+              "lourd",
+              "lourde"
+            ],
+            [
+              "leger",
+              "legere"
+            ]
+          ],
+          "wrong": [
+            "La masse d’un objet nous indique s’il est grand ou petit.",
+            "La masse d’un objet nous indique s’il est chaud ou froid.",
+            "La masse d’un objet nous indique s’il est solide ou liquide."
+          ]
+        },
+        {
+          "id": "m-instrument",
+          "q": "Avec quoi mesure-t-on une masse ?",
+          "a": "La masse se mesure avec une balance.",
+          "keys": [
+            [
+              "balance",
+              "balances"
+            ]
+          ],
+          "wrong": [
+            "La masse se mesure avec une éprouvette graduée.",
+            "La masse se mesure avec une règle.",
+            "La masse se mesure avec un thermomètre."
+          ]
+        },
+        {
+          "id": "m-unite",
+          "q": "Quelle est l’unité de mesure de la masse ?",
+          "a": "La masse se mesure en gramme (g) ; on utilise aussi le kilogramme (kg).",
+          "keys": [
+            [
+              "gramme",
+              "grammes",
+              "kilogramme",
+              "kilogrammes"
+            ]
+          ],
+          "wrong": [
+            "La masse se mesure en litre (L).",
+            "La masse se mesure en mètre (m).",
+            "La masse se mesure en millilitre (mL)."
+          ]
+        },
+        {
+          "id": "m-poids",
+          "q": "Quel mot ne faut-il pas utiliser à la place du mot « masse » ?",
+          "a": "Il ne faut pas confondre la masse et le poids : dire « poids » à la place de « masse » est une erreur.",
+          "keys": [
+            [
+              "poids"
+            ]
+          ],
+          "wrong": [
+            "Il ne faut pas confondre la masse et la taille.",
+            "Il ne faut pas confondre la masse et la température.",
+            "Il ne faut pas confondre la masse et la couleur."
+          ]
+        },
+        {
+          "id": "m-kg",
+          "q": "1 kilogramme, c’est combien de grammes ?",
+          "a": "1 kg = 1000 g.",
+          "keys": [
+            [
+              "1000"
+            ]
+          ],
+          "wrong": [
+            "1 kg = 100 g.",
+            "1 kg = 10 g.",
+            "1 kg = 10000 g."
+          ]
+        },
+        {
+          "id": "m-zero",
+          "q": "Que doit afficher la balance avant une mesure ?",
+          "a": "Avant une mesure, la balance doit afficher 0.",
+          "keys": [
+            [
+              "0",
+              "zero"
+            ]
+          ],
+          "wrong": [
+            "Avant une mesure, la balance doit afficher 100.",
+            "Avant une mesure, la balance doit afficher la masse du verre.",
+            "Avant une mesure, la balance peut afficher n’importe quoi."
+          ]
+        },
+        {
+          "id": "m-tare",
+          "q": "À quoi sert la touche TARE (ou zéro) de la balance ?",
+          "a": "La touche TARE remet l’affichage à zéro : la balance ne compte plus la masse du récipient posé dessus.",
+          "keys": [
+            [
+              "zero",
+              "0"
+            ]
+          ],
+          "wrong": [
+            "La touche TARE éteint la balance.",
+            "La touche TARE double la masse affichée.",
+            "La touche TARE mesure le volume."
+          ]
+        },
+        {
+          "id": "m-sable",
+          "q": "Comment mesurer la masse du sable versé dans un verre à pied ?",
+          "a": "On allume la balance, on pose le verre vide et on appuie sur TARE, puis on verse le sable et on lit la masse.",
+          "keys": [
+            [
+              "tare",
+              "zero"
+            ],
+            [
+              "verre",
+              "recipient"
+            ]
+          ],
+          "wrong": [
+            "On pèse le sable avec une éprouvette graduée.",
+            "On verse le sable directement sur le plateau, puis on lit la masse.",
+            "On pose le verre plein de sable et on lit la masse du verre."
+          ]
+        },
+        {
+          "id": "m-eau-160",
+          "q": "Comment mettre 160 g d’eau dans un verre à pied ?",
+          "a": "On pose le verre vide sur la balance, on appuie sur TARE, puis on verse l’eau jusqu’à ce que la balance affiche 160 g.",
+          "keys": [
+            [
+              "tare",
+              "zero"
+            ],
+            [
+              "160"
+            ]
+          ],
+          "wrong": [
+            "On verse 160 mL d’eau avec une éprouvette graduée.",
+            "On verse l’eau dans le verre puis on appuie sur TARE.",
+            "On pose le verre plein et on enlève de l’eau au hasard."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "masse-volume",
+      "kind": "sort",
+      "label": "Masse ou volume ?",
+      "consigne": "Range chaque caisse : est-ce que ça parle de la masse ou du volume ?",
+      "cats": [
+        {
+          "id": "masse",
+          "label": "Masse",
+          "emoji": "⚖️"
+        },
+        {
+          "id": "volume",
+          "label": "Volume",
+          "emoji": "🧪"
+        }
+      ],
+      "items": [
+        {
+          "id": "balance",
+          "label": "la balance",
+          "cat": "masse"
+        },
+        {
+          "id": "eprouvette",
+          "label": "l’éprouvette graduée",
+          "cat": "volume"
+        },
+        {
+          "id": "gramme",
+          "label": "le gramme (g)",
+          "cat": "masse"
+        },
+        {
+          "id": "kilogramme",
+          "label": "le kilogramme (kg)",
+          "cat": "masse"
+        },
+        {
+          "id": "litre",
+          "label": "le litre (L)",
+          "cat": "volume"
+        },
+        {
+          "id": "millilitre",
+          "label": "le millilitre (mL)",
+          "cat": "volume"
+        },
+        {
+          "id": "centilitre",
+          "label": "le centilitre (cL)",
+          "cat": "volume"
+        },
+        {
+          "id": "tare",
+          "label": "la touche TARE",
+          "cat": "masse"
+        },
+        {
+          "id": "deplacement-eau",
+          "label": "le déplacement d’eau",
+          "cat": "volume"
+        },
+        {
+          "id": "quantite-matiere",
+          "label": "la quantité de matière",
+          "cat": "masse"
+        },
+        {
+          "id": "place",
+          "label": "la place qu’occupe un objet",
+          "cat": "volume"
+        },
+        {
+          "id": "lourd-leger",
+          "label": "lourd ou léger",
+          "cat": "masse"
+        }
+      ]
+    }
+  ]
+}
