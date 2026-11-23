@@ -19,7 +19,7 @@ See [`README.md`](README.md) for run/deploy/test basics, the iPad setup, deck au
 ├── gs.html                          # Grande Section track
 ├── ce2.html                         # CE2 track (column subtraction by compensation, level ladder)
 ├── en.html                          # 6e English track (listen-pick, say-it + pronunciation check, lessons from photos)
-├── jeu.html                         # CE2 game « L’île des Gribouilles » (canvas: village + expeditions, whole CE2 programme)
+├── jeu.html                         # CE2 game « L’île des Gribouilles » (canvas: village + expeditions, CE2 programme + English)
 ├── agent.html                       # 6e game « Agent L » (three.js: island hub, infiltration and sort-run missions)
 ├── assets/
 │   ├── quiz.js, quiz.css            # math quiz engine (Settings → Quiz → Result → History) + shared styles
@@ -34,7 +34,7 @@ See [`README.md`](README.md) for run/deploy/test basics, the iPad setup, deck au
 │   │                                #   mots-p1.json (période 1), mots-gs.json (generic GS words)
 │   ├── ce2/                         # CE2 track: method.js (compensation solver), generators.js (levels), rules.js
 │   │                                #   (ladder, session), app.js, parent.js, ce2.css
-│   ├── jeu/                         # CE2 game: questions.js (24 skills, generators + French banks), rules.js (biomes, ladder,
+│   ├── jeu/                         # CE2 game: questions.js (30 skills, generators + French/English banks), rules.js (biomes, ladder,
 │   │                                #   expeditions, village), world.js (geometry), app.js (canvas, input, overlays), jeu.css
 │   ├── en/                          # English track: app.js, parent.js, rules.js, generators.js, pronounce.js, listen.js;
 │   │   │                            #   lessons from photos: answer.js, ladder.js, lesson-session.js,
@@ -74,7 +74,7 @@ A quiz page is a thin shell: standardised markup + a `<script type="module">` th
 - GS track: no score shown to the child (stars only); a revealed answer is never praised; nothing advances while audio plays; adult controls stay behind a long-press. Data text goes through `textContent`, never `innerHTML`.
 - Result/timer regions carry `role="status"` / `role="timer"` for screen readers; keep them when editing markup.
 - English lessons from photos: one card per item, the ladder level picks the exercise format (`assets/en/ladder.js`); typed inputs keep `autocorrect`, `autocapitalize`, `autocomplete` and `spellcheck` off; a miss always ends on the model answer and never blocks; the new exercises never need the microphone.
-- CE2 game (`jeu.html`): the answer is the action (throw at the creature carrying it), never a quiz gate in front of an unrelated mini-game; no timer, no lives, no score; a miss ends on the model answer and the question comes back; choices stay ≤ 16 characters (they are drawn on a creature); only emoji older than 2019. It is a game in parallel: it never replaces or changes a track.
+- CE2 game (`jeu.html`): the answer is the action (throw at the creature carrying it), never a quiz gate in front of an unrelated mini-game; no timer, no lives, no score; a miss ends on the model answer and the question comes back; choices stay ≤ 16 characters (they are drawn on a creature); only emoji older than 2019 (with U+FE0F when the default is text); exactly one right answer among the choices. The Volcan des Verbes is `steady` (its pace suits the child: don't make it faster or harder). Never rename a skill or biome id, and a change to the ladder or the gates must keep an old save's stars and crystals (`skillState` / `normalize`, tested). It is a game in parallel: it never replaces or changes a track.
 - Agent L (`agent.html`): a mission is exactly a lesson session of the English engine (`nextStep` / `applyStep`, table `LESSON_LADDER`); the game never overrides the composer and never writes `sessions.*.en`. The answer is the action (a lock, a crate), the world waits while he answers (no timer), a miss ends on the model answer and he copies it, being caught never undoes an answer, stars only from recorded first-try answers. No weapons against people (robots are stunned), no name or look from an existing game. Geometry from primitives only; three.js is vendored (no CDN, no build). `assets/en/*` changes only through the optional ladder table: `en.html` must behave exactly as before.
 - CE2 track: the subtraction method is the class's (compensation); never show another one. Hints never give the digit before the worked solution; stars, not scores.
 - Tests follow `<Method>_<Condition>_<Expectation>` names, mostly one test file per module. Running `node --test` from the main checkout also picks up `.claude/worktrees/*/tests`.

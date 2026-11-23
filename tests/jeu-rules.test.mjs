@@ -2,7 +2,7 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-    MASTERY, PULLBACK, RUN_QUESTIONS, RUN_BONUS, FRIEND_STARS, BIOMES, CATALOG, HEROES, PORTALS, SPAWN, MAX_STARS,
+    MASTERY, FAST, PROBE, PULLBACK, VERSION, askLevel, reachable, gateFront, RUN_QUESTIONS, RUN_BONUS, FRIEND_STARS, BIOMES, CATALOG, HEROES, PORTALS, SPAWN, MAX_STARS,
     defaultState, normalize, skillState, skillStars, biomeStars, totalStars, recordAnswer, composeExpedition, bonusBiome,
     isBonus, withDailyBonus, beginRun, canRun, crystalsFor, finishRun, runsToday, buildable, isSolid, place, remove, buyHero, friends, itemById,
 } from '../assets/jeu/rules.js';
@@ -19,10 +19,19 @@ describe('catalog', () => {
         assert.equal(new Set(all).size, all.length);
         assert.deepEqual([...all].sort(), SKILLS.map(s => s.id).sort());
     });
-    test('PORTALS_OnePerBiome_OnBuildFreeTiles', () => {
+    test('PORTALS_OnePerBiome_GateAndItsFrontOnBuildFreeTiles', () => {
         assert.deepEqual(PORTALS.map(p => p.biome).sort(), BIOMES.map(b => b.id).sort());
-        for (const p of PORTALS) assert.equal(buildable(p.x, p.y), false);
+        for (const p of PORTALS) {
+            assert.equal(buildable(p.x, p.y), false, p.biome);
+            assert.equal(buildable(gateFront(p).x, gateFront(p).y), false, p.biome);
+        }
+        assert.deepEqual(gateFront(PORTALS.find(p => p.biome === 'port')), { x: 16, y: 6 });
         assert.equal(buildable(SPAWN.x, SPAWN.y), false);
+    });
+    test('BIOMES_Look_EmojiNeverSharedBetweenLands', () => {
+        const looks = BIOMES.flatMap(b => [...new Set([b.emoji, b.creature, b.prop, b.friend])]);
+        assert.equal(new Set(looks).size, looks.length);
+        assert.deepEqual(BIOMES.filter(b => b.steady).map(b => b.id), ['volcan']);
     });
     test('CATALOG_Ids_UniqueAndReachable', () => {
         assert.equal(new Set(CATALOG.map(i => i.id)).size, CATALOG.length);
@@ -32,51 +41,96 @@ describe('catalog', () => {
 });
 
 describe('ladder', () => {
-    test('recordAnswer_MasteryCleanInARow_WinsAStarAndMovesUp', () => {
-        let s = answer(defaultState(), 'calc.add', clean(MASTERY - 1));
+    test('recordAnswer_NeverMissedAtTheLevel_FastCleanAnswersMoveUp', () => {
+        const s = answer(defaultState(), 'calc.add', clean(FAST - 1));
         assert.equal(skillStars(s, 'calc.add'), 0);
         const r = recordAnswer(s, 'calc.add', true);
         assert.equal(r.star, true);
-        assert.deepEqual(skillState(r.state, 'calc.add'), { lvl: 2, streak: 0, misses: 0, top: false, best: 1, n: MASTERY, ok: MASTERY });
+        assert.deepEqual(skillState(r.state, 'calc.add'), { lvl: 2, streak: 0, misses: 0, top: false, best: 1, n: FAST, ok: FAST, slips: [] });
+    });
+    test('recordAnswer_MissedAtTheLevel_NeedsMasteryInARow', () => {
+        let s = answer(defaultState(), 'calc.add', [false, ...clean(MASTERY - 1)]);
+        assert.deepEqual([skillState(s, 'calc.add').lvl, skillState(s, 'calc.add').slips], [1, [1]]);
+        s = answer(s, 'calc.add', [true]);
+        assert.equal(skillState(s, 'calc.add').lvl, 2);
+        s = answer(s, 'calc.add', clean(FAST)); // level 2 was never missed: fast again
+        assert.equal(skillState(s, 'calc.add').lvl, 3);
+    });
+    test('recordAnswer_SteadyLand_AlwaysNeedsMastery', () => {
+        const s = answer(defaultState(), 'conj.present', clean(MASTERY - 1));
+        assert.equal(skillState(s, 'conj.present').lvl, 1);
+        assert.equal(skillState(answer(s, 'conj.present', [true]), 'conj.present').lvl, 2);
     });
     test('recordAnswer_AMiss_ResetsTheStreak', () => {
-        const s = answer(defaultState(), 'calc.add', [...clean(MASTERY - 1), false, true]);
+        const s = answer(defaultState(), 'calc.add', [...clean(FAST - 1), false, true]);
         assert.equal(skillState(s, 'calc.add').lvl, 1);
         assert.equal(skillState(s, 'calc.add').streak, 1);
     });
     test('recordAnswer_LastLevelMastered_IsTopWithAllStars', () => {
-        const levels = skillById('conj.temps').levels;
-        const s = answer(defaultState(), 'conj.temps', clean(MASTERY * levels));
-        assert.equal(skillState(s, 'conj.temps').top, true);
-        assert.equal(skillStars(s, 'conj.temps'), levels);
-        assert.equal(recordAnswer(answer(s, 'conj.temps', clean(MASTERY - 1)), 'conj.temps', true).star, false);
+        const levels = skillById('lex.synonyme').levels;
+        const s = answer(defaultState(), 'lex.synonyme', clean(FAST * levels));
+        assert.equal(skillState(s, 'lex.synonyme').top, true);
+        assert.equal(skillStars(s, 'lex.synonyme'), levels);
+        assert.equal(recordAnswer(s, 'lex.synonyme', true).star, false);
     });
     test('recordAnswer_PullbackMissesInARow_MovesDownOneStep', () => {
-        let s = answer(defaultState(), 'calc.add', clean(MASTERY));
+        let s = answer(defaultState(), 'calc.add', clean(FAST));
         s = answer(s, 'calc.add', Array(PULLBACK).fill(false));
         assert.equal(skillState(s, 'calc.add').lvl, 1);
         s = answer(s, 'calc.add', Array(PULLBACK * 3).fill(false));
         assert.equal(skillState(s, 'calc.add').lvl, 1);
     });
     test('recordAnswer_TopThenPullback_LosesTopOnly', () => {
-        const levels = skillById('conj.temps').levels;
-        let s = answer(defaultState(), 'conj.temps', clean(MASTERY * levels));
-        s = answer(s, 'conj.temps', Array(PULLBACK).fill(false));
-        assert.deepEqual([skillState(s, 'conj.temps').lvl, skillState(s, 'conj.temps').top], [levels, false]);
+        const levels = skillById('lex.synonyme').levels;
+        let s = answer(defaultState(), 'lex.synonyme', clean(FAST * levels));
+        s = answer(s, 'lex.synonyme', Array(PULLBACK).fill(false));
+        assert.deepEqual([skillState(s, 'lex.synonyme').lvl, skillState(s, 'lex.synonyme').top], [levels, false]);
     });
     test('recordAnswer_PullbackAfterAStar_KeepsTheStarAndNeverWinsItTwice', () => {
-        let s = answer(defaultState(), 'calc.add', clean(MASTERY));
+        let s = answer(defaultState(), 'calc.add', clean(FAST));
         s = answer(s, 'calc.add', Array(PULLBACK).fill(false));
         assert.deepEqual([skillState(s, 'calc.add').lvl, skillStars(s, 'calc.add'), totalStars(s)], [1, 1, 1]);
-        const again = recordAnswer(answer(s, 'calc.add', clean(MASTERY - 1)), 'calc.add', true);
+        const again = recordAnswer(answer(s, 'calc.add', clean(FAST - 1)), 'calc.add', true);
         assert.deepEqual([again.star, skillState(again.state, 'calc.add').lvl, skillStars(again.state, 'calc.add')], [false, 2, 1]);
+    });
+    test('askLevel_FirstQuestionOfASkill_IsAPlacementAtProbe', () => {
+        assert.equal(askLevel(defaultState(), 'calc.add'), PROBE);
+        assert.equal(askLevel(defaultState(), 'conj.present'), 1); // the Volcan des Verbes keeps its pace
+        assert.equal(askLevel(answer(defaultState(), 'calc.add', [true]), 'calc.add'), 1);
+    });
+    test('recordAnswer_PlacementRight_StartsThereWithTheStarsBelow', () => {
+        const r = recordAnswer(defaultState(), 'en.jours', true, PROBE);
+        assert.equal(r.star, true);
+        assert.deepEqual([skillState(r.state, 'en.jours').lvl, skillState(r.state, 'en.jours').streak, skillStars(r.state, 'en.jours')], [PROBE, 1, PROBE - 1]);
+        const s = answer(r.state, 'en.jours', clean(FAST - 1));
+        assert.equal(skillState(s, 'en.jours').lvl, PROBE + 1);
+    });
+    test('recordAnswer_PlacementWrong_CountsNothingAgainstHim', () => {
+        const s = recordAnswer(defaultState(), 'en.jours', false, PROBE).state;
+        assert.deepEqual(skillState(s, 'en.jours'), { lvl: 1, streak: 0, misses: 0, top: false, best: 0, n: 1, ok: 0, slips: [] });
+        assert.equal(askLevel(s, 'en.jours'), 1);
+    });
+    test('recordAnswer_StrongChildOnANewSkill_TopAfterFewAnswers', () => {
+        let s = defaultState();
+        let asked = 0;
+        while (!skillState(s, 'calc.add').top) { s = recordAnswer(s, 'calc.add', true, askLevel(s, 'calc.add')).state; asked++; }
+        assert.equal(asked, 1 + (FAST - 1) + FAST * (skillById('calc.add').levels - PROBE));
+        assert.ok(asked < MASTERY * skillById('calc.add').levels / 2);
     });
     test('skillState_SavedBeforeBest_StarsFollowTheLevel', () => {
         assert.equal(skillStars({ skills: { 'calc.add': { lvl: 3 } } }, 'calc.add'), 2);
     });
+    test('skillState_SavedBeforeSlips_PendingMissMarksTheLevel', () => {
+        assert.deepEqual(skillState({ skills: { 'calc.add': { lvl: 2, misses: 1 } } }, 'calc.add').slips, [2]);
+        assert.deepEqual(skillState({ skills: { 'calc.add': { lvl: 2, streak: 1 } } }, 'calc.add').slips, []);
+    });
+    test('skillState_TopBeforeANewLevel_MovesOnWithTheSameStars', () => {
+        const s = skillState({ skills: { 'calc.add': { lvl: 3, top: true, best: 3, streak: 2 } } }, 'calc.add');
+        assert.deepEqual([s.lvl, s.top, s.best, s.streak], [4, false, 3, 0]);
+    });
     test('stars_SumOverBiomes_MatchTotal', () => {
-        let s = answer(defaultState(), 'calc.add', clean(MASTERY));
-        s = answer(s, 'num.suite', clean(MASTERY * 2));
+        let s = answer(defaultState(), 'calc.add', clean(FAST));
+        s = answer(s, 'num.suite', clean(FAST * 2));
         assert.equal(biomeStars(s, 'mine'), 1);
         assert.equal(biomeStars(s, 'foret'), 2);
         assert.equal(totalStars(s), 3);
@@ -98,13 +152,13 @@ describe('expeditions', () => {
     });
     test('composeExpedition_WeakSkills_ComeMoreOften', () => {
         let s = defaultState();
-        for (const id of ['calc.add', 'calc.sub', 'calc.tables']) s = answer(s, id, clean(MASTERY * 3));
+        for (const id of ['calc.add', 'calc.sub', 'calc.tables']) s = answer(s, id, clean(FAST * 4));
         const count = { 'calc.double': 0, 'calc.add': 0 };
         for (let i = 0; i < 200; i++) for (const p of composeExpedition({ state: s, biomeId: 'mine', rng: Math.random })) if (p.skill in count) count[p.skill]++;
         assert.ok(count['calc.double'] > count['calc.add'] * 1.5, JSON.stringify(count));
     });
     test('composeExpedition_StarsElsewhere_AddsReviewsAfterTheStart', () => {
-        const s = answer(answer(defaultState(), 'calc.add', clean(MASTERY)), 'orth.pluriel', clean(MASTERY));
+        const s = answer(answer(defaultState(), 'calc.add', clean(FAST)), 'orth.pluriel', clean(FAST));
         const plan = composeExpedition({ state: s, biomeId: 'foret', rng: Math.random });
         const reviews = plan.map((p, i) => (p.review ? i : -1)).filter(i => i >= 0);
         assert.deepEqual(reviews, [3, 6]);
@@ -187,7 +241,7 @@ describe('village', () => {
     test('friends_BiomeWithEnoughStars_FreesItsFriend', () => {
         let s = defaultState();
         assert.deepEqual(friends(s), []);
-        s = answer(s, 'calc.add', clean(MASTERY * FRIEND_STARS));
+        s = answer(s, 'calc.add', clean(FAST * FRIEND_STARS));
         assert.deepEqual(friends(s), [{ biome: 'mine', emoji: '🦔' }]);
     });
 });
@@ -196,12 +250,47 @@ describe('normalize', () => {
     test('normalize_Nothing_IsTheDefaultState', () => {
         assert.deepEqual(normalize(null), defaultState());
     });
-    test('normalize_UnknownIdsAndBadNumbers_Dropped', () => {
+    test('normalize_UnknownIdsAndBadNumbers_DroppedAndReservedTilesRefunded', () => {
         const s = normalize({ crystals: -4, hero: 'ghost', heroes: ['ghost', 'dog'], skills: { nope: {}, 'calc.add': { lvl: 2 } }, village: { '2,3': 'tree', '2,4': 'gone', '9,6': 'tree' }, settings: { maxRuns: 3 } });
         assert.equal(normalize({ settings: { maxRuns: 99 } }).settings.maxRuns, 6);
-        assert.deepEqual([s.crystals, s.hero, s.heroes], [0, 'cat', ['cat', 'dog']]);
+        assert.deepEqual([s.crystals, s.hero, s.heroes], [itemById('tree').cost, 'cat', ['cat', 'dog']]);
         assert.deepEqual(Object.keys(s.skills), ['calc.add']);
         assert.deepEqual(s.village, { '2,3': 'tree' });
         assert.deepEqual(s.settings, { maxRuns: 3, sound: true });
+    });
+    test('normalize_V1BuildingsOnTheNewGate_RefundedNotLost', () => {
+        const s = normalize({ v: 1, crystals: 10, village: { '17,6': 'house', '16,6': 'path', '15,6': 'tulip', '2,3': 'tree' } });
+        assert.deepEqual(s.village, { '2,3': 'tree', '15,6': 'tulip' }); // the tulip does not wall the gate in: kept
+        assert.equal(s.crystals, 10 + itemById('house').cost + itemById('path').cost);
+        assert.equal(s.v, VERSION);
+    });
+    test('normalize_V1NewGateWalledIn_ClearsTheWayFromTheSpawn', () => {
+        const village = { '15,5': 'tree', '15,6': 'water', '15,7': 'tree', '16,5': 'tree', '16,7': 'tree', '17,5': 'tree', '17,7': 'tree', '12,6': 'path', '3,3': 'house' };
+        const s = normalize({ v: 1, crystals: 0, village });
+        assert.ok(reachable(s).has('17,6'));
+        assert.equal(s.crystals, itemById('water').cost); // only the water on the way, the path is walkable
+        assert.deepEqual(Object.keys(s.village).sort(), Object.keys(village).filter(k => k !== '15,6').sort());
+    });
+    test('normalize_V2Village_NeverTouchedEvenIfAGateIsWalledIn', () => {
+        const village = { '15,5': 'tree', '15,6': 'tree', '15,7': 'tree', '16,5': 'tree', '16,7': 'tree', '17,5': 'tree', '17,7': 'tree' };
+        const s = normalize({ v: VERSION, crystals: 0, village });
+        assert.deepEqual([s.village, s.crystals], [village, 0]);
+    });
+    test('normalize_SaveFromBeforeTheChange_SameStarsEverywhere', () => {
+        // a v1 save: levels 1–3, one skill on top, a pending miss, no `slips`
+        const skills = {
+            'calc.add': { lvl: 3, streak: 1, misses: 0, top: true, best: 3, n: 30, ok: 27 },
+            'num.suite': { lvl: 2, streak: 3, misses: 0, top: false, best: 1, n: 9, ok: 8 },
+            'conj.temps': { lvl: 2, streak: 0, misses: 1, top: true, best: 2, n: 12, ok: 10 },
+            'orth.pluriel': { lvl: 1, streak: 0, misses: 1, top: false, best: 2, n: 14, ok: 9 },
+            'mes.heure': { lvl: 2 },
+        };
+        const s = normalize({ v: 1, crystals: 42, skills, village: {} });
+        assert.deepEqual(Object.fromEntries(Object.keys(skills).map(id => [id, skillStars(s, id)])),
+            { 'calc.add': 3, 'num.suite': 1, 'conj.temps': 2, 'orth.pluriel': 2, 'mes.heure': 1 });
+        assert.equal(totalStars(s), 9);
+        assert.equal(s.crystals, 42);
+        assert.deepEqual([skillState(s, 'calc.add').lvl, askLevel(s, 'calc.add')], [4, 4]);
+        assert.equal(askLevel(s, 'num.suite'), 2);
     });
 });

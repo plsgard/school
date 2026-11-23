@@ -1,6 +1,6 @@
 // assets/jeu/app.js
 // « L’île des Gribouilles » (jeu.html): the canvas game. Two scenes share one loop:
-//  - the village (walk by tap or keys, six gates to the biomes, build with crystals, freed friends);
+//  - the village (walk by tap or keys, seven gates to the biomes, build with crystals, freed friends);
 //  - the arena (an expedition: a question on top, each gribouille carries an answer, throw a star at the right one).
 // Rules, questions and geometry are pure modules (rules.js, questions.js, world.js); this file is input, drawing and DOM.
 import { getActiveProfileId, loadGame, saveGame } from '../storage.js';
@@ -488,7 +488,7 @@ function parentDialog() {
         el('p', {}, el('label', { for: 'maxRuns' }, `Expéditions par jour${NBSP}: `), select),
         el('p', { class: 'jeu-note' }, `Aujourd’hui${NBSP}: ${R.runsToday(state, today())} expédition(s). Depuis le début${NBSP}: ${state.runs}. Une expédition = ${R.RUN_QUESTIONS} questions, environ 3 minutes. Construire reste toujours possible.`),
         el('h2', {}, `Progrès (${R.totalStars(state)} étoiles sur ${R.MAX_STARS})`),
-        el('p', { class: 'jeu-note' }, `Niveau, puis réussite du premier coup (nombre de questions). ${R.MASTERY} bonnes réponses de suite font monter d’un niveau, ${R.PULLBACK} erreurs de suite font redescendre.`),
+        el('p', { class: 'jeu-note' }, `Niveau, puis réussite du premier coup (nombre de questions). ${R.FAST} bonnes réponses de suite font monter d’un niveau tant qu’il ne s’est jamais trompé à ce niveau, ${R.MASTERY} sinon (et toujours ${R.MASTERY} au Volcan des Verbes)${NBSP}; ${R.PULLBACK} erreurs de suite font redescendre. La première question d’une compétence est posée au niveau ${R.PROBE}${NBSP}: réussie, il y commence.`),
         el('table', {}, rows),
         el('div', { class: 'jeu-actions' }, el('button', { type: 'button', class: 'jeu-cta primary', 'data-cancel': true, onclick: closeDialog }, 'Fermer')),
     );
@@ -551,7 +551,7 @@ function nextQuestion() {
     const a = arena;
     if (a.idx >= a.plan.length) { endRun(true); return; }
     const item = a.plan[a.idx];
-    const q = item.q ?? generate(item.skill, R.skillState(state, item.skill).lvl, Math.random, a.asked);
+    const q = item.q ?? generate(item.skill, R.askLevel(state, item.skill), Math.random, a.asked);
     a.asked.add(q.prompt);
     a.q = q;
     a.firstTry = true;
@@ -567,7 +567,7 @@ function nextQuestion() {
     a.hero.y = clamp(a.hero.y, b.y + HERO_R, b.y + b.h - HERO_R);
     a.rocks ??= spawnPoints(b.w > 700 ? 3 : 2, b, a.hero, Math.random, 90).map(p => ({ ...p, r: 24 }));
     Object.assign(a.hero, moveInArena(a.hero, 0, 0, HERO_R, b, a.rocks)); // a taller question may have pushed the hero into a rock
-    const speed = 26 + 12 * q.level;
+    const speed = 26 + 12 * Math.min(3, q.level); // harder questions, never faster gribouilles
     a.creatures = spawnPoints(q.choices.length, b, a.hero, Math.random, 64).map((p, i) => {
         const angle = Math.random() * Math.PI * 2;
         return { ...p, r: 26, label: q.choices[i], right: q.choices[i] === q.answer, state: 'live', vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, speed, t: 1 + Math.random() * 2, born: 0 };
@@ -613,7 +613,7 @@ function resolveHit(c) {
             a.combo = 0;
             $('combo').hidden = true;
             if (!item.retry) {
-                state = R.recordAnswer(state, item.skill, false).state;
+                state = R.recordAnswer(state, item.skill, false, a.q.level).state;
                 save();
                 a.plan.push({ ...item, retry: true, q: { ...a.q, choices: shuffle(Math.random, a.q.choices) } });
                 showProgress();
@@ -627,7 +627,7 @@ function resolveHit(c) {
     }
     const clean = a.firstTry;
     if (clean && !item.retry) {
-        const r = R.recordAnswer(state, item.skill, true);
+        const r = R.recordAnswer(state, item.skill, true, a.q.level);
         state = r.state;
         if (r.star) { a.starsWon.push(item.skill); sfx.star(); float(c.x, c.y - 60, '⭐ Nouvelle étoile !'.replace(' !', `${NBSP}!`)); }
         save();
