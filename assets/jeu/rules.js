@@ -91,7 +91,7 @@ export const defaultState = () => ({
 // Stored state → usable state: unknown items, heroes and skills are dropped so a renamed id never breaks the game.
 // A building on a tile that is no longer buildable (a gate was added) is refunded, never dropped silently; in a save
 // older than a gate, a gate the hero cannot reach is given a way: the blocking buildings on the straight line from
-// the spawn to the tile in front of it (along the row, then the column) are refunded too.
+// the spawn to the tile in front of it (along the spawn's column, then the gate's row) are refunded too.
 export function normalize(raw) {
     const base = defaultState();
     const s = { ...base, ...(raw && typeof raw === 'object' ? raw : {}) };
@@ -101,7 +101,7 @@ export function normalize(raw) {
     s.heroes = [...new Set(['cat', ...(Array.isArray(s.heroes) ? s.heroes : [])])].filter(id => HEROES.some(h => h.id === id));
     if (!s.heroes.includes(s.hero)) s.hero = 'cat';
     s.skills = Object.fromEntries(Object.entries(s.skills ?? {}).filter(([id]) => skillById(id)));
-    const from = Number.isInteger(s.v) ? s.v : 1;
+    const from = Number.isInteger(raw?.v) ? raw.v : 1;
     let refund = 0;
     s.village = Object.fromEntries(Object.entries(s.village ?? {}).filter(([k, id]) => {
         if (!itemById(id)) return false;
@@ -110,7 +110,7 @@ export function normalize(raw) {
         return false;
     }));
     for (const p of PORTALS.filter(g => (g.since ?? 1) > from)) {
-        if (reachable(s).has(key(p.x, p.y))) continue;
+        if (reachable(s, p).has(key(p.x, p.y))) continue;
         for (const t of corridor(gateFront(p))) {
             if (isSolid(s, t.x, t.y)) { refund += itemAt(s, t.x, t.y).cost; delete s.village[key(t.x, t.y)]; }
         }
@@ -121,15 +121,16 @@ export function normalize(raw) {
     return s;
 }
 
-// Tiles the hero can walk to from the spawn (gates included).
-export function reachable(state) {
+// Tiles the hero can walk to from the spawn without stepping on a gate other than `to` (stepping on one opens it).
+export function reachable(state, to = null) {
+    const gate = (x, y) => PORTALS.some(p => p !== to && p.x === x && p.y === y);
     const seen = new Set([key(SPAWN.x, SPAWN.y)]);
     const todo = [SPAWN];
     while (todo.length) {
         const { x, y } = todo.pop();
         for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
             const n = { x: x + dx, y: y + dy };
-            if (seen.has(key(n.x, n.y)) || isSolid(state, n.x, n.y)) continue;
+            if (seen.has(key(n.x, n.y)) || isSolid(state, n.x, n.y) || gate(n.x, n.y)) continue;
             seen.add(key(n.x, n.y));
             todo.push(n);
         }

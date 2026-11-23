@@ -2,7 +2,7 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-    MASTERY, FAST, PROBE, PULLBACK, VERSION, askLevel, reachable, gateFront, RUN_QUESTIONS, RUN_BONUS, FRIEND_STARS, BIOMES, CATALOG, HEROES, PORTALS, SPAWN, MAX_STARS,
+    MASTERY, FAST, PROBE, PULLBACK, VERSION, askLevel, climbNeed, reachable, gateFront, RUN_QUESTIONS, RUN_BONUS, FRIEND_STARS, BIOMES, CATALOG, HEROES, PORTALS, SPAWN, MAX_STARS,
     defaultState, normalize, skillState, skillStars, biomeStars, totalStars, recordAnswer, composeExpedition, bonusBiome,
     isBonus, withDailyBonus, beginRun, canRun, crystalsFor, finishRun, runsToday, buildable, isSolid, place, remove, buyHero, friends, itemById,
 } from '../assets/jeu/rules.js';
@@ -125,8 +125,19 @@ describe('ladder', () => {
         assert.deepEqual(skillState({ skills: { 'calc.add': { lvl: 2, streak: 1 } } }, 'calc.add').slips, []);
     });
     test('skillState_TopBeforeANewLevel_MovesOnWithTheSameStars', () => {
-        const s = skillState({ skills: { 'calc.add': { lvl: 3, top: true, best: 3, streak: 2 } } }, 'calc.add');
-        assert.deepEqual([s.lvl, s.top, s.best, s.streak], [4, false, 3, 0]);
+        const s = skillState({ skills: { 'calc.add': { lvl: 3, top: true, best: 3, streak: 2, misses: 1 } } }, 'calc.add');
+        assert.deepEqual([s.lvl, s.top, s.best, s.streak, s.misses, s.slips], [4, false, 3, 0, 0, [3]]);
+        assert.equal(climbNeed(s, 'calc.add'), FAST); // the new level was never missed
+    });
+    test('recordAnswer_PullbackAfterPlacement_DownOneStarKept', () => {
+        let s = recordAnswer(defaultState(), 'calc.add', true, PROBE).state;
+        s = answer(s, 'calc.add', Array(PULLBACK).fill(false));
+        const st = skillState(s, 'calc.add');
+        assert.deepEqual([st.lvl, st.best, st.slips], [1, 1, [2]]);
+        s = answer(s, 'calc.add', clean(FAST));
+        assert.equal(skillState(s, 'calc.add').lvl, 2);
+        assert.equal(skillState(answer(s, 'calc.add', clean(FAST)), 'calc.add').lvl, 2); // level 2 was missed: MASTERY now
+        assert.equal(skillState(answer(s, 'calc.add', clean(MASTERY)), 'calc.add').lvl, 3);
     });
     test('stars_SumOverBiomes_MatchTotal', () => {
         let s = answer(defaultState(), 'calc.add', clean(FAST));
@@ -267,9 +278,13 @@ describe('normalize', () => {
     test('normalize_V1NewGateWalledIn_ClearsTheWayFromTheSpawn', () => {
         const village = { '15,5': 'tree', '15,6': 'water', '15,7': 'tree', '16,5': 'tree', '16,7': 'tree', '17,5': 'tree', '17,7': 'tree', '12,6': 'path', '3,3': 'house' };
         const s = normalize({ v: 1, crystals: 0, village });
-        assert.ok(reachable(s).has('17,6'));
+        assert.ok(reachable(s, PORTALS.find(p => p.biome === 'port')).has('17,6'));
         assert.equal(s.crystals, itemById('water').cost); // only the water on the way, the path is walkable
         assert.deepEqual(Object.keys(s.village).sort(), Object.keys(village).filter(k => k !== '15,6').sort());
+    });
+    test('normalize_NoVersion_TreatedAsV1', () => {
+        const s = normalize({ crystals: 0, village: { '15,5': 'tree', '15,6': 'tree', '15,7': 'tree', '16,5': 'tree', '16,7': 'tree', '17,5': 'tree', '17,7': 'tree' } });
+        assert.equal(s.crystals, itemById('tree').cost);
     });
     test('normalize_V2Village_NeverTouchedEvenIfAGateIsWalledIn', () => {
         const village = { '15,5': 'tree', '15,6': 'tree', '15,7': 'tree', '16,5': 'tree', '16,7': 'tree', '17,5': 'tree', '17,7': 'tree' };

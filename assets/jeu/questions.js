@@ -1,8 +1,8 @@
 // assets/jeu/questions.js
 // Pure question bank of the CE2 game « L’île des Gribouilles »: every question is a multiple choice
 // { skill, level, prompt, answer, choices, clock? } whose choices are carried by the creatures in the arena.
-// Maths are generated, French comes from small hand-written banks (correct French only, typography fixed by typo()).
-// Each skill has 1–3 levels (the ladder lives in rules.js). `rng` is a () => [0, 1) function.
+// Maths are generated, French and English come from small hand-written banks (correct French and English only,
+// typography fixed by typo()). Each skill has 2–4 levels (the ladder lives in rules.js). `rng` is a () => [0, 1) function.
 
 const NBSP = '\u00a0';
 
@@ -62,7 +62,7 @@ export function inWords(n) {
 const misread = (n) => {
     const [m, c, d, u] = String(n).split('').map(Number);
     return [[m, d, c, u], [m, c, u, d], [m, u, d, c], [c || m, m, d, u]].map(ds => Number(ds.join('')))
-        .concat([Number([m, c, d, u].filter(Boolean).join('')), n + 1000]);
+        .concat([Number([m, c, d, u].filter(Boolean).join('')), n + 1000, n - 1000, n + 100]);
 };
 
 function numCompare(level, rng) {
@@ -236,10 +236,12 @@ function duration(rng) {
     const h = int(rng, 8, 17);
     const t = (x) => fmtTime(Math.floor(x / 60), x % 60);
     if (rng() < 0.5) {
-        const m = int(rng, 1, 11) * 5, d = pick(rng, [15, 20, 25, 30, 35, 40, 45, 50]);
+        const m = int(rng, 1, 11) * 5;
+        const [what, it, lengths] = pick(rng, [['Le dessin animé', 'il', [25, 30, 35, 40, 45]], ['La récréation', 'elle', [15, 20]],
+            ['Le match', 'il', [40, 45, 50]], ['La cuisson du gâteau', 'elle', [25, 30, 35, 40, 45]], ['La séance de piscine', 'elle', [30, 35, 40, 45]]]);
+        const d = pick(rng, lengths);
         const end = h * 60 + m + d;
-        const [what, verb, it] = pick(rng, [['Le film', 'dure', 'il'], ['La récréation', 'dure', 'elle'], ['Le match', 'dure', 'il'], ['La cuisson du gâteau', 'dure', 'elle']]);
-        return make(rng, `${what} commence à ${fmtTime(h, m)} et ${verb} ${d} min. À quelle heure finit-${it} ?`,
+        return make(rng, `${what} commence à ${fmtTime(h, m)} et dure ${d} min. À quelle heure finit-${it} ?`,
             t(end), shuffle(rng, [t(end + 10), t(end - 10), t(end + 60), fmtTime(h, end % 60)]));
     }
     const m = int(rng, 6, 11) * 5;
@@ -266,7 +268,7 @@ function mesMonnaie(level, rng) {
     }
     if (level === 4) { // two steps: add the prices, then the change
         const [x, y] = shuffle(rng, [['Un livre', 'un livre'], ['Un stylo', 'un stylo'], ['Une gomme', 'une gomme'], ['Un cahier', 'un cahier'], ['Une glace', 'une glace'], ['Un ballon', 'un ballon'], ['Une BD', 'une BD']]).slice(0, 2);
-        const a = int(rng, 15, 69) * 10, b = int(rng, 5, 29) * 10;
+        const a = int(rng, 15, 129) * 10, b = int(rng, 5, 59) * 10;
         const bill = a + b < 1000 ? 1000 : 2000;
         const back = bill - a - b;
         return make(rng, `${x[0]} coûte ${fmtMoney(a)} et ${y[1]} ${fmtMoney(b)}. Je paie avec un billet de ${fmtMoney(bill)}. On me rend…`, fmtMoney(back),
@@ -470,7 +472,7 @@ const PLURIEL = [
     [3, 'un clou', 'clous', 'cloux', 'cloues'], [3, 'un trou', 'trous', 'troux', 'troues'], [3, 'un bal', 'bals', 'baux', 'bales'],
     [3, 'un pneu', 'pneus', 'pneux', 'pneues'], [3, 'un prix', 'prix', 'prixs', 'prixes'], [3, 'un hibou', 'hiboux', 'hibous', 'hiboues'],
     [3, 'un chou', 'choux', 'chous', 'choues'],
-    [4, 'un travail', 'travaux', 'travaus', 'travailx'], [4, 'un œil', 'yeux', 'œils', 'yeus'], [4, 'un vitrail', 'vitraux', 'vitrails', 'vitraus'],
+    [4, 'un travail', 'travaux', 'travaus', 'travailx'], [4, 'un œil', 'yeux', 'œilx', 'yeus'], [4, 'un vitrail', 'vitraux', 'vitrails', 'vitraus'],
     [4, 'un rail', 'rails', 'raux', 'railx'], [4, 'un détail', 'détails', 'détaux', 'détailx'], [4, 'un éventail', 'éventails', 'éventaux', 'éventailx'],
     [4, 'un corail', 'coraux', 'corails', 'coraus'], [4, 'un bocal', 'bocaux', 'bocals', 'bocaus'], [4, 'un festival', 'festivals', 'festivaux', 'festivales'],
     [4, 'un carnaval', 'carnavals', 'carnavaux', 'carnavales'], [4, 'un chacal', 'chacals', 'chacaux', 'chacales'],
@@ -540,16 +542,17 @@ function lexAlpha(level, rng) {
 }
 
 // ---------------------------------------------------------------- Anglais (first year, pre-A1)
-// Instructions are in French at levels 1 and 2 (he is a beginner), in English at level 3. British English (« grey »,
+// Instructions are in French at levels 1 and 2 (he is a beginner); at level 3 colours, numbers and days ask in
+// English, the others ask what an English word or sentence means. British English (« grey »,
 // « mum »). Each list is one word per meaning, so a distractor taken from the same list is never also right.
 
 const EN_COLOURS = [['rouge', 'red'], ['bleu', 'blue'], ['vert', 'green'], ['jaune', 'yellow'], ['noir', 'black'], ['blanc', 'white'],
     ['orange', 'orange'], ['rose', 'pink'], ['violet', 'purple'], ['marron', 'brown'], ['gris', 'grey']];
 // [emoji, colour, wrong colours]: the wrong ones are never a colour the picture also has (no green for a carrot).
 const EN_COLOUR_OF = [
-    ['🍌', 'yellow', 'blue', 'black', 'pink'], ['🐸', 'green', 'red', 'white', 'pink'], ['🍓', 'red', 'blue', 'grey', 'purple'],
-    ['🥕', 'orange', 'blue', 'pink', 'white'], ['🐷', 'pink', 'green', 'blue', 'black'], ['🍆', 'purple', 'yellow', 'orange', 'white'],
-    ['🥛', 'white', 'red', 'green', 'orange'], ['🐘', 'grey', 'red', 'yellow', 'green'], ['🐻', 'brown', 'green', 'blue', 'pink'],
+    ['🍌', 'yellow', 'blue', 'purple', 'pink'], ['🐸', 'green', 'blue', 'purple', 'orange'], ['🍓', 'red', 'blue', 'grey', 'purple'],
+    ['🥕', 'orange', 'blue', 'pink', 'white'], ['🐷', 'pink', 'green', 'blue', 'yellow'], ['🍆', 'purple', 'yellow', 'orange', 'white'],
+    ['🥛', 'white', 'red', 'green', 'orange'], ['🐘', 'grey', 'red', 'yellow', 'green'], ['🐻', 'brown', 'green', 'blue', 'purple'],
     ['❤️', 'red', 'blue', 'green', 'yellow'], ['💙', 'blue', 'red', 'yellow', 'brown'], ['💚', 'green', 'red', 'pink', 'black'],
     ['💛', 'yellow', 'blue', 'black', 'purple'], ['💜', 'purple', 'green', 'yellow', 'orange'], ['🖤', 'black', 'white', 'yellow', 'pink'],
     ['🌳', 'green', 'blue', 'pink', 'purple'],
