@@ -126,8 +126,14 @@ function refreshHud() {
 const lessonOf = (id) => catalog.find(l => l.id === id);
 const shortLabel = (lesson) => lesson.label.split(' · ')[0];
 
-// The day's priority beacons (at most 3), chosen once a day: a test within a week, then the most to work on, then
-// the lesson played longest ago.
+// Would the mission this beacon opens today be recorded (not a training run)? The briefing's own test.
+function recordableToday(lesson, track, day, hasVoice) {
+    const type = M.pickType({ lesson, ...track, today: day, lastType: game.missions[lesson.id]?.lastType ?? null, hasVoice });
+    return !!type && M.canRecord({ lesson, type, ...track, today: day, hasVoice });
+}
+
+// The day's priority beacons (at most 3, maybe none), chosen once a day among the lessons with a recorded run
+// possible today: a test within a week, then the most to work on.
 function ensurePriority(day) {
     game = R.rollDay(game, day);
     if (game.priority.day === day) return;
@@ -135,7 +141,8 @@ function ensurePriority(day) {
     const tracks = {};
     const lessons = catalog.filter(l => M.missionTypes(l, { hasVoice }).length).map(l => {
         tracks[l.trackId] ??= loadTrack(l.trackId);
-        return { id: l.id, exam: l.exam, need: M.needCount(l, { ...tracks[l.trackId], today: day, hasVoice }), lastPlayed: game.missions[l.id]?.last ?? null };
+        return { id: l.id, exam: l.exam, need: M.needCount(l, { ...tracks[l.trackId], today: day, hasVoice }),
+            recordable: recordableToday(l, tracks[l.trackId], day, hasVoice) };
     });
     game = { ...game, priority: { day, ids: R.pickPriority(lessons, day), done: [] } };
     saveState();
@@ -153,7 +160,8 @@ function refreshBeacons() {
         let state, sub;
         if (!M.missionTypes(lesson, { hasVoice }).length) { state = 'rest'; sub = '🔊 Avec le son anglais'; }
         else if (!R.canStart(game)) { state = 'cap'; sub = 'Reviens demain'; }
-        else if (game.priority.ids.includes(lesson.id) && !game.priority.done.includes(lesson.id)) { state = 'priority'; sub = '⭐ Prioritaire · crédits ×2'; }
+        else if (game.priority.ids.includes(lesson.id) && !game.priority.done.includes(lesson.id)
+            && recordableToday(lesson, tracks[lesson.trackId], day, hasVoice)) { state = 'priority'; sub = '⭐ Prioritaire · crédits ×2'; }
         else {
             const need = M.needCount(lesson, { ...tracks[lesson.trackId], today: day, hasVoice });
             state = need ? 'play' : 'rest';
@@ -291,7 +299,7 @@ async function openBriefing(lessonId) {
     const type = M.pickType({ lesson, srs, learn, today: day, lastType: game.missions[lesson.id]?.lastType ?? null, hasVoice });
     if (!type) { toast(`Cette leçon se joue avec le son en anglais (🔊).`, 4000); return; }
     const training = !M.canRecord({ lesson, type, srs, learn, today: day, hasVoice });
-    const priority = game.priority.ids.includes(lesson.id) && !game.priority.done.includes(lesson.id);
+    const priority = !training && game.priority.ids.includes(lesson.id) && !game.priority.done.includes(lesson.id);
     app.screen = 'briefing';
     freeze(true);
     const choice = await showBriefing(lesson, type, { priority, training, exam: lesson.exam, today: day,
@@ -316,7 +324,7 @@ function startMission({ lesson, type, training, srs, learn, hasVoice, day }) {
     mission = {
         m: M.createMission({ lesson, type, hasVoice, training }), lesson, type, parsed, day, srs, learn, training,
         openDoors: new Set(), robots: parsed.patrols.map((p, i) => createRobot(p, i)), reserveOn: 0,
-        runCredits: 0, locks: 0, firstTry: 0, caught: 0, hidden: 0, busy: false, exitOpen: false,
+        runCredits: 0, runXp: 0, locks: 0, firstTry: 0, caught: 0, hidden: 0, busy: false, exitOpen: false,
         respawn: cellCenter(parsed.spawn),
         emp: equipped === 'emp' ? 1 : 0, hint: equipped === 'hint' ? 2 : 0,
         sort: null, zoneCats: [], fences: [], zoneKey: '', litZone: null, lastZone: null,
@@ -436,6 +444,7 @@ function afterLock(res) {
     const pay = R.payLock(game, { result: res.result, recorded: m.step.record, masteredNow: out.masteredNow });
     game = pay.state;
     mission.runCredits += pay.credits;
+    mission.runXp += pay.xp;
     mission.locks++;
     if (m.step.record && res.result === 'right') mission.firstTry++;
     keepTrack(mission.lesson.trackId, mission.srs, mission.learn);
@@ -574,7 +583,8 @@ async function finishMission() {
     const done = mission;
     done.busy = true;
     const stars = M.stars(done.m);
-    const fin = R.finishMission(game, { lessonId: done.lesson.id, stars, runCredits: done.runCredits, today: done.day,
+    const fin = R.finishMission(game, { lessonId: done.lesson.id, stars, runCredits: done.runCredits, runXp: done.runXp,
+        training: done.training, today: done.day,
         locks: done.locks, firstTry: done.firstTry, caught: done.caught });
     game = fin.state;
     saveState();

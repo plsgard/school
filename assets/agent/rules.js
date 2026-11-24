@@ -126,11 +126,12 @@ export function quitMission(state, { today, locks, firstTry }) {
     return { ...state, days: addLocks(state, today, locks, firstTry) };
 }
 
-// One answered lock. An unrecorded lock (a replay of an item passed) pays a token when right; a revealed answer
-// pays nothing.
+// One answered lock. An unrecorded lock (a replay of an item passed) pays a token when right, in credits only: the
+// rank rises only with real retrieval. A revealed answer pays nothing.
 export function payLock(state, { result, recorded, masteredNow }) {
     const credits = !recorded ? (result === 'right' ? PAY.token : 0) : (PAY[result] ?? 0) + (masteredNow ? PAY.mastered : 0);
-    return { state: { ...state, credits: state.credits + credits, xp: state.xp + credits }, credits };
+    const xp = recorded ? credits : 0;
+    return { state: { ...state, credits: state.credits + credits, xp: state.xp + xp }, credits, xp };
 }
 
 export function rankOf(xp) {
@@ -139,15 +140,16 @@ export function rankOf(xp) {
     return r;
 }
 
-// The end of a mission. runCredits: what its locks already paid (payLock). The stealth bonus never changes the stars.
-// A priority lesson's first finished run of the day pays its run and its stars once more.
-export function finishMission(state, { lessonId, stars, runCredits, today, locks, firstTry, caught }) {
+// The end of a mission. runCredits / runXp: what its locks already paid (payLock), runXp without the tokens. The
+// stealth bonus never changes the stars. A priority lesson's first finished recorded run of the day pays its run and
+// its stars once more: the tokens doubled as credits only. A training run never counts as the priority run.
+export function finishMission(state, { lessonId, stars, runCredits, runXp = 0, training = false, today, locks, firstTry, caught }) {
     const starPay = stars * PAY.star;
     const stealth = caught === 0 && stars > 0 ? PAY.stealth : 0;
-    const priority = state.priority.ids.includes(lessonId) && !state.priority.done.includes(lessonId);
+    const priority = !training && state.priority.ids.includes(lessonId) && !state.priority.done.includes(lessonId);
     const credits = starPay + stealth + (priority ? runCredits + starPay : 0);
     const m = state.missions[lessonId] ?? { runs: 1, bestStars: 0, lastType: null, last: today };
-    const xp = state.xp + credits;
+    const xp = state.xp + starPay + stealth + (priority ? runXp + starPay : 0);
     const next = {
         ...state,
         credits: state.credits + credits,
@@ -156,19 +158,19 @@ export function finishMission(state, { lessonId, stars, runCredits, today, locks
         missions: { ...state.missions, [lessonId]: { ...m, bestStars: Math.max(m.bestStars, stars) } },
         days: addLocks(state, today, locks, firstTry),
     };
-    return { state: next, credits, rankUp: rankOf(xp) > rankOf(Math.max(0, state.xp - runCredits)) };
+    return { state: next, credits, rankUp: rankOf(xp) > rankOf(Math.max(0, state.xp - runXp)) };
 }
 
-// lessons: [{ id, exam, need, lastPlayed }]. At most 3: a test within 7 days first (soonest first), then the most to
-// work on, then the one played longest ago (never played first).
+// lessons: [{ id, exam, need, recordable }]. Only a lesson with a recorded run possible today (recordable: the
+// beacon's mission-or-training test) can be a priority. At most 3, maybe none: a test within 7 days first (soonest
+// first), then the most to work on.
 export function pickPriority(lessons, today) {
     const t = dayNumber(today);
     const until = (l) => (l.exam ? dayNumber(l.exam) - t : Infinity);
-    const soon = lessons.filter(l => until(l) >= 0 && until(l) <= 7).sort((a, b) => until(a) - until(b));
-    const needy = lessons.filter(l => !soon.includes(l) && l.need > 0).sort((a, b) => b.need - a.need);
-    const rest = lessons.filter(l => !soon.includes(l) && !needy.includes(l))
-        .sort((a, b) => (a.lastPlayed ?? '') < (b.lastPlayed ?? '') ? -1 : (a.lastPlayed ?? '') > (b.lastPlayed ?? '') ? 1 : 0);
-    return [...soon, ...needy, ...rest].slice(0, 3).map(l => l.id);
+    const open = lessons.filter(l => l.recordable);
+    const soon = open.filter(l => until(l) >= 0 && until(l) <= 7).sort((a, b) => until(a) - until(b));
+    const others = open.filter(l => !soon.includes(l)).sort((a, b) => b.need - a.need);
+    return [...soon, ...others].slice(0, 3).map(l => l.id);
 }
 
 export function buy(state, id) {

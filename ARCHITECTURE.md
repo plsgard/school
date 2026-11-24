@@ -758,11 +758,11 @@ sequenceDiagram
     App->>Sto: saveLearn, saveSrs, saveGame (best-effort)
   end
   Kid->>App: exit tile
-  App->>Rul: finishMission (stars, stealth bonus, priority pays twice once)
+  App->>Rul: finishMission (stars, stealth bonus, priority pays twice once, never on a training run)
   App->>Kid: debrief: stars, credits, rank, items to rework
 ```
 
-**Rules that keep it a learning game.** No timer on an answer; a miss always ends on the model answer and never blocks (typed formats have him copy it once); slots 0, 1 and the last are the composer's unrecorded replays (a token credit, no stars); stars come only from recorded first-try answers; being caught sends him back to the last opened door and never undoes an answer; the hint drone caps the result at `retry`; an item not due and already mastered is never recorded again, so grinding pays tokens. Without an English voice (or with the sound off) no `hear` or `listen-pick` lock is offered. A sort run's wrong drop lights the right zone; the drop there is recorded as a miss once.
+**Rules that keep it a learning game.** No timer on an answer; a miss always ends on the model answer and never blocks (typed formats have him copy it once); slots 0, 1 and the last are the composer's unrecorded replays (a token credit, no stars, no experience: tokens are credits only, so the rank rises only with recorded answers, stars and the stealth bonus; the chips pay credits only too); stars come only from recorded first-try answers; being caught sends him back to the last opened door and never undoes an answer; the hint drone caps the result at `retry`; an item not due and already mastered is never recorded again, so grinding pays tokens. **Priority missions** (`pickPriority`): at most 3 a day, maybe none, chosen only among lessons whose mission today would be recorded (`canRecord`, the beacon's mission-or-training test): a test within 7 days first, then the largest `need`; the beacon shows "×2" only while that still holds, and a training run never takes the priority's double pay. Without an English voice (or with the sound off) no `hear` or `listen-pick` lock is offered. A sort run's wrong drop lights the right zone; the drop there is recorded as a miss once.
 
 **Rendering.** three.js 0.187.0, vendored (`assets/vendor/three/`, no build, no CDN); everything from primitives, instanced (about 30 draw calls on the island); the pixel ratio starts at min(2, device) and drops by 0.25 (to 1) when frames average more than 22 ms over 2 s; the loop stops while the page is hidden; WebGL missing or lost shows a message (a lost context is rebuilt on restore).
 

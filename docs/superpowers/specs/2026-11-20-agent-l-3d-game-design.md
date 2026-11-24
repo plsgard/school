@@ -150,15 +150,19 @@ row when another one has something to play.
 ### Progression and rewards
 
 - **Credits**: per first-try answer and per mission star. An item that is not due and already mastered pays a
-  token amount, so grinding a known lesson is pointless.
+  token amount, so grinding a known lesson is pointless. Tokens are credits only: they never add experience, so the
+  rank rises only with real retrieval (a recorded answer, a star, the stealth bonus). Experience already earned
+  before this rule stays.
 - **Mastery pays most**: an item confirmed on a second day (the ladder's "mastered") pays a bonus, which is what
   brings him back tomorrow.
 - **Rank road** (the short-session reward loop): experience only goes up; each rank opens items he then buys
   with credits in the hideout. Ranks open gadgets (EMP that freezes a robot for 5 s; a hint drone that
   shows the first letter and makes the answer count as not first-try), outfits and the hoverboard.
-- **Priority missions**: each day up to 3 beacons are flagged and pay double on their first finished run: a lesson
-  whose test is within 7 days first, then the lesson with the most due or weak items, then the one played longest
-  ago.
+- **Priority missions**: each day up to 3 beacons are flagged and pay double on their first finished run, chosen
+  only among lessons where a recorded run is possible today (the same test that makes a beacon a mission rather than
+  a training run), whether or not a test is near: a lesson whose test is within 7 days first, then the lesson with
+  the most due or weak items. Fewer than 3, or none, is fine; a training run never shows "×2" and the doubling pays
+  its tokens as credits only.
 - **Daily cap**: `maxMissions` per day (parent corner, default 6); roaming and the hideout stay open.
 - Phase 2: the hideout becomes a block builder (the Minecraft itch) paid with credits.
 

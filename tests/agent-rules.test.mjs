@@ -84,9 +84,13 @@ describe('day and cap', () => {
 });
 
 describe('pay', () => {
-    test('payLock_UnrecordedRight_PaysToken', () => {
-        const { state, credits } = payLock(fresh(), { result: 'right', recorded: false, masteredNow: false });
-        assert.deepEqual([credits, state.credits, state.xp], [1, 1, 1]);
+    test('payLock_UnrecordedRight_AddsCreditsNotXp', () => {
+        const { state, credits, xp } = payLock(fresh(), { result: 'right', recorded: false, masteredNow: false });
+        assert.deepEqual([credits, xp, state.credits, state.xp], [PAY.token, 0, PAY.token, 0]);
+    });
+    test('payLock_RecordedRight_AddsCreditsAndXp', () => {
+        const { state, credits, xp } = payLock(fresh(), { result: 'right', recorded: true, masteredNow: false });
+        assert.deepEqual([credits, xp, state.credits, state.xp], [PAY.right, PAY.right, PAY.right, PAY.right]);
     });
     test('payLock_UnrecordedMiss_Pays0', () => {
         assert.equal(payLock(fresh(), { result: 'miss', recorded: false, masteredNow: false }).credits, 0);
@@ -109,13 +113,31 @@ describe('pay', () => {
     });
     test('finishMission_PriorityFirstRun_PaysTheRunTwice', () => {
         const s = fresh({ priority: { day: TODAY, ids: ['a'], done: [] } });
-        const { state, credits } = finishMission(s, { lessonId: 'a', stars: 3, runCredits: 40, today: TODAY, locks: 10, firstTry: 7, caught: 1 });
+        const { state, credits } = finishMission(s, { lessonId: 'a', stars: 3, runCredits: 40, runXp: 40, today: TODAY, locks: 10, firstTry: 7, caught: 1 });
         assert.equal(credits, 30 + 40 + 30);
         assert.deepEqual(state.priority.done, ['a']);
     });
+    test('finishMission_PriorityRunWithTokens_DoublesTokensAsCreditsOnly', () => {
+        // 40 paid during the run: 37 recorded (already in xp) + 3 tokens (credits only).
+        const s = fresh({ xp: 37, credits: 40, priority: { day: TODAY, ids: ['a'], done: [] } });
+        const { state, credits } = finishMission(s, { lessonId: 'a', stars: 3, runCredits: 40, runXp: 37, today: TODAY, locks: 10, firstTry: 7, caught: 1 });
+        assert.equal(credits, 30 + 40 + 30);
+        assert.equal(state.credits, 40 + 100);
+        assert.equal(state.xp, 37 + 30 + 37 + 30);
+    });
+    test('finishMission_TrainingRunOnPriorityLesson_PaysOnceAndKeepsThePriority', () => {
+        const s = fresh({ priority: { day: TODAY, ids: ['a'], done: [] } });
+        const { state, credits } = finishMission(s, { lessonId: 'a', stars: 0, runCredits: 6, runXp: 0, training: true, today: TODAY, locks: 10, firstTry: 0, caught: 1 });
+        assert.deepEqual([credits, state.xp], [0, 0]);
+        assert.deepEqual(state.priority.done, []);
+    });
+    test('finishMission_TokensOnly_LeaveTheRankStill', () => {
+        const { state, rankUp } = finishMission(fresh({ xp: 59 }), { lessonId: 'a', stars: 0, runCredits: 8, runXp: 0, training: true, today: TODAY, locks: 10, firstTry: 0, caught: 1 });
+        assert.deepEqual([state.xp, rankUp], [59, false]);
+    });
     test('finishMission_PrioritySecondRun_PaysOnce', () => {
         const s = fresh({ priority: { day: TODAY, ids: ['a'], done: ['a'] } });
-        assert.equal(finishMission(s, { lessonId: 'a', stars: 3, runCredits: 40, today: TODAY, locks: 10, firstTry: 7, caught: 1 }).credits, 30);
+        assert.equal(finishMission(s, { lessonId: 'a', stars: 3, runCredits: 40, runXp: 40, today: TODAY, locks: 10, firstTry: 7, caught: 1 }).credits, 30);
     });
     test('finishMission_UpdatesBestStarsAndTheDay', () => {
         let s = beginMission(fresh(), { lessonId: 'a', type: 'infiltration', today: TODAY });
@@ -130,30 +152,47 @@ describe('pay', () => {
     });
     test('finishMission_RunCreditsCrossedTheThreshold_ReturnsRankUp', () => {
         // xp went 50 → 62 lock by lock during the run; the debrief still announces the new rank.
-        assert.equal(finishMission(fresh({ xp: 62 }), { lessonId: 'a', stars: 0, runCredits: 12, today: TODAY, locks: 10, firstTry: 0, caught: 1 }).rankUp, true);
+        assert.equal(finishMission(fresh({ xp: 62 }), { lessonId: 'a', stars: 0, runCredits: 12, runXp: 12, today: TODAY, locks: 10, firstTry: 0, caught: 1 }).rankUp, true);
     });
 });
 
 describe('priority', () => {
     test('pickPriority_TestInThreeDays_ComesFirst', () => {
         const ids = pickPriority([
-            { id: 'a', exam: null, need: 9, lastPlayed: null },
-            { id: 'b', exam: '2026-11-23', need: 0, lastPlayed: TODAY },
-            { id: 'c', exam: '2026-12-25', need: 2, lastPlayed: null },
+            { id: 'a', exam: null, need: 9, recordable: true },
+            { id: 'b', exam: '2026-11-23', need: 1, recordable: true },
+            { id: 'c', exam: '2026-12-25', need: 2, recordable: true },
         ], TODAY);
         assert.deepEqual(ids, ['b', 'a', 'c']);
     });
-    test('pickPriority_NothingNeeded_PrefersNeverPlayed', () => {
+    test('pickPriority_LessonWithNothingToRecord_IsNeverPriority', () => {
         const ids = pickPriority([
-            { id: 'a', exam: null, need: 0, lastPlayed: '2026-11-10' },
-            { id: 'b', exam: null, need: 0, lastPlayed: null },
-            { id: 'c', exam: null, need: 0, lastPlayed: '2026-11-01' },
-            { id: 'd', exam: null, need: 0, lastPlayed: '2026-11-19' },
+            { id: 'a', exam: null, need: 0, recordable: false },
+            { id: 'b', exam: null, need: 3, recordable: true },
+            { id: 'c', exam: null, need: 0, recordable: false },
+            { id: 'd', exam: null, need: 5, recordable: true },
         ], TODAY);
-        assert.deepEqual(ids, ['b', 'c', 'a']);
+        assert.deepEqual(ids, ['d', 'b']);
+    });
+    test('pickPriority_TestSoonButNothingToRecord_IsSkipped', () => {
+        const ids = pickPriority([
+            { id: 'a', exam: '2026-11-21', need: 0, recordable: false },
+            { id: 'b', exam: null, need: 2, recordable: true },
+        ], TODAY);
+        assert.deepEqual(ids, ['b']);
+    });
+    test('pickPriority_OnlyOneEligibleLesson_ReturnsOne', () => {
+        assert.deepEqual(pickPriority([{ id: 'a', exam: null, need: 4, recordable: true }, { id: 'b', exam: null, need: 0, recordable: false }], TODAY), ['a']);
+    });
+    test('pickPriority_NothingToRecordAnywhere_ReturnsNone', () => {
+        assert.deepEqual(pickPriority([{ id: 'a', exam: '2026-11-22', need: 0, recordable: false }], TODAY), []);
+    });
+    test('pickPriority_FourEligible_KeepsThree', () => {
+        const ids = pickPriority(['a', 'b', 'c', 'd'].map((id, i) => ({ id, exam: null, need: i + 1, recordable: true })), TODAY);
+        assert.deepEqual(ids, ['d', 'c', 'b']);
     });
     test('pickPriority_PastExam_IsNotSoon', () => {
-        assert.deepEqual(pickPriority([{ id: 'a', exam: '2026-11-13', need: 0, lastPlayed: TODAY }, { id: 'b', exam: null, need: 1, lastPlayed: TODAY }], TODAY), ['b', 'a']);
+        assert.deepEqual(pickPriority([{ id: 'a', exam: '2026-11-13', need: 1, recordable: true }, { id: 'b', exam: null, need: 2, recordable: true }], TODAY), ['b', 'a']);
     });
 });
 
